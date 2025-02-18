@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/" lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Index</title>
+<link rel="stylesheet" th:href="@{/1.css}">
+<style>
+body {
+	font-family: Arial, sans-serif;
+	background-size: cover;
+	background-position: center;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	flex-direction: column;
+}
+
+.navbar {
+	width: 100%;
+	background-color: #28a745;
+	padding: 15px 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.navbar .logo {
+	font-size: 24px;
+	font-weight: bold;
+	color: white;
+	text-decoration: none;
+}
+
+.navbar .login-btn {
+	background-color: white;
+	color: #28a745;
+	padding: 10px 15px;
+	border-radius: 5px;
+	text-decoration: none;
+	font-weight: bold;
+	cursor: pointer;
+	margin-right: 25px;
+}
+
+.navbar .login-btn:hover {
+	background-color: #7b3939;
+}
+
+
+
+
+header h1 {
+	margin-bottom: 20px;
+	font-size: 32px;
+	color: #333;
+	text-align: center;
+}
+
+.container {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 16px; 
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+    width: 85%;
+    max-width: 700px;
+    margin-top: 60px;
+    text-align: center;
+}
+
+table {
+    width: 100%;
+    max-width: 700px;
+    margin: 30px auto;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 15px;
+}
+
+th {
+    background-color: #28a745;
+    color: white;
+    font-size: 16px;
+}
+
+
+
+tr:first-child th:first-child {
+    border-top-left-radius: 15px;
+}
+
+tr:first-child th:last-child {
+    border-top-right-radius: 15px;
+}
+
+tr:last-child td:first-child {
+    border-bottom-left-radius: 15px;
+}
+
+tr:last-child td:last-child {
+    border-bottom-right-radius: 15px;
+}
+
+tr:nth-child(even) {
+    background-color: #dcdcdc;
+}
+
+tr:nth-child(odd) {
+    background-color: #c0c0c0;
+}
+
+tr:hover {
+    background-color: #b0b0b0;
+}
+
+
+.btn {
+	display: block;
+	margin: 20px auto 0;
+	width: 200px;
+	text-align: center;
+	padding: 10px;
+	background-color: #28a745;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	font-size: 16px;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.btn:hover {
+	background-color: #218838;
+}
+</style>
+</head>
+<body>
+	<nav class="navbar">
+		<a href="#" class="logo">Vivero-Laboral</a> <a
+			th:href="@{/inicioSesion}" class="login-btn">Iniciar Sesión</a>
+	</nav>
+
+	<div class="container">
+		<header>
+			<h1>Lista de Plantas</h1>
+		</header>
+		<main>
+			<section class="plants-section">
+				<table>
+					<thead>
+						<tr>
+							<th>Código</th>
+							<th>Nombre Común</th>
+							<th>Nombre Científico</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="planta : ${plantas}">
+							<td th:text="${planta.codigo}"></td>
+							<td th:text="${planta.nombreComun}"></td>
+							<td th:text="${planta.nombreCientifico}"></td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+		</main>
+	</div>
+</body>
+</html>
+

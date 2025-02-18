@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ver Ejemplares de Planta</title>
+<style>
+body {
+	font-family: Arial, sans-serif;
+	background-image: url('vivero.png');
+	background-size: cover;
+	background-position: center;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+}
+
+.navbar {
+	width: 100%;
+	background-color: #28a745;
+	padding: 15px 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.navbar .logo {
+	font-size: 24px;
+	font-weight: bold;
+	color: white;
+	text-decoration: none;
+}
+
+.navbar .logout-btn {
+	background-color: white;
+	color: #28a745;
+	padding: 10px;
+	border-radius: 5px;
+	text-decoration: none;
+	font-weight: bold;
+	cursor: pointer;
+	margin-right: 25px;
+}
+
+.navbar .logout-btn:hover {
+	background-color: #7b3939;
+}
+
+.container {
+	background-color: rgba(0, 0, 0, 0.8);
+	padding: 30px;
+	border-radius: 10px;
+	box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+	width: 80%;
+	max-width: 900px;
+	text-align: center;
+	color: white;
+	margin-top: 70px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+h1, h3 {
+	color: #fff;
+	font-size: 24px;
+	margin-bottom: 15px;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 20px;
+}
+
+th, td {
+	border: 1px solid #ddd;
+	padding: 10px;
+	text-align: center;
+}
+
+th {
+	background-color: #28a745;
+	color: white;
+}
+
+td {
+	background-color: #f9f9f9;
+	color: black;
+}
+
+form {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+label {
+	align-self: flex-start;
+	margin-bottom: 5px;
+	font-weight: bold;
+}
+
+input, textarea {
+	width: 100%;
+	padding: 12px;
+	margin: 10px 0;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	font-size: 16px;
+}
+
+button {
+	background-color: #28a745;
+	color: white;
+	border: none;
+	padding: 12px;
+	width: 100%;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 16px;
+}
+
+button:hover {
+	background-color: #218838;
+}
+
+.error-message {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.success-message {
+    color: green;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+}
+</style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="#" class="logo">Vivero Laboral</a>
+        <a th:href="@{/gestionEjemplares}" class="logout-btn">Volver</a>
+    </nav>
+
+    <div class="container">
+        <h1>Consultar Ejemplares de Planta</h1>
+
+        <form th:action="@{/ejemplarDePlanta}" method="post">
+            <label for="codigoPlanta">Código de la Planta:</label>
+            <input type="text" id="codigoPlanta" name="codigoPlanta" required>
+            <button type="submit">Buscar Ejemplares</button>
+        </form>
+
+        <div th:if="${mensajeError}" class="error-message">
+            <p th:text="${mensajeError}"></p>
+        </div>
+
+        <div th:if="${codigoBuscado}">
+            <h3>Ejemplares de la Planta con Código: <span th:text="${codigoBuscado}"></span></h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID Ejemplar</th>
+                        <th>Nombre del Ejemplar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="ejemplar : ${ejemplares}">
+                        <td th:text="${ejemplar.id}"></td>
+                        <td th:text="${ejemplar.nombre}"></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Lista de Todas las Plantas</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre de la Planta</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="planta : ${plantas}">
+                    <td th:text="${planta.codigo}"></td>
+                    <td th:text="${planta.nombreComun}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</body>
+</html>

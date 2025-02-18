@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filtrar Mensajes por Persona</title>
+<style>
+body {
+	font-family: Arial, sans-serif;
+	background-color: #f4f4f4;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	background-image: url('vivero.png');
+	background-size: cover;
+	background-position: center;
+	position: relative;
+}
+
+.container {
+	background-color: rgba(255, 255, 255, 0.9);
+	padding: 20px;
+	border-radius: 8px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	width: 300px;
+	margin-top:90px;
+	text-align: center;
+}
+
+header h1 {
+	margin-bottom: 20px;
+	font-size: 24px;
+	color: #333;
+}
+
+.options-section {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+button, .btn {
+	padding: 10px;
+	background-color: #28a745;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	font-size: 16px;
+	cursor: pointer;
+	width: 100%;
+	margin-top: 10px;
+	text-decoration: none;
+	text-align: center;
+}
+
+button:hover, .btn:hover {
+	background-color: #218838;
+}
+
+.login-section {
+	position: absolute;
+	bottom: 20px;
+	right: 20px;
+}
+
+.login-section a {
+	display: block;
+	width: 100%;
+}
+
+.navbar {
+	width: 100%;
+	background-color: #28a745;
+	padding: 15px 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.navbar .logo {
+	font-size: 24px;
+	font-weight: bold;
+	color: white;
+	text-decoration: none;
+}
+
+.navbar .logout-btn {
+	background-color: white;
+	color: #28a745;
+	padding: 10px 15px;
+	border-radius: 5px;
+	text-decoration: none;
+	font-weight: bold;
+	cursor: pointer;
+	margin-right: 25px;
+}
+
+.navbar .logout-btn:hover {
+	background-color: #7b3939;
+}
+
+
+.message-list {
+	list-style-type: none;
+	padding: 0;
+	margin-top: 10px;
+	text-align: left;
+}
+
+.message-list li {
+	background-color: #f9f9f9;
+	border-radius: 5px;
+	margin-bottom: 15px;
+	padding: 15px;
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.message-list li h4 {
+	margin: 0;
+	font-size: 18px;
+	color: #333;
+}
+
+.message-list li p {
+	margin: 5px 0;
+	font-size: 16px;
+	color: #555;
+}
+
+.message-list li .message-date {
+	font-size: 14px;
+	color: #777;
+}
+</style>
+</head>
+
+<body>
+    <div class="navbar">
+        <a href="#" class="logo">Filtrar Mensajes por Planta</a>
+        <a href="/gestionMensajes" class="logout-btn">Volver</a>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Filtrar Mensajes por Planta</h1>
+        </header>
+
+        <div class="content">
+            <div th:if="${mensajeError}" class="error-message">
+                <p th:text="${mensajeError}"></p>
+            </div>
+
+            <form th:action="@{/filtrarPorPlanta}" method="post">
+                <div class="form-group">
+                    <label for="codigoPlanta">Selecciona una Planta:</label>
+                    <select id="codigoPlanta" name="codigoPlanta" class="form-control">
+                        <option value="" disabled selected>Seleccione una planta</option>
+                        <th:block th:each="planta : ${plantas}">
+                            <option th:value="${planta.codigo}" th:text="${planta.nombreComun}"></option>
+                        </th:block>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn">Filtrar Mensajes</button>
+            </form>
+
+            <div th:if="${mensajes != null}">
+                <h3>Mensajes para la planta: <span th:text="${planta.nombreComun}"></span></h3>
+                <ul class="message-list">
+                    <th:block th:each="mensaje : ${mensajes}">
+                        <li>
+                            <h4 th:text="${mensaje.mensaje}"></h4>
+                            <p class="message-date" th:text="${mensaje.fechahora}"></p>
+                            <p><strong>Persona:</strong> <span th:text="${mensaje.persona.nombre}"></span></p>
+                            <p><strong>Ejemplar:</strong> <span th:text="${mensaje.ejemplar.nombre}"></span></p>
+                        </li>
+                    </th:block>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+</html>
