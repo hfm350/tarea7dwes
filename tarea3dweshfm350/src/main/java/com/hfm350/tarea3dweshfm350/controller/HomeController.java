@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.websocket.Session;
 
 import com.hfm350.tarea3dweshfm350.modelo.Controlador;
 import com.hfm350.tarea3dweshfm350.modelo.Credencial;
@@ -20,6 +21,7 @@ import com.hfm350.tarea3dweshfm350.modelo.Ejemplar;
 import com.hfm350.tarea3dweshfm350.modelo.Mensaje;
 import com.hfm350.tarea3dweshfm350.modelo.Persona;
 import com.hfm350.tarea3dweshfm350.modelo.Planta;
+import com.hfm350.tarea3dweshfm350.modelo.Sesion;
 import com.hfm350.tarea3dweshfm350.modelo.Sesion.Perfil;
 import com.hfm350.tarea3dweshfm350.repositorios.PlantaRepository;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosCredenciales;
@@ -125,6 +127,15 @@ public class HomeController {
         model.addAttribute("perfil", session.getAttribute("perfil"));
         return "/gestionEjemplares";
     }
+    
+    @GetMapping("/verPlantas")
+	public String verPlantas(Model model, HttpSession session) {
+		List<Planta> listaPlantas = plantaRepo.findAll();
+		model.addAttribute("plantas", listaPlantas);
+		model.addAttribute("perfil", session.getAttribute("perfil"));
+		return "verPlantas";
+
+	}
 
     @GetMapping("/insertarEjemplar")
     public String insertarEjemplar(Model model, HttpSession session) {
@@ -274,6 +285,7 @@ public class HomeController {
 	}
 
 	
+	
 	@GetMapping("/filtrarPorPersona")
 	public String filtrarMensajesPorPersona(Model model) {
 	    List<Persona> personas = serviciosPersona.obtenerTodasLasPersonas();
@@ -321,4 +333,6 @@ public class HomeController {
 
 	    return "filtrarPorPersona";
 	}
+
+	
 }

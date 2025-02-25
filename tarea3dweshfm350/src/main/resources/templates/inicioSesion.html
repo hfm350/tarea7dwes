@@ -21,8 +21,7 @@
 
 					<button type="submit">Iniciar Sesión</button>
 				</form>
-				<div th:if="${error}"
-					style="color: red; font-weight: bold; margin-bottom: 10px;">
+				<div th:if="${error}" class="error-message">
 					<p th:text="${error}"></p>
 				</div>
 				<p>

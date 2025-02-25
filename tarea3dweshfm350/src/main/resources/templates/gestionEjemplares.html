@@ -109,7 +109,7 @@ button:hover, .btn:hover {
 <body>
 	<nav class="navbar">
 		<a href="#" class="logo">Perfil actual: <span th:text="${perfil}"></span></
-		</a> <a th:href="@{/menuAdmin}" class="logout-btn">Volver</a>
+		</a> <a href="javascript:history.back()" class="logout-btn">Volver</a>
 	</nav>
 	<div class="container">
 		<header>
