@@ -46,7 +46,7 @@ public class DataLoader implements CommandLineRunner {
         System.out.println("Base de datos vaciada.");
 
         // Insertar datos en 'personas'
-        Persona p1 = new Persona("Juan Pérez", "juan@juan.perez");
+        Persona p1 = new Persona("Juan Pérez", "juan@juan.com");
         Persona p2 = new Persona("María López", "maria@maria.lopez");
         Persona p3 = new Persona("Carlos González", "carlos@carlos.gonzalez");
         personasRepository.saveAll(List.of(p1, p2, p3));
