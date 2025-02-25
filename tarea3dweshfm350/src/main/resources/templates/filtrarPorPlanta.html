@@ -162,9 +162,11 @@ button:hover, .btn:hover {
                 <div class="form-group">
                     <label for="codigoPlanta">Selecciona una Planta:</label>
                     <select id="codigoPlanta" name="codigoPlanta" class="form-control">
-                        <option value="" disabled selected>Seleccione una planta</option>
+                        <option value="" disabled>Seleccione una planta</option>
                         <th:block th:each="planta : ${plantas}">
-                            <option th:value="${planta.codigo}" th:text="${planta.nombreComun}"></option>
+                            <option th:value="${planta.codigo}" th:text="${planta.nombreComun}" 
+                                    th:selected="${planta.codigo == codigoPlantaSeleccionada}">
+                            </option>
                         </th:block>
                     </select>
                 </div>
@@ -172,22 +174,27 @@ button:hover, .btn:hover {
                 <button type="submit" class="btn">Filtrar Mensajes</button>
             </form>
 
-            <div th:if="${mensajes != null}">
+            <div th:if="${mensajes != null and not #lists.isEmpty(mensajes)}">
                 <h3>Mensajes para la planta: <span th:text="${planta.nombreComun}"></span></h3>
                 <ul class="message-list">
                     <th:block th:each="mensaje : ${mensajes}">
                         <li>
                             <h4 th:text="${mensaje.mensaje}"></h4>
-                            <p class="message-date" th:text="${mensaje.fechahora}"></p>
+                            <p class="message-date" th:text="${#temporals.format(mensaje.fechahora, 'yyyy-MM-dd HH:mm:ss')}"></p>
                             <p><strong>Persona:</strong> <span th:text="${mensaje.persona.nombre}"></span></p>
                             <p><strong>Ejemplar:</strong> <span th:text="${mensaje.ejemplar.nombre}"></span></p>
                         </li>
                     </th:block>
                 </ul>
             </div>
+
+            <div th:if="${mensajes != null and #lists.isEmpty(mensajes)}">
+                <p class="no-messages">No hay mensajes para esta planta.</p>
+            </div>
         </div>
     </div>
 </body>
+
 
 
 </html>

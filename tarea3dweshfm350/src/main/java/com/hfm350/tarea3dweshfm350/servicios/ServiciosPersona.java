@@ -16,7 +16,10 @@ public class ServiciosPersona {
 	private PersonaRepository personaRepo;
 
 	public void insertar(Persona p) {
-		personaRepo.saveAndFlush(p);
+	    if (personaRepo.existsByEmail(p.getEmail())) {
+	        throw new RuntimeException("El email ya está registrado: " + p.getEmail());
+	    }
+	    personaRepo.saveAndFlush(p);
 	}
 
 	public boolean existeEmail(String email) {

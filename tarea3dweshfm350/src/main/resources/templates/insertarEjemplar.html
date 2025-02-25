@@ -164,6 +164,24 @@ button:hover {
     margin-bottom: 10px;
 }
 </style>
+
+<script>
+function validarFormulario() {
+    var nombreEjemplar = document.getElementById("nombreEjemplar").value.trim();
+    var mensaje = document.getElementById("mensaje").value.trim();
+
+    if (nombreEjemplar === "") {
+        alert("El nombre del ejemplar no puede estar vacío.");
+        return false;
+    }
+    if (mensaje === "") {
+        alert("El mensaje no puede estar vacío.");
+        return false;
+    }
+    return true;
+}
+</script>
+
 </head>
 <body>
 
@@ -198,8 +216,8 @@ button:hover {
                     </tbody>
                 </table>
 
-                <form th:action="@{/insertarEjemplar}" method="post">
-                    <input type="text" name="codigoPlanta" placeholder="Codigo de la Planta" required>
+                <form th:action="@{/insertarEjemplar}" method="post" onsubmit="return validarFormulario()">
+                    <input type="text" name="codigoPlanta" placeholder="Código de la Planta" required>
                     <div th:if="${errorMessageNoCodigo}" class="error-message" th:text="${errorMessageNoCodigo}"></div>
                     
                     <input type="text" id="nombreEjemplar" name="nombreEjemplar" placeholder="Nombre del Ejemplar" required>

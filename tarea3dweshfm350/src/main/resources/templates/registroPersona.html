@@ -164,34 +164,28 @@ td {
 			class="logout-btn">Volver</a>
 	</nav>
 	<div class="container">
-		<h1>Registro de Persona</h1>
-		<form th:action="@{/registroPersona}" method="post">
+    <h1>Registro de Persona</h1>
+    <form th:action="@{/registroPersona}" method="post">
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <div th:if="${errorMessageNombre}" class="error-message" th:text="${errorMessageNombre}"></div>
 
-			<input type="text" name="nombre" placeholder="Nombre" required>
-			<div th:if="${errorMessageNombre}" class="error-message"
-				th:text="${errorMessageNombre}"></div>
+        <input type="email" name="email" placeholder="Email" required>
+        <div th:if="${errorMessageEmail}" class="error-message" th:text="${errorMessageEmail}"></div>
 
-			<input type="email" name="email" placeholder="Email" required>
-			<div th:if="${errorMessageEmail}" class="error-message"
-				th:text="${errorMessageEmail}"></div>
+        <input type="text" name="usuario" placeholder="Usuario" required>
+        <div th:if="${errorMessageUsuario}" class="error-message" th:text="${errorMessageUsuario}"></div>
 
-			<input type="text" name="usuario" placeholder="Usuario" required>
-			<div th:if="${errorMessageUsuario}" class="error-message"
-				th:text="${errorMessageUsuario}"></div>
+        <input type="password" name="contraseña" placeholder="Contraseña" required>
+        <div th:if="${errorMessageContraseña}" class="error-message" th:text="${errorMessageContraseña}"></div>
 
-			<input type="password" name="contraseña" placeholder="Contraseña"
-				required>
-			<div th:if="${errorMessageContraseña}" class="error-message"
-				th:text="${errorMessageContraseña}"></div>
+        <button type="submit">Registrarse</button>
+    </form>
 
-			<button type="submit">Registrarse</button>
-		</form>
+    <div th:if="${successMessage}" class="success-message">
+        <p th:text="${successMessage}"></p>
+    </div>
+</div>
 
-		<div th:if="${successMessage}" class="success-message"
-			style="color: green; font-weight: bold; margin-top: 20px;">
-			<p th:text="${successMessage}"></p>
-		</div>
-	</div>
 
 	<div class="container-personas">
 		<h1>Listado de Personas</h1>

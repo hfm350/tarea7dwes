@@ -25,7 +25,7 @@ public class PlantasController {
 		model.addAttribute("plantas", listaPlantas);
 		return "registrarPlantas";
 	}
-	
+
 	@PostMapping("/registrarPlantas")
 	public String registrarPlanta(@RequestParam String codigo, @RequestParam String nombreComun,
 			@RequestParam String nombreCientifico, Model model) {
@@ -36,7 +36,13 @@ public class PlantasController {
 			model.addAttribute("plantas", plantas);
 			return "registrarPlantas";
 		}
-		
+
+		if (nombreComun.isBlank() || nombreCientifico.isBlank()) {
+			model.addAttribute("errorMessage", "El nombre común y el nombre científico no pueden estar vacíos.");
+			List<Planta> plantas = serviciosPlanta.findAll();
+			model.addAttribute("plantas", plantas);
+			return "registrarPlantas";
+		}
 
 		Planta planta = new Planta(codigo, nombreComun, nombreCientifico);
 
@@ -44,7 +50,7 @@ public class PlantasController {
 		if (!valido) {
 			List<Planta> plantas = serviciosPlanta.findAll();
 			model.addAttribute("plantas", plantas);
-			model.addAttribute("errorMessage", "Los datos que has introducido no son correctos");
+			model.addAttribute("errorMessage", "Los datos que has introducido no son correctos.");
 			return "registrarPlantas";
 		}
 
@@ -52,7 +58,7 @@ public class PlantasController {
 			serviciosPlanta.insertar(planta);
 			List<Planta> plantas = serviciosPlanta.findAll();
 			model.addAttribute("plantas", plantas);
-			model.addAttribute("successMessage", "Planta registrada correctamente");
+			model.addAttribute("successMessage", "Planta registrada correctamente.");
 		} catch (DataIntegrityViolationException e) {
 			List<Planta> plantas = serviciosPlanta.findAll();
 			model.addAttribute("plantas", plantas);
@@ -65,56 +71,67 @@ public class PlantasController {
 	public String modificaciones(Model model) {
 		List<Planta> listaPlantas = serviciosPlanta.findAll();
 		model.addAttribute("plantas", listaPlantas);
-
 		return "modificaciones";
 	}
 
 	@PostMapping("/modificarNombreComun")
-	public String modificarNombreComun(@RequestParam String codigo, @RequestParam String nuevoNombreComun,
-			Model model) {
-		boolean encontrado = serviciosPlanta.codigoExistente(codigo);
-		if (!encontrado) {
-			model.addAttribute("errorNombreComun", "Codigo no encontrado");
-			List<Planta> listaPlantas = serviciosPlanta.findAll();
-			model.addAttribute("plantas", listaPlantas);
+	public String modificarNombreComun(@RequestParam String codigo, @RequestParam String nuevoNombreComun, Model model) {
+		if (nuevoNombreComun.isBlank()) {
+			model.addAttribute("errorNombreComun", "El nombre común no puede estar vacío.");
+			model.addAttribute("plantas", serviciosPlanta.findAll());
 			return "modificaciones";
 		}
-		boolean nuevo = serviciosPlanta.actualizarNombreComun(codigo, nuevoNombreComun);
-		if (nuevo) {
-			model.addAttribute("successNombreComun", "Nombre Común ACTUALIZADO");
-			List<Planta> listaPlantas = serviciosPlanta.findAll();
-			model.addAttribute("plantas", listaPlantas);
-		} else {
-			model.addAttribute("errorNombreComun", "Fallo en la ACTUALIZACION del nombre Comun");
-			List<Planta> listaPlantas = serviciosPlanta.findAll();
-			model.addAttribute("plantas", listaPlantas);
+
+		boolean encontrado = serviciosPlanta.codigoExistente(codigo);
+		if (!encontrado) {
+			model.addAttribute("errorNombreComun", "Código no encontrado.");
+			model.addAttribute("plantas", serviciosPlanta.findAll());
+			return "modificaciones";
 		}
+
+		try {
+			boolean actualizado = serviciosPlanta.actualizarNombreComun(codigo, nuevoNombreComun);
+			if (actualizado) {
+				model.addAttribute("successNombreComun", "Nombre Común ACTUALIZADO.");
+			} else {
+				model.addAttribute("errorNombreComun", "Fallo en la actualización del nombre común.");
+			}
+		} catch (DataIntegrityViolationException e) {
+			model.addAttribute("errorNombreComun", "Error al actualizar el nombre común.");
+		}
+
+		model.addAttribute("plantas", serviciosPlanta.findAll());
 		return "modificaciones";
 	}
 
 	@PostMapping("/modificarNombreCientifico")
-	public String modificarNombreCientificio(@RequestParam String codigo, @RequestParam String nuevoNombreCientifico,
+	public String modificarNombreCientifico(@RequestParam String codigo, @RequestParam String nuevoNombreCientifico,
 			Model model) {
-		boolean encontrado = serviciosPlanta.codigoExistente(codigo);
-		if (!encontrado) {
-			model.addAttribute("errorNombreCientifico", "Codigo no encontrado");
-			List<Planta> listaPlantas = serviciosPlanta.findAll();
-			model.addAttribute("plantas", listaPlantas);
+		if (nuevoNombreCientifico.isBlank()) {
+			model.addAttribute("errorNombreCientifico", "El nombre científico no puede estar vacío.");
+			model.addAttribute("plantas", serviciosPlanta.findAll());
 			return "modificaciones";
 		}
-		boolean nuevo = serviciosPlanta.actualizarNombreCientifico(codigo, nuevoNombreCientifico);
-		if (nuevo) {
-			model.addAttribute("successNombreCientifico", "Nombre Cientifico ACTUALIZADO");
-			List<Planta> listaPlantas = serviciosPlanta.findAll();
-			model.addAttribute("plantas", listaPlantas);
-		} else {
-			model.addAttribute("errorNombreCientifico", "Fallo en la ACTUALIZACION del nombre Cientifico");
-			List<Planta> listaPlantas = serviciosPlanta.findAll();
-			model.addAttribute("plantas", listaPlantas);
+
+		boolean encontrado = serviciosPlanta.codigoExistente(codigo);
+		if (!encontrado) {
+			model.addAttribute("errorNombreCientifico", "Código no encontrado.");
+			model.addAttribute("plantas", serviciosPlanta.findAll());
+			return "modificaciones";
 		}
+
+		try {
+			boolean actualizado = serviciosPlanta.actualizarNombreCientifico(codigo, nuevoNombreCientifico);
+			if (actualizado) {
+				model.addAttribute("successNombreCientifico", "Nombre Científico ACTUALIZADO.");
+			} else {
+				model.addAttribute("errorNombreCientifico", "Fallo en la actualización del nombre científico.");
+			}
+		} catch (DataIntegrityViolationException e) {
+			model.addAttribute("errorNombreCientifico", "Error al actualizar el nombre científico.");
+		}
+
+		model.addAttribute("plantas", serviciosPlanta.findAll());
 		return "modificaciones";
 	}
-
-	
-	
 }

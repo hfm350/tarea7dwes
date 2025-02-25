@@ -65,20 +65,34 @@ public class MensajeController {
 	}
 
 	@PostMapping("/filtrarPorPlanta")
-	public String filtrarMensajesPorPlanta(@RequestParam("codigoPlanta") String codigoPlanta, Model model) {
-		Planta planta = servPlanta.buscarPorCodigo(codigoPlanta.toUpperCase());
-		if (planta != null) {
-			List<Mensaje> mensajes = servMensaje.buscarPorPlanta(planta);
-			if (mensajes.isEmpty()) {
-				model.addAttribute("mensajeError", "No hay mensajes para esta planta.");
-			} else {
-				model.addAttribute("mensajes", mensajes);
-				model.addAttribute("planta", planta);
-			}
-		} else {
-			model.addAttribute("mensajeError", "Planta no encontrada.");
-		}
-		return "filtrarPorPlanta";
+	public String filtrarMensajesPorPlanta(@RequestParam(required = false) String codigoPlanta, Model model) {
+	    if (codigoPlanta == null || codigoPlanta.trim().isEmpty()) {
+	        model.addAttribute("mensajeError", "Debe seleccionar una planta.");
+	        model.addAttribute("plantas", servPlanta.findAll());
+	        return "filtrarPorPlanta";
+	    }
+
+	    Planta planta = servPlanta.buscarPorCodigo(codigoPlanta.toUpperCase());
+	    if (planta == null) {
+	        model.addAttribute("mensajeError", "Planta no encontrada.");
+	        model.addAttribute("plantas", servPlanta.findAll());
+	        return "filtrarPorPlanta";
+	    }
+
+	    List<Mensaje> mensajes = servMensaje.buscarPorPlanta(planta);
+
+	    if (mensajes.isEmpty()) {
+	        model.addAttribute("mensajeError", "No hay mensajes para esta planta.");
+	    } else {
+	        model.addAttribute("mensajes", mensajes);
+	    }
+
+	    model.addAttribute("planta", planta);
+	    model.addAttribute("plantas", servPlanta.findAll());
+	    model.addAttribute("codigoPlantaSeleccionada", codigoPlanta);
+
+	    return "filtrarPorPlanta";
 	}
+
 
 }
