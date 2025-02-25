@@ -212,4 +212,113 @@ public class HomeController {
 
         return "redirect:/insertarEjemplar";
     }
+    
+    @GetMapping("/gestionMensajes")
+	public String gestionMensajes(Model model) {
+		List<Mensaje> mensajes = serviciosMensaje.findAll();
+		List<Ejemplar> ejemplares = serviciosEjemplar.findAll();
+
+		if (ejemplares.isEmpty()) {
+			model.addAttribute("mensajeError", "No hay ejemplares registrados.");
+			return "error";
+		}
+
+		model.addAttribute("mensajes", mensajes);
+		model.addAttribute("ejemplares", ejemplares);
+		return "gestionMensajes";
+	}
+
+	@PostMapping("/gestionMensajes")
+	public String añadirMensaje(@RequestParam Long idEjemplar, @RequestParam String mensajeTexto, Model model) {
+	    Optional<Ejemplar> ejemplarOptional = serviciosEjemplar.buscarPorId(idEjemplar);
+	    if (!ejemplarOptional.isPresent()) {
+	        model.addAttribute("mensajeError", "Ejemplar no encontrado.");
+	        return "gestionMensajes";
+	    }
+
+	    Ejemplar ejemplar = ejemplarOptional.get();
+
+	    Long usuarioIdLong = controlador.getUsuarioAutenticado();
+	    if (usuarioIdLong == null) {
+	        model.addAttribute("errorMessagePersona", "Usuario no autenticado.");
+	        return "gestionMensajes";
+	    }
+
+	    Optional<Long> personaID = serviciosCredenciales.obtenerIdPersonaPorIdCredencial(usuarioIdLong);
+	    if (!personaID.isPresent()) {
+	        model.addAttribute("errorMessagePersona", "No se encuentra la persona asociada.");
+	        return "gestionMensajes";
+	    }
+
+	    Optional<Persona> personaOptional = serviciosPersona.buscarPorId(personaID.get());
+	    if (!personaOptional.isPresent()) {
+	        model.addAttribute("errorUsuario", "No se encuentra la persona con el ID obtenido.");
+	        return "gestionMensajes";
+	    }
+
+	    Persona persona = personaOptional.get();
+
+	    if (persona == null) {
+	        model.addAttribute("errorUsuario", "La persona no es válida.");
+	        return "gestionMensajes";
+	    }
+
+	    Mensaje mensaje = new Mensaje(LocalDateTime.now(), mensajeTexto, persona, ejemplar);
+	    serviciosMensaje.insertar(mensaje);
+
+	    model.addAttribute("mensajeExito", "Mensaje añadido correctamente.");
+	    List<Mensaje> mensajes = serviciosMensaje.findAll();
+	    model.addAttribute("mensajes", mensajes);
+
+	    return "gestionMensajes";
+	}
+
+	
+	@GetMapping("/filtrarPorPersona")
+	public String filtrarMensajesPorPersona(Model model) {
+	    List<Persona> personas = serviciosPersona.obtenerTodasLasPersonas();
+	    if (personas.isEmpty()) {
+	        model.addAttribute("mensajeError", "No hay personas registradas.");
+	        return "filtrarPorPersona";
+	    }
+
+	    model.addAttribute("personas", personas);
+	    return "filtrarPorPersona";
+	}
+
+	@PostMapping("/filtrarPorPersona")
+	public String filtrarMensajesPorPersona(@RequestParam(required = false) Long idPersona, Model model) {
+	    
+	    if (idPersona == null) {
+	        model.addAttribute("mensajeError", "Por favor, seleccione una persona.");
+	        List<Persona> personas = serviciosPersona.obtenerTodasLasPersonas();
+	        model.addAttribute("personas", personas);
+	        return "filtrarPorPersona";
+	    }
+
+
+	    Optional<Persona> personaOptional = serviciosPersona.buscarPorId(idPersona);
+	    if (!personaOptional.isPresent()) {
+	        model.addAttribute("mensajeError", "Persona no encontrada.");
+	        List<Persona> personas = serviciosPersona.obtenerTodasLasPersonas();
+	        model.addAttribute("personas", personas);
+	        return "filtrarPorPersona";
+	    }
+
+	    Persona persona = personaOptional.get();
+	    List<Mensaje> mensajes = serviciosMensaje.buscarPorPersona(persona);
+
+	    if (mensajes.isEmpty()) {
+	        model.addAttribute("mensajeError", "No hay mensajes para esta persona.");
+	    }
+
+	    model.addAttribute("persona", persona);
+	    model.addAttribute("mensajes", mensajes);
+
+
+	    model.addAttribute("idPersonaSeleccionada", idPersona);
+	    model.addAttribute("personas", serviciosPersona.obtenerTodasLasPersonas());
+
+	    return "filtrarPorPersona";
+	}
 }
