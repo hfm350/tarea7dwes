@@ -27,28 +27,6 @@ public class ServicioPedido {
 	@Autowired
 	private PlantaRepository plantaRepository;
 
-	@Transactional
-	public Pedido registrarPedido(String nombreUsuario, Long idPlanta) {
-
-	    Persona p = personaRepository.findByNombre(nombreUsuario)
-	            .orElseThrow(() -> new RuntimeException("Persona no encontrada: " + nombreUsuario));
-
-	    Planta planta = plantaRepository.findById(idPlanta)
-	            .orElseThrow(() -> new RuntimeException("Planta no encontrada con ID: " + idPlanta));
-
-	 
-	    Pedido pedido = new Pedido();
-	    pedido.setPersona(p);
-	    pedido.setPlanta(planta);
-	    pedido.setFechaPedido(LocalDateTime.now());
-
-	   
-	    pedidoRepository.save(pedido);
-	    return pedido;
-	}
 	
-	 public Pedido buscarPorID(long id) {
-	        return pedidoRepository.findById(id).orElse(null);
-	    }
 	 
 }

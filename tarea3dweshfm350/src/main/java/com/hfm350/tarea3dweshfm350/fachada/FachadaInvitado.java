@@ -95,48 +95,7 @@ public class FachadaInvitado {
 	}
 
 
-	public void hacerPedido() {
-		sc.nextLine();
-		System.out.print("Ingrese su nombre de usuario: ");
-		String nombreUsuario = sc.nextLine().toUpperCase();
-		System.out.print("Ingrese su contraseña: ");
-		String clave = sc.nextLine().toLowerCase();
-
-		if (servCredenciales.autenticar(nombreUsuario, clave)) {
-			System.out.print("\n");
-
-			if (nombreUsuario.equalsIgnoreCase("ADMIN") && clave.equals("admin")) {
-				s.setPerfil(Perfil.ADMIN);
-				System.out.println("\t\tHola ADMIN");
-			} else {
-				s.setPerfil(Perfil.PERSONAL);
-				System.out.println("\t\tHola " + nombreUsuario);
-			}
-
-			if (s.getPerfil() == Perfil.ADMIN || s.getPerfil() == Perfil.PERSONAL) {
-				ArrayList<Planta> listaDePlantas = (ArrayList<Planta>) plantasServicio.findAll();
-				for (Planta p : listaDePlantas) {
-					System.out.println(p);
-				}
-				System.out.print("Ingrese el ID de la planta que quieres pedir: ");
-				Long idPlanta = sc.nextLong();
-				Planta planta = plantasServicio.buscarPorID(idPlanta);
-				if (planta != null) {
-					Pedido pedido = servicioPedido.registrarPedido(nombreUsuario, idPlanta);
-					System.out.println("¡Pedido realizado con ÉXITO!");
-					System.out.println(pedido);
-				} else {
-					System.out.println("Planta NO ENCONTRADA");
-				}
-			} else {
-				System.out.println("DISPONIBLE SOLO PARA USUARIOS REGISTRADOS");
-			}
-
-		} else {
-			System.out.println("Usuario o contraseña incorrectos.");
-			mostrarMenuInvitado();
-		}
-	}
+	
 
 	public void iniciarSesion() {
 		sc.nextLine();
