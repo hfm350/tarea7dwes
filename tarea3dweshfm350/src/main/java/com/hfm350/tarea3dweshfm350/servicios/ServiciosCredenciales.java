@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.hfm350.tarea3dweshfm350.modelo.Credencial;
@@ -13,7 +16,7 @@ import com.hfm350.tarea3dweshfm350.repositorios.CredencialRepository;
 import com.hfm350.tarea3dweshfm350.repositorios.PersonaRepository;
 
 @Service
-public class ServiciosCredenciales {
+public class ServiciosCredenciales implements UserDetailsService {
 
 	@Autowired
 	private PersonaRepository personaRepo;
@@ -22,38 +25,25 @@ public class ServiciosCredenciales {
 	private CredencialRepository crendecialRepo;
 
 	public boolean autenticar(String nombreUsuario, String clave) {
-	    Optional<Credencial> credencialOpt = crendecialRepo.findByUsuario(nombreUsuario);
-	    if (credencialOpt.isPresent()) {
-	        Credencial credenciales = credencialOpt.get();
-	        return credenciales.getPassword().equals(clave); 
-	    }
-	    return false; 
-	}
+        Optional<Credencial> credencialOpt = crendecialRepo.findByUsuario(nombreUsuario);
+        return credencialOpt.isPresent() && credencialOpt.get().getPassword().equals(clave);
+    }
 
 	public boolean verificarUsuario(String usuario) {
 		return crendecialRepo.existeUsuario(usuario);
 	}
 
 	public void insertar(String usuario, String password, Long idPersona) {
-		Persona persona = personaRepo.findById(idPersona).orElse(null);
+        Persona persona = personaRepo.findById(idPersona).orElse(null);
 
-		if (persona == null) {
-			System.out.println("La persona con ID " + idPersona + " no existe.");
-			return;
-		}
+        if (persona == null) {
+            throw new IllegalArgumentException("La persona con ID " + idPersona + " no existe.");
+        }
 
-		Credencial credenciales = new Credencial();
-		credenciales.setUsuario(usuario);
-		credenciales.setPassword(password);
-		credenciales.setPersona(persona);
+        Credencial credenciales = new Credencial(usuario, password, "CLIENTE", persona);
 
-		try {
-			crendecialRepo.save(credenciales);
-			System.out.println("Credenciales registradas exitosamente para el usuario: " + usuario);
-		} catch (Exception e) {
-			System.err.println("Error al registrar las credenciales: " + e.getMessage());
-		}
-	}
+        crendecialRepo.save(credenciales);
+    }
 
 	public boolean existeUsuario(String usuario) {
 		return crendecialRepo.existeUsuario(usuario);
@@ -63,7 +53,7 @@ public class ServiciosCredenciales {
 		return crendecialRepo.obtenerIdUsuario(usuario)
 				.orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + usuario));
 	}
-	
+
 	public Persona buscarPersonaPorUsuario(String usuario) {
 		return crendecialRepo.findPersonaByUsuario(usuario);
 	}
@@ -71,15 +61,19 @@ public class ServiciosCredenciales {
 	public Optional<Credencial> buscarPersonaPorId(String nombreUsuario) {
 		return crendecialRepo.findByUsuario(nombreUsuario);
 	}
-	
-	public Optional<Long> obtenerIdPersonaPorIdCredencial(Long idCredencial) {
-        return crendecialRepo.findPersonaIdByCredencialId(idCredencial);
-    }
-	
-	public List<Credencial> findAll() {
-        return crendecialRepo.findAll();
-    }
 
-	
+	public Optional<Long> obtenerIdPersonaPorIdCredencial(Long idCredencial) {
+		return crendecialRepo.findPersonaIdByCredencialId(idCredencial);
+	}
+
+	public List<Credencial> findAll() {
+		return crendecialRepo.findAll();
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		return crendecialRepo.findByUsuario(username)
+				.orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+	}
 
 }

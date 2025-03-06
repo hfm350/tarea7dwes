@@ -1,10 +1,12 @@
 package com.hfm350.tarea3dweshfm350.repositorios;
 
-import com.hfm350.tarea3dweshfm350.modelo.Seccion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.hfm350.tarea3dweshfm350.modelo.Cliente;
+
 @Repository
-public interface SeccionRepository extends JpaRepository<Seccion, Long> {
-   
+public interface ClienteRepository extends JpaRepository<Cliente, Long> {
+    Cliente findByEmail(String email);
 }
+

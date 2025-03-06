@@ -1,103 +1,134 @@
 package com.hfm350.tarea3dweshfm350.modelo;
 
 import java.io.Serializable;
-import java.util.Objects;
+import java.util.Collection;
+import java.util.Collections;
+import jakarta.persistence.*;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "credenciales")
-public class Credencial implements Serializable {
+public class Credencial implements Serializable, UserDetails {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Column(unique = true)
-	private String usuario;
+    @Column(unique = true, nullable = false)
+    private String usuario;
 
-	@Column
-	private String password;
+    @Column(nullable = false)
+    private String password;
 
-	@OneToOne
-	@JoinColumn(name = "idPersona", unique = true)
-	private Persona persona;
-	
     @OneToOne(optional = true)
     @JoinColumn(name = "cliente_id", unique = true)
     private Cliente cliente;
 
+    @OneToOne
+    @JoinColumn(name = "persona_id", unique = true, nullable = false)
+    private Persona persona;
 
-	public Credencial() {
-	}
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Sesion.Perfil perfil;  
 
-	public Credencial(String usuario, String password) {
-		this.usuario = usuario;
-		this.password = password;
-	}
+    public Credencial() {}
 
-	public Credencial(String usuario, String password, Persona persona) {
-		this.usuario = usuario;
-		this.password = password;
-		this.persona = persona;
-	}
+    public Credencial(String usuario, String password, Sesion.Perfil perfil, Persona persona) {
+        this.usuario = usuario;
+        this.password = password;
+        this.perfil = perfil;
+        this.persona = persona;
+    }
+    
+    public Credencial(String usuario, String password, String rol, Persona persona) {
+        this.usuario = usuario;
+        this.password = password;
+        this.perfil = perfil;
+        this.persona = persona;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + perfil.name()));
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    @Override
+    public String getPassword() {
+        return password;
+    }
 
-	public String getUsuario() {
-		return usuario;
-	}
+    @Override
+    public String getUsername() {
+        return usuario;
+    }
 
-	public void setUsuario(String usuario) {
-		this.usuario = usuario;
-	}
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
-	public Persona getPersona() {
-		return persona;
-	}
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 
-	public void setPersona(Persona persona) {
-		this.persona = persona;
-	}
-	
-	
+    public Cliente getCliente() {
+        return cliente;
+    }
 
-	public Cliente getCliente() {
-		return cliente;
-	}
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
 
-	public void setCliente(Cliente cliente) {
-		this.cliente = cliente;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	@Override
-	public String toString() {
-	    String personaStr = (persona != null) ? "Persona [id=" + persona.getId() + ", nombre=" + persona.getNombre() + "]" : "Sin persona asociada";
-	    return "Credencial [id=" + id + ", usuario=" + usuario + ", password=" + password + ", persona=" + personaStr + "]";
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
+    public String getUsuario() {
+        return usuario;
+    }
 
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
+
+    public Sesion.Perfil getPerfil() {
+        return perfil;
+    }
+
+    public void setPerfil(Sesion.Perfil perfil) {
+        this.perfil = perfil;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Persona getPersona() {
+        return persona;
+    }
+
+    public void setPersona(Persona persona) {
+        this.persona = persona;
+    }
 }

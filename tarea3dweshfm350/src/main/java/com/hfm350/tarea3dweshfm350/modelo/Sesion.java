@@ -9,7 +9,7 @@ public class Sesion {
     }
 
     public enum Perfil {
-        INVITADO, PERSONAL, ADMIN
+        INVITADO, PERSONAL, ADMIN, CLIENTE
     }
 
     
