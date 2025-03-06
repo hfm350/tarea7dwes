@@ -82,6 +82,16 @@ public class Credencial implements Serializable {
 	public void setPersona(Persona persona) {
 		this.persona = persona;
 	}
+	
+	
+
+	public Cliente getCliente() {
+		return cliente;
+	}
+
+	public void setCliente(Cliente cliente) {
+		this.cliente = cliente;
+	}
 
 	@Override
 	public String toString() {
