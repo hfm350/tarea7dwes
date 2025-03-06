@@ -1,37 +1,29 @@
 package com.hfm350.tarea3dweshfm350.modelo;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "pedido")
 public class Pedido {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "persona_id", nullable = false)
-    private Persona persona;
+    @Temporal(TemporalType.DATE)
+    private Date fecha;
 
     @ManyToOne
-    @JoinColumn(name = "planta_id", nullable = false)
-    private Planta planta;
+    @JoinColumn(name = "cliente_id")
+    private Cliente cliente;
 
-    private LocalDateTime fechaPedido;
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    private List<Ejemplar> ejemplares;
 
-    // Getters y Setters
+    public Pedido() {
+    }
+
     public Long getId() {
         return id;
     }
@@ -40,38 +32,27 @@ public class Pedido {
         this.id = id;
     }
 
-    public Persona getPersona() {
-        return persona;
+    public Date getFecha() {
+        return fecha;
     }
 
-    public void setPersona(Persona persona) {
-        this.persona = persona;
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
     }
 
-    public Planta getPlanta() {
-        return planta;
+    public Cliente getCliente() {
+        return cliente;
     }
 
-    public void setPlanta(Planta planta) {
-        this.planta = planta;
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 
-    public LocalDateTime getFechaPedido() {
-        return fechaPedido;
+    public List<Ejemplar> getEjemplares() {
+        return ejemplares;
     }
 
-    public void setFechaPedido(LocalDateTime fechaPedido) {
-        this.fechaPedido = fechaPedido;
+    public void setEjemplares(List<Ejemplar> ejemplares) {
+        this.ejemplares = ejemplares;
     }
-
-	@Override
-	public String toString() {
-		return "Pedido [id=" + id + ", persona=" + persona + ", planta=" + planta + ", fechaPedido=" + fechaPedido
-				+ "]";
-	}
-    
-    
-    
-    
 }
-
