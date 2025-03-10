@@ -1,8 +1,11 @@
 package com.hfm350.tarea3dweshfm350.seguridad;
 
-import com.hfm350.tarea3dweshfm350.modelo.Credencial;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.hfm350.tarea3dweshfm350.modelo.Credencial;
+
 import java.util.Collection;
 import java.util.Collections;
 
@@ -16,8 +19,9 @@ public class CredencialUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList(); // Aquí puedes asignar roles en el futuro
+        return Collections.singletonList(new SimpleGrantedAuthority(credencial.getRol()));
     }
+
 
     @Override
     public String getPassword() {

@@ -29,5 +29,8 @@ public interface CredencialRepository extends JpaRepository<Credencial, Long> {
 	@Query("SELECT c.persona.id FROM Credencial c WHERE c.id = :idCredencial")
 	Optional<Long> findPersonaIdByCredencialId(@Param("idCredencial") Long idCredencial);
 
+	boolean existsByUsuarioAndPersonaId(String usuario, Long personaId);
+
+
 
 }

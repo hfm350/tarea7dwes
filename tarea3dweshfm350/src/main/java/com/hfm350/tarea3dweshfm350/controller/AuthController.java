@@ -2,13 +2,15 @@ package com.hfm350.tarea3dweshfm350.controller;
 
 import com.hfm350.tarea3dweshfm350.modelo.Credencial;
 import com.hfm350.tarea3dweshfm350.repositorios.CredencialRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -25,27 +27,21 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping("/login")
-    public String login(@RequestBody Credencial credencial) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(credencial.getUsuario(), credencial.getPassword()));
+    	
 
-        if (authentication.isAuthenticated()) {
-            return "Autenticación exitosa para el usuario: " + credencial.getUsuario();
-        } else {
-            return "Error en la autenticación";
-        }
-    }
 
     @PostMapping("/register")
-    public String register(@RequestBody Credencial credencial) {
+    public ResponseEntity<String> register(@RequestBody Credencial credencial) {
         Optional<Credencial> existingUser = credencialRepository.findByUsuario(credencial.getUsuario());
         if (existingUser.isPresent()) {
-            return "El usuario ya existe";
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("El usuario ya existe");
         }
 
         credencial.setPassword(passwordEncoder.encode(credencial.getPassword()));
+        credencial.setRol("PERSONAL");
         credencialRepository.save(credencial);
-        return "Usuario registrado exitosamente";
+
+        return ResponseEntity.ok("Usuario registrado exitosamente");
     }
+
 }

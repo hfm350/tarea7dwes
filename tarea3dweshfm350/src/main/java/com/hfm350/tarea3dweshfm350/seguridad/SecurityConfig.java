@@ -11,6 +11,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+
 import java.util.List;
 
 @Configuration
@@ -18,9 +20,11 @@ import java.util.List;
 public class SecurityConfig {
 
     private final CredencialUserDetailsService userDetailsService;
+    private final AuthenticationSuccessHandler successHandler;
 
-    public SecurityConfig(CredencialUserDetailsService userDetailsService) {
+    public SecurityConfig(CredencialUserDetailsService userDetailsService, AuthenticationSuccessHandler successHandler) {
         this.userDetailsService = userDetailsService;
+        this.successHandler = successHandler;
     }
 
     @Bean
@@ -39,12 +43,33 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Deshabilitar CSRF para pruebas (habilítalo en producción)
+            .csrf(csrf -> csrf.disable()) // Desactiva CSRF si no es necesario
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/auth/login", "/auth/register", "/public/**").permitAll() // Permitir acceso sin autenticación
-                .anyRequest().authenticated() // Todas las demás rutas requieren autenticación
+                .requestMatchers("/", "/inicioSesion", "/registroCliente").permitAll()
+                .requestMatchers("/menuAdmin").hasAuthority("ROLE_ADMIN")
+                .requestMatchers("/menuPersonal").hasAuthority("ROLE_PERSONAL")
+                .anyRequest().authenticated()
             )
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            .formLogin(form -> form
+                .loginPage("/inicioSesion")  // Página personalizada de login
+                .loginProcessingUrl("/login") // URL donde se procesan los datos del formulario
+                .successHandler(successHandler) // Manejador de éxito
+                .failureUrl("/inicioSesion?error=true")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/inicioSesion")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .permitAll()
+            )
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Asegura sesión activa
+            )
+            .securityContext(securityContext -> securityContext
+                .requireExplicitSave(true) // Guarda manualmente el contexto de seguridad
+            );
 
         return http.build();
     }

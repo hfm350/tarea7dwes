@@ -27,6 +27,9 @@ public class Credencial implements Serializable {
 
 	@Column
 	private String password;
+	
+	@Column
+    private String rol;
 
 	@OneToOne
 	@JoinColumn(name = "idPersona", unique = true)
@@ -58,6 +61,14 @@ public class Credencial implements Serializable {
 	public void setId(Long id) {
 		this.id = id;
 	}
+	
+	public String getRol() {
+        return rol;
+    }
+
+    public void setRol(String rol) {
+        this.rol = rol;
+    }
 
 	public String getUsuario() {
 		return usuario;

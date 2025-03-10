@@ -9,12 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.websocket.Session;
 
+import com.hfm350.tarea3dweshfm350.modelo.Cliente;
 import com.hfm350.tarea3dweshfm350.modelo.Controlador;
 import com.hfm350.tarea3dweshfm350.modelo.Credencial;
 import com.hfm350.tarea3dweshfm350.modelo.Ejemplar;
@@ -24,6 +27,7 @@ import com.hfm350.tarea3dweshfm350.modelo.Planta;
 import com.hfm350.tarea3dweshfm350.modelo.Sesion;
 import com.hfm350.tarea3dweshfm350.modelo.Sesion.Perfil;
 import com.hfm350.tarea3dweshfm350.repositorios.PlantaRepository;
+import com.hfm350.tarea3dweshfm350.servicios.ServiciosCliente;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosCredenciales;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosEjemplar;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosMensaje;
@@ -41,6 +45,9 @@ public class HomeController {
 
     @Autowired
     private ServiciosPersona serviciosPersona;
+    
+    @Autowired
+    private ServiciosCliente serviciosCliente;
 
     @Autowired
     private ServiciosMensaje serviciosMensaje;
@@ -53,11 +60,42 @@ public class HomeController {
 
     @Autowired
     private Controlador controlador;
-
+    
     @GetMapping("/inicioSesion")
     public String mostrarFormularioDeInicioDeSesion() {
         return "inicioSesion";
     }
+
+    @GetMapping("/menuAdmin")
+    public String mostrarAdminDashboard(Model model, HttpSession session) {
+        String rol = (String) session.getAttribute("rol");
+        String nombreUsuario = (String) session.getAttribute("nombreUsuario");
+
+        if (rol == null || !rol.equals("ROLE_ADMIN")) {
+            return "redirect:/inicioSesion"; 
+        }
+
+        if (nombreUsuario == null) {
+            nombreUsuario = "ADMIN";  // Valor por defecto si está vacío
+        }
+
+        model.addAttribute("nombreUsuario", nombreUsuario);
+        return "menuAdmin";
+    }
+
+
+    @GetMapping("/menuPersonal")
+    public String mostrarPersonalDashboard(Model model, HttpSession session) {
+        String rol = (String) session.getAttribute("rol");
+
+        if (rol == null || !rol.equals("PERSONAL")) {
+            return "redirect:/inicioSesion"; 
+        }
+
+        model.addAttribute("nombreUsuario", session.getAttribute("nombreUsuario"));
+        return "menuPersonal";
+    }
+    
 
     @PostMapping("/login")
     public String procesarLogin(
@@ -82,31 +120,9 @@ public class HomeController {
         return "inicioSesion";
     }
 
-    @GetMapping("/menuAdmin")
-    public String mostrarAdminDashboard(Model model, HttpSession session) {
-        Perfil perfil = (Perfil) session.getAttribute("perfil");
-
-        // Si el perfil no es ADMIN o no hay sesión iniciada, redirigir al login
-        if (perfil == null || perfil != Perfil.ADMIN) {
-            return "redirect:/inicioSesion"; 
-        }
-
-        model.addAttribute("perfil", perfil);
-        model.addAttribute("nombreUsuario", session.getAttribute("nombreUsuario"));
-        return "menuAdmin";
-    }
+   
 
 
-    @GetMapping("/menuPersonal")
-    public String mostrarPersonalDashboard(Model model, HttpSession session) {
-        Perfil perfil = (Perfil) session.getAttribute("perfil");
-        if (perfil == null || perfil != Perfil.PERSONAL) {
-            return "redirect:/inicioSesion"; 
-        }
-        model.addAttribute("perfil", perfil);
-        model.addAttribute("nombreUsuario", session.getAttribute("nombreUsuario"));
-        return "menuPersonal";
-    }
 
     @GetMapping("/logout")
     public String cerrarSesion(HttpSession session) {
@@ -334,5 +350,69 @@ public class HomeController {
 	    return "filtrarPorPersona";
 	}
 
+	@GetMapping("/registroCliente")
+    public String mostrarFormularioRegistro(Model model) {
+        model.addAttribute("cliente", new Cliente()); // Crear un objeto Cliente vacío para el formulario
+        return "registroCliente"; // Este es el formulario HTML donde se va a ingresar la información del cliente
+    }
+
+    @PostMapping("/registroCliente")
+    public String registrarCliente(@ModelAttribute Cliente cliente, 
+                                   @RequestParam String username,
+                                   @RequestParam String password, 
+                                   Model model, 
+                                   RedirectAttributes redirectAttributes) {
+
+        // Validación básica de los campos
+        if (cliente.getNombre().trim().isEmpty()) {
+            model.addAttribute("errorMessage", "El nombre completo es obligatorio.");
+            return "registroCliente";
+        }
+
+        if (cliente.getEmail().trim().isEmpty()) {
+            model.addAttribute("errorMessage", "El correo electrónico es obligatorio.");
+            return "registroCliente";
+        }
+
+        if (!cliente.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            model.addAttribute("errorMessage", "El correo electrónico no tiene un formato válido.");
+            return "registroCliente";
+        }
+
+        if (cliente.getFechaNac() == null) {
+            model.addAttribute("errorMessage", "La fecha de nacimiento es obligatoria.");
+            return "registroCliente";
+        }
+
+        // Verificación si el username ya existe
+        if (serviciosCredenciales.existeUsuario(username)) {
+            model.addAttribute("errorMessage", "El nombre de usuario ya está en uso.");
+            return "registroCliente";
+        }
+
+        // Verificación si el NIF/NIE ya existe
+        if (serviciosCliente.existeNifNie(cliente.getNifNie())) {
+            model.addAttribute("errorMessage", "El NIF/NIE ya está registrado.");
+            return "registroCliente";
+        }
+
+        // Crear las credenciales y registrar el cliente
+        Credencial credencial = new Credencial(username, password);
+        serviciosCredenciales.insertar(username, password, null);
+
+        // Crear la persona asociada al cliente
+        Persona persona = new Persona(cliente.getNombre(), cliente.getEmail());
+        serviciosPersona.insertar(persona);
+
+        // Asociar credenciales al cliente
+        cliente.setCredenciales(credencial);
+
+        // Registrar el cliente en la base de datos
+        serviciosCliente.guardar(cliente);
+
+        // Mensaje de éxito y redirección
+        redirectAttributes.addFlashAttribute("successMessage", "Cliente registrado exitosamente.");
+        return "redirect:/inicioSesion"; 
+    }
 	
 }

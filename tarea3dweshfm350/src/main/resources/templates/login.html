@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Iniciar Sesión</h1>
+    <form id="loginForm">
+        Usuario: <input type="text" id="usuario" name="usuario">
+        Contraseña: <input type="password" id="password" name="password">
+        <button type="submit">Iniciar Sesión</button>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            $("#loginForm").submit(function(event) {
+                event.preventDefault();
+                
+                var usuario = $("#usuario").val();
+                var password = $("#password").val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "http://localhost:8080/inicioSesion",
+                    contentType: "application/json",
+                    data: JSON.stringify({ usuario: usuario, password: password }),
+                    success: function(response) {
+                        window.location.href = response.redirect; // Redirige según el rol
+                    },
+                    error: function() {
+                        alert("Usuario o contraseña incorrectos");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

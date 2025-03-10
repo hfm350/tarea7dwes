@@ -108,7 +108,7 @@ button:hover, .btn:hover {
 </head>
 <body>
 	<nav class="navbar">
-		<a href="#" class="logo">Perfil actual: <span th:text="${perfil}"></span></
+		<a href="#" class="logo">Perfil actual: <span th:text="${nombreUsuario.toUpperCase()}"></span></
 		</a> <a th:href="@{/logout}" class="logout-btn">Cerrar Sesión</a>
 	</nav>
 	<div class="container">

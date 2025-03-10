@@ -39,7 +39,7 @@ body {
 	text-decoration: none;
 }
 
-.navbar .login-btn {
+.navbar .login-btn, .navbar .register-btn {
 	background-color: white;
 	color: #28a745;
 	padding: 10px 15px;
@@ -50,11 +50,9 @@ body {
 	margin-right: 25px;
 }
 
-.navbar .login-btn:hover {
+.navbar .login-btn:hover, .navbar .register-btn:hover {
 	background-color: #7b3939;
 }
-
-
 
 
 header h1 {
@@ -151,8 +149,9 @@ tr:hover {
 </head>
 <body>
 	<nav class="navbar">
-		<a href="#" class="logo">Vivero-Laboral</a> <a
-			th:href="@{/inicioSesion}" class="login-btn">Iniciar Sesión</a>
+		<a href="#" class="logo">Vivero-Laboral</a> 
+		<a th:href="@{/inicioSesion}" class="login-btn">Iniciar Sesión</a>
+		<a th:href="@{/registroCliente}" class="register-btn">Registro Cliente</a> 
 	</nav>
 
 	<div class="container">
@@ -182,4 +181,3 @@ tr:hover {
 	</div>
 </body>
 </html>
-

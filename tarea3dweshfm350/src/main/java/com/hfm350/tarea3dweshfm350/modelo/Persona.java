@@ -1,6 +1,7 @@
 package com.hfm350.tarea3dweshfm350.modelo;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -44,6 +45,8 @@ public class Persona implements Serializable {
 		this.nombre = nombre;
 		this.email = email;
 	}
+
+	
 
 	public Long getId() {
 		return id;

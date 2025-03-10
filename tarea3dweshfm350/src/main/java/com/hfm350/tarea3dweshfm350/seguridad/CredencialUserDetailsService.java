@@ -20,6 +20,12 @@ public class CredencialUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Credencial credencial = credencialRepository.findByUsuario(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+
+        System.out.println("🔍 Usuario autenticado: " + credencial.getUsuario());
+        System.out.println("🔍 Rol en la BD: " + credencial.getRol());
+
         return new CredencialUserDetails(credencial);
     }
+
+
 }

@@ -1,7 +1,11 @@
 package com.hfm350.tarea3dweshfm350.modelo;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -15,7 +19,9 @@ public class Cliente {
 	private String nombre;
 
 	@Temporal(TemporalType.DATE)
-	private Date fechanac;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private LocalDate fechaNac;
+
 
 	@Column(unique = true, nullable = false)
 	private String nifNie;
@@ -54,14 +60,14 @@ public class Cliente {
 		this.nombre = nombre;
 	}
 
-	public Date getFechanac() {
-		return fechanac;
-	}
+	public LocalDate getFechaNac() {
+        return fechaNac;
+    }
 
-	public void setFechanac(Date fechanac) {
-		this.fechanac = fechanac;
-	}
-
+    public void setFechaNac(LocalDate fechaNac) {
+        this.fechaNac = fechaNac;
+    }
+	
 	public String getNifNie() {
 		return nifNie;
 	}
@@ -89,6 +95,16 @@ public class Cliente {
 	public Credencial getCredenciales() {
 		return credenciales;
 	}
+	
+	
+
+	public String getDireccion() {
+		return direccion;
+	}
+
+	public void setDireccion(String direccion) {
+		this.direccion = direccion;
+	}
 
 	public void setCredenciales(Credencial credenciales) {
 		this.credenciales = credenciales;
@@ -103,5 +119,10 @@ public class Cliente {
 
 	public void setPedidos(List<Pedido> pedidos) {
 		this.pedidos = pedidos;
+	}
+
+	public void setPersona(Persona personaGuardada) {
+		
+		
 	}
 }
