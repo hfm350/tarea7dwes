@@ -1,5 +1,6 @@
 package com.hfm350.tarea3dweshfm350.modelo;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
@@ -11,14 +12,15 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Temporal(TemporalType.DATE)
-    private Date fecha;
+    @Column
+    private LocalDateTime fechaPedido;
 
     @ManyToOne
-    @JoinColumn(name = "cliente_id")
+    @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    @OneToMany
+    @JoinColumn(name = "pedido_id")
     private List<Ejemplar> ejemplares;
 
     public Pedido() {
@@ -32,12 +34,12 @@ public class Pedido {
         this.id = id;
     }
 
-    public Date getFecha() {
-        return fecha;
+    public LocalDateTime getFechaPedido() {
+        return fechaPedido;
     }
 
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
+    public void setFechaPedido(LocalDateTime fechaPedido) {
+        this.fechaPedido = fechaPedido;
     }
 
     public Cliente getCliente() {
@@ -55,4 +57,12 @@ public class Pedido {
     public void setEjemplares(List<Ejemplar> ejemplares) {
         this.ejemplares = ejemplares;
     }
+
+    @Override
+    public String toString() {
+        return "Pedido [id=" + id + ", fechaPedido=" + fechaPedido + ", cliente=" + cliente + ", ejemplares="
+                + ejemplares + "]";
+    }
+
+
 }

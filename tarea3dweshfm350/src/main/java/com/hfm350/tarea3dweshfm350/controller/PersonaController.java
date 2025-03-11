@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -80,24 +81,20 @@ public class PersonaController {
             model.addAttribute("credenciales", listaCredenciales);
             return "registroPersona";
         }
-
-        // **1. Crea la Persona y guárdala**
         Persona p = new Persona();
         p.setNombre(nombre);
         p.setEmail(email);
         servPersona.insertar(p);
 
-        // **2. Encripta la contraseña**
-        String contraseñaEncriptada = securityConfig.passwordEncoder().encode(contraseña);
 
-        // **3. Crea la Credencial y asígnale el rol ROLE_PERSONAL**
+        // Crea la Credencial y asígnale el rol ROLE_PERSONAL
         Credencial credencial = new Credencial();
         credencial.setUsuario(usuario);
-        credencial.setPassword(contraseñaEncriptada);
+        credencial.setPassword(contraseña);
         credencial.setPersona(p);
         credencial.setRol("ROLE_PERSONAL");
 
-        // **4. Guarda la credencial en la base de datos**
+        //Guarda la credencial en la base de datos
         servCredenciales.insertar(credencial.getUsuario(), credencial.getPassword(), credencial.getPersona().getId());
 
         model.addAttribute("successMessage", "¡Usuario registrado exitosamente!");

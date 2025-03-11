@@ -22,13 +22,31 @@ public class ServiciosCredenciales {
     private CredencialRepository credencialRepo;
 
     @Autowired
-    private PasswordEncoder passwordEncoder; // **Importante para encriptar la contraseña**
+    private PasswordEncoder passwordEncoder;
 
-    // Método para autenticar usuarios (compara contraseñas encriptadas)
     public boolean autenticar(String nombreUsuario, String clave) {
         Optional<Credencial> credencialOpt = credencialRepo.findByUsuario(nombreUsuario);
-        return credencialOpt.isPresent() && passwordEncoder.matches(clave, credencialOpt.get().getPassword());
+
+        if (credencialOpt.isPresent()) {
+            Credencial credencial = credencialOpt.get();
+            
+            System.out.println("🔑 Contraseña ingresada: " + clave);
+            System.out.println("🔐 Contraseña en BD: " + credencial.getPassword());
+
+            //Compara la contraseña ingresada (sin encriptar) con la almacenada (encriptada)
+            boolean coincide = passwordEncoder.matches(clave, credencial.getPassword());
+
+            System.out.println("¿Contraseñas coinciden?: " + coincide);
+
+            return coincide;
+        }
+
+        System.out.println("Usuario no encontrado");
+        return false;
     }
+
+
+
 
     public boolean verificarUsuario(String usuario) {
         return credencialRepo.existeUsuario(usuario);
@@ -42,11 +60,14 @@ public class ServiciosCredenciales {
             return;
         }
 
+        String encryptedPassword = passwordEncoder.encode(password); // Encripta la contraseña
+        System.out.println("Contraseña encriptada: " + encryptedPassword); // Verificar en consola
+
         Credencial credenciales = new Credencial();
         credenciales.setUsuario(usuario);
-        credenciales.setPassword(passwordEncoder.encode(password)); // Encriptar la contraseña
+        credenciales.setPassword(encryptedPassword); 
         credenciales.setPersona(persona);
-        credenciales.setRol("ROLE_PERSONAL"); // Asignar rol por defecto
+        credenciales.setRol("ROLE_PERSONAL"); // Asignar el rol automáticamente
 
         try {
             credencialRepo.save(credenciales);
@@ -55,6 +76,9 @@ public class ServiciosCredenciales {
             System.err.println("Error al registrar las credenciales: " + e.getMessage());
         }
     }
+
+    
+    
     public boolean existeUsuario(String usuario) {
         return credencialRepo.existeUsuario(usuario);
     }

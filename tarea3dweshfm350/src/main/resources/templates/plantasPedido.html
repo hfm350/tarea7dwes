@@ -1,0 +1,24 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Plantas Disponibles</title>
+</head>
+<body>
+    <h1>Plantas Disponibles</h1>
+    <table>
+        <tr>
+            <th>Nombre</th>
+            <th>Acción</th>
+        </tr>
+        <tr th:each="ejemplar : ${ejemplares}">
+            <td th:text="${ejemplar.nombre}"></td>
+            <td>
+                <form th:action="@{/carrito/agregar}" method="post">
+                    <input type="hidden" name="idEjemplar" th:value="${ejemplar.id}" />
+                    <button type="submit">Añadir al Carrito</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+    <a th:href="@{/}">Volver</a>
+</body>
+</html>

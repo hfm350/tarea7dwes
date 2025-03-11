@@ -40,21 +40,23 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Desactiva CSRF si no es necesario
+            .csrf(csrf -> csrf.disable()) 
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/inicioSesion", "/registroCliente").permitAll()
                 .requestMatchers("/images/**", "/css/**", "/vivero.png").permitAll()
                 .requestMatchers("/menuAdmin").hasAuthority("ROLE_ADMIN")
+                .requestMatchers("/menuCliente").hasAuthority("ROLE_CLIENTE")
                 .requestMatchers("/menuPersonal").hasAuthority("ROLE_PERSONAL")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
-                .loginPage("/inicioSesion")  // Página personalizada de login
-                .loginProcessingUrl("/login") // URL donde se procesan los datos del formulario
-                .successHandler(successHandler) // Manejador de éxito
+                .loginPage("/inicioSesion") 
+                .loginProcessingUrl("/login") 
+                .successHandler(successHandler)
                 .failureUrl("/inicioSesion?error=true")
                 .permitAll()
             )
@@ -66,10 +68,10 @@ public class SecurityConfig {
                 .permitAll()
             )
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Asegura sesión activa
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) 
             )
             .securityContext(securityContext -> securityContext
-                .requireExplicitSave(true) // Guarda manualmente el contexto de seguridad
+                .requireExplicitSave(true) 
             );
 
         return http.build();

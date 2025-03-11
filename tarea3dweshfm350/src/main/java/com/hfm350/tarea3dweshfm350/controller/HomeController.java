@@ -422,5 +422,22 @@ public class HomeController {
         redirectAttributes.addFlashAttribute("successMessage", "Cliente registrado exitosamente.");
         return "redirect:/inicioSesion"; 
     }
+    
+    @GetMapping("/menuCliente")
+    public String mostrarClienteDashboard(Model model, HttpSession session) {
+        String rol = (String) session.getAttribute("rol");
+        String nombreUsuario = (String) session.getAttribute("nombreUsuario");
+
+        if (rol == null || !rol.equals("ROLE_CLIENTE")) { 
+            return "redirect:/inicioSesion"; 
+        }
+
+        if (nombreUsuario == null) {
+            nombreUsuario = "Cliente";  // Valor por defecto si está vacío
+        }
+
+        model.addAttribute("nombreUsuario", nombreUsuario);
+        return "menuCliente";
+    }
 	
 }

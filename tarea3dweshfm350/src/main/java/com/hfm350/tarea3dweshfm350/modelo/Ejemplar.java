@@ -3,16 +3,7 @@ package com.hfm350.tarea3dweshfm350.modelo;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "ejemplares")
@@ -36,17 +27,21 @@ public class Ejemplar implements Serializable {
     private Pedido pedido;
 
     @OneToMany(mappedBy = "ejemplar", cascade = CascadeType.ALL)
-    private List<Mensaje> mensajes = new LinkedList<Mensaje>();
+    private List<Mensaje> mensajes = new LinkedList<>();
+
+    @Column(nullable = false)
+    private boolean disponible = true;  // Nuevo atributo con valor por defecto true
 
     public Ejemplar() {}
 
-    public Ejemplar(Long id, String nombre, Planta planta, Pedido pedido, List<Mensaje> mensajes) {
+    public Ejemplar(Long id, String nombre, Planta planta, Pedido pedido, List<Mensaje> mensajes, boolean disponible) {
         super();
         this.id = id;
         this.nombre = nombre;
         this.planta = planta;
         this.pedido = pedido;
         this.mensajes = mensajes;
+        this.disponible = disponible;
     }
 
     public Long getId() {
@@ -89,6 +84,14 @@ public class Ejemplar implements Serializable {
         this.mensajes = mensajes;
     }
 
+    public boolean isDisponible() {
+        return disponible;
+    }
+
+    public void setDisponible(boolean disponible) {
+        this.disponible = disponible;
+    }
+
     @Override
     public String toString() {
         return "Ejemplar{" + 
@@ -96,7 +99,7 @@ public class Ejemplar implements Serializable {
                ", nombre='" + (nombre != null ? nombre : "null") + '\'' + 
                ", planta=" + (planta != null ? planta.getId() : "null") + 
                ", pedido=" + (pedido != null ? pedido.getId() : "null") + 
+               ", disponible=" + disponible +
                '}';
     }
-
 }
