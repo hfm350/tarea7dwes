@@ -15,12 +15,12 @@ public class Principal implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		/*
+		
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String rawPassword = "admin"; // Cambia si necesitas otra
+        String rawPassword = "1111"; // Cambia si necesitas otra
         String encodedPassword = encoder.encode(rawPassword);
         System.out.println("Contraseña encriptada: " + encodedPassword);
-        */
+        
 		fachadaInvitado.mostrarMenuInvitado();
 		
 		
