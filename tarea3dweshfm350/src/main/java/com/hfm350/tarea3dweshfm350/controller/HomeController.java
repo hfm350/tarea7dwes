@@ -413,5 +413,12 @@ public class HomeController {
 		redirectAttributes.addFlashAttribute("successMessage", "Cliente registrado exitosamente.");
 		return "redirect:/inicioSesion";
 	}
+	
+	@GetMapping("/registroCliente")
+	public String mostrarFormularioRegistro(Model model) {
+	    model.addAttribute("cliente", new Cliente()); // Asegurar que el modelo tiene un objeto Cliente
+	    return "registroCliente"; // Nombre de la vista HTML
+	}
+
 
 }
