@@ -21,6 +21,11 @@ public class ServiciosPersona {
 	    }
 	    personaRepo.saveAndFlush(p);
 	}
+	
+	public Persona insertar2(Persona persona) {
+	    return personaRepo.save(persona); // Asegura que retorne la persona guardada
+	}
+
 
 	public boolean existeEmail(String email) {
 		return personaRepo.existsByEmail(email);

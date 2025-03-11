@@ -32,8 +32,9 @@ public class Credencial implements Serializable {
     private String rol;
 
 	@OneToOne
-	@JoinColumn(name = "idPersona", unique = true)
+	@JoinColumn(name = "idPersona", unique = true, nullable = true)
 	private Persona persona;
+
 	
     @OneToOne(optional = true)
     @JoinColumn(name = "cliente_id", unique = true)

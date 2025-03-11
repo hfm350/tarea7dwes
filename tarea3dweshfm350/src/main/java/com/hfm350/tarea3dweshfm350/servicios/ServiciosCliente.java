@@ -17,6 +17,11 @@ public class ServiciosCliente {
     public void guardar(Cliente cliente) {
         clienteRepo.save(cliente);
     }
+    
+    public Cliente guardar2(Cliente cliente) {
+        return clienteRepo.save(cliente); // Asegura que retorne el cliente guardado
+    }
+
 
     public Optional<Cliente> buscarPorId(Long id) {
         return clienteRepo.findById(id);
@@ -25,5 +30,12 @@ public class ServiciosCliente {
     public boolean existeNifNie(String nifNie) {
         return clienteRepo.existsByNifNie(nifNie);
     }
+    
+    public boolean existeEmail(String email) {
+        return clienteRepo.existsByEmail(email);
+    }
+    
+
+
 }
 

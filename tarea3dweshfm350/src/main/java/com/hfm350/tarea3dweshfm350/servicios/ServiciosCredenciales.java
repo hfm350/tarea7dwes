@@ -23,6 +23,10 @@ public class ServiciosCredenciales {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    
+    public Optional<Credencial> buscarPorUsuario(String usuario) {
+        return credencialRepo.findByUsuario(usuario);
+    }
 
     public boolean autenticar(String nombreUsuario, String clave) {
         Optional<Credencial> credencialOpt = credencialRepo.findByUsuario(nombreUsuario);
@@ -76,8 +80,19 @@ public class ServiciosCredenciales {
             System.err.println("Error al registrar las credenciales: " + e.getMessage());
         }
     }
-
     
+    public void insertarCliente(String username, String password, String rol) {
+        // Crear una nueva instancia de Credencial
+        Credencial credencial = new Credencial();
+        credencial.setUsuario(username); // Asignar el username
+        credencial.setPassword(password); // Asignar el password
+        credencial.setRol(rol);           // Asignar el rol
+
+        // Guardar la credencial en la base de datos
+        credencialRepo.save(credencial);
+    }
+    
+
     
     public boolean existeUsuario(String usuario) {
         return credencialRepo.existeUsuario(usuario);
