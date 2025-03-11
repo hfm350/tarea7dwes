@@ -69,21 +69,6 @@ body {
 
 	<div class="login-container">
 		<h2>Iniciar Sesión</h2>
-
-		<!-- Mensaje de error si las credenciales son incorrectas -->
-		<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        fetch("/auth/user")
-            .then(response => response.json())
-            .then(data => {
-                if (data.authenticated) {
-                    window.location.href = data.redirectUrl;
-                }
-            });
-    });
-</script>
-
-
 		<form th:action="@{/login}" method="post">
 
 			<div class="form-group">

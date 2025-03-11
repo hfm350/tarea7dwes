@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.hfm350.tarea3dweshfm350.modelo.Credencial;
@@ -20,13 +21,13 @@ public class ServiciosCredenciales {
     @Autowired
     private CredencialRepository credencialRepo;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder; // **Importante para encriptar la contraseña**
+
+    // Método para autenticar usuarios (compara contraseñas encriptadas)
     public boolean autenticar(String nombreUsuario, String clave) {
         Optional<Credencial> credencialOpt = credencialRepo.findByUsuario(nombreUsuario);
-        if (credencialOpt.isPresent()) {
-            Credencial credenciales = credencialOpt.get();
-            return credenciales.getPassword().equals(clave); 
-        }
-        return false; 
+        return credencialOpt.isPresent() && passwordEncoder.matches(clave, credencialOpt.get().getPassword());
     }
 
     public boolean verificarUsuario(String usuario) {
@@ -34,12 +35,6 @@ public class ServiciosCredenciales {
     }
 
     public void insertar(String usuario, String password, Long idPersona) {
-        // Verifica si idPersona es nulo o no existe en la base de datos
-        if (idPersona == null) {
-            System.out.println("El ID de la persona no puede ser nulo.");
-            return;
-        }
-
         Persona persona = personaRepo.findById(idPersona).orElse(null);
 
         if (persona == null) {
@@ -47,21 +42,19 @@ public class ServiciosCredenciales {
             return;
         }
 
-        // Crear la entidad Credencial
         Credencial credenciales = new Credencial();
         credenciales.setUsuario(usuario);
-        credenciales.setPassword(password);
+        credenciales.setPassword(passwordEncoder.encode(password)); // Encriptar la contraseña
         credenciales.setPersona(persona);
+        credenciales.setRol("ROLE_PERSONAL"); // Asignar rol por defecto
 
         try {
-            // Guarda la credencial en la base de datos
             credencialRepo.save(credenciales);
             System.out.println("Credenciales registradas exitosamente para el usuario: " + usuario);
         } catch (Exception e) {
             System.err.println("Error al registrar las credenciales: " + e.getMessage());
         }
     }
-
     public boolean existeUsuario(String usuario) {
         return credencialRepo.existeUsuario(usuario);
     }

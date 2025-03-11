@@ -46,6 +46,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // Desactiva CSRF si no es necesario
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/inicioSesion", "/registroCliente").permitAll()
+                .requestMatchers("/images/**", "/css/**", "/vivero.png").permitAll()
                 .requestMatchers("/menuAdmin").hasAuthority("ROLE_ADMIN")
                 .requestMatchers("/menuPersonal").hasAuthority("ROLE_PERSONAL")
                 .anyRequest().authenticated()

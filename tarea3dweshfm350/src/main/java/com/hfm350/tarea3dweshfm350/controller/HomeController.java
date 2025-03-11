@@ -1,5 +1,6 @@
 package com.hfm350.tarea3dweshfm350.controller;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,16 +86,23 @@ public class HomeController {
 
 
     @GetMapping("/menuPersonal")
-    public String mostrarPersonalDashboard(Model model, HttpSession session) {
+    public String mostrarPersonalDashboard(Model model, HttpSession session, Principal principal) {
         String rol = (String) session.getAttribute("rol");
+        String nombreUsuario = (String) session.getAttribute("nombreUsuario");
 
-        if (rol == null || !rol.equals("PERSONAL")) {
+        if (rol == null || !rol.equals("ROLE_PERSONAL")) { // Asegurar que coincida con Spring Security
             return "redirect:/inicioSesion"; 
         }
 
-        model.addAttribute("nombreUsuario", session.getAttribute("nombreUsuario"));
+        if (nombreUsuario == null && principal != null) {
+            nombreUsuario = principal.getName();  // Obtener el nombre del usuario autenticado
+            session.setAttribute("nombreUsuario", nombreUsuario); // Guardarlo en la sesión
+        }
+
+        model.addAttribute("nombreUsuario", nombreUsuario);
         return "menuPersonal";
     }
+
     
 
     @PostMapping("/login")

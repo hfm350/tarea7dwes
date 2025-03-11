@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.hfm350.tarea3dweshfm350.modelo.Credencial;
 import com.hfm350.tarea3dweshfm350.modelo.Persona;
+import com.hfm350.tarea3dweshfm350.seguridad.SecurityConfig;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosCredenciales;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosPersona;
 
@@ -23,6 +24,9 @@ public class PersonaController {
 
     @Autowired
     private ServiciosPersona servPersona;
+    
+    @Autowired
+    private SecurityConfig securityConfig;
 
     @GetMapping("/registroPersona")
     public String registroPersonas(Model model) {
@@ -41,62 +45,70 @@ public class PersonaController {
                                   Model model) {
         boolean valido = true;
 
-        
+        // Validaciones
         if (nombre.isEmpty() || !nombre.matches("[A-Z][a-z]+")) {
             model.addAttribute("errorMessageNombre", "El nombre debe comenzar con mayúscula y solo contener letras.");
             valido = false;
-            List<Credencial> listaCredenciales = servCredenciales.findAll().stream()
-                    .filter(credencial -> !credencial.getUsuario().equalsIgnoreCase("ADMIN"))
-                    .collect(Collectors.toList());
         }
 
-      
         if (email.isEmpty() || !email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$")) {
-            model.addAttribute("errorMessageEmail", "El email debe tener el formato correcto: ejemplo@dominio.com");
+            model.addAttribute("errorMessageEmail", "El email debe tener el formato correcto.");
             valido = false;
         } else if (servPersona.existeEmail(email)) {
             model.addAttribute("errorMessageEmail", "El email ya está registrado.");
             valido = false;
         }
 
-      
         if (usuario.isEmpty() || usuario.contains(" ")) {
             model.addAttribute("errorMessageUsuario", "El usuario no puede contener espacios en blanco.");
             valido = false;
         } else if (servCredenciales.existeUsuario(usuario)) {
-            model.addAttribute("errorMessageUsuario", "El usuario '" + usuario + "' ya está registrado.");
+            model.addAttribute("errorMessageUsuario", "El usuario ya está registrado.");
             valido = false;
         }
 
-     
         if (contraseña.isEmpty() || !contraseña.matches("\\d{4}")) {
             model.addAttribute("errorMessageContraseña", "La contraseña debe tener exactamente 4 dígitos numéricos.");
             valido = false;
         }
 
-   
         if (!valido) {
-        	List<Credencial> listaCredenciales = servCredenciales.findAll().stream()
+            List<Credencial> listaCredenciales = servCredenciales.findAll()
+                    .stream()
                     .filter(credencial -> !credencial.getUsuario().equalsIgnoreCase("ADMIN"))
                     .collect(Collectors.toList());
             model.addAttribute("credenciales", listaCredenciales);
             return "registroPersona";
         }
 
-        // Insertar persona y credencial
-        try {
-            Persona p = new Persona(nombre, email);
-            servPersona.insertar(p);
-            servCredenciales.insertar(usuario, contraseña, p.getId());
-            model.addAttribute("successMessage", "¡Usuario registrado exitosamente!");
-        } catch (RuntimeException e) {
-            model.addAttribute("errorMessageEmail", e.getMessage());
-        }
-        List<Credencial> listaCredenciales = servCredenciales.findAll().stream()
-                .filter(credencial -> !credencial.getUsuario().equalsIgnoreCase("ADMIN"))
+        // **1. Crea la Persona y guárdala**
+        Persona p = new Persona();
+        p.setNombre(nombre);
+        p.setEmail(email);
+        servPersona.insertar(p);
+
+        // **2. Encripta la contraseña**
+        String contraseñaEncriptada = securityConfig.passwordEncoder().encode(contraseña);
+
+        // **3. Crea la Credencial y asígnale el rol ROLE_PERSONAL**
+        Credencial credencial = new Credencial();
+        credencial.setUsuario(usuario);
+        credencial.setPassword(contraseñaEncriptada);
+        credencial.setPersona(p);
+        credencial.setRol("ROLE_PERSONAL");
+
+        // **4. Guarda la credencial en la base de datos**
+        servCredenciales.insertar(credencial.getUsuario(), credencial.getPassword(), credencial.getPersona().getId());
+
+        model.addAttribute("successMessage", "¡Usuario registrado exitosamente!");
+
+        List<Credencial> listaCredenciales = servCredenciales.findAll()
+                .stream()
+                .filter(credencialExistente -> !credencialExistente.getUsuario().equalsIgnoreCase("ADMIN"))
                 .collect(Collectors.toList());
         model.addAttribute("credenciales", listaCredenciales);
 
         return "registroPersona";
     }
+
 }
