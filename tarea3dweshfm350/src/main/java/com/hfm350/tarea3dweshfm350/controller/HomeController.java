@@ -2,14 +2,14 @@ package com.hfm350.tarea3dweshfm350.controller;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -198,62 +198,83 @@ public class HomeController {
 	}
 
 	@PostMapping("/insertarEjemplar")
-	@ResponseBody // Indica que este método devuelve JSON en lugar de recargar la página
-	public ResponseEntity<?> insertarEjemplar(@RequestParam String codigoPlanta,
-	                                          @RequestParam String mensaje,
-	                                          HttpSession session) {
-	    Long usuarioIdLong = controlador.getUsuarioAutenticado();
-	    if (usuarioIdLong == null) {
-	        return ResponseEntity.badRequest().body("Usuario no autenticado.");
+	public String insertarEjemplar(@RequestParam String codigoPlanta,
+	                               
+	                               RedirectAttributes redirectAttributes,
+	                               HttpSession session) {
+
+	    // 🔹 Verificar si el usuario está autenticado en Spring Security
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+	    if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+	        redirectAttributes.addFlashAttribute("errorMessagePersona", "Usuario no autenticado.");
+	        System.out.println("⚠️ Usuario no autenticado. Redirigiendo...");
+	        return "redirect:/insertarEjemplar";
 	    }
 
-	    Optional<Long> personaID = serviciosCredenciales.obtenerIdPersonaPorIdCredencial(usuarioIdLong);
-	    if (personaID.isEmpty()) {
-	        return ResponseEntity.badRequest().body("No se encuentra la persona asociada.");
-	    }
+	    String usuarioAutenticado = authentication.getName(); // Nombre de usuario autenticado
+	    System.out.println("✅ Usuario autenticado: " + usuarioAutenticado);
 
-	    Optional<Persona> personaOptional = serviciosPersona.buscarPorId(personaID.get());
-	    if (personaOptional.isEmpty()) {
-	        return ResponseEntity.badRequest().body("No se encuentra la persona con el ID obtenido.");
-	    }
+	    
 
-	    Persona persona = personaOptional.get();
-
+	    // 🔹 Buscar la planta por su código
 	    Planta planta = serviciosPlanta.buscarPorCodigo(codigoPlanta);
 	    if (planta == null) {
-	        return ResponseEntity.badRequest().body("El código de la planta no es válido.");
+	        redirectAttributes.addFlashAttribute("errorMessage", "El código de la planta no es válido.");
+	        return "redirect:/insertarEjemplar";
 	    }
 
-	    // Crear y guardar el ejemplar
-	    Ejemplar ejemplar = new Ejemplar();
-	    ejemplar.setPlanta(planta);
-	    ejemplar.getNombre();
-
-	    try {
-	        ejemplar = serviciosEjemplar.insertar(ejemplar);
-	    } catch (Exception e) {
-	        return ResponseEntity.badRequest().body("Error al insertar el ejemplar: " + e.getMessage());
+	    // 🔹 Insertar el ejemplar automáticamente generando su nombre
+	    Ejemplar ejemplar = serviciosEjemplar.insertar(codigoPlanta);
+	    if (ejemplar == null) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Error al insertar el ejemplar.");
+	        return "redirect:/insertarEjemplar";
 	    }
 
-	    // Crear y guardar mensaje
+	    // 🔹 Obtener ID del usuario autenticado desde la credencial
+	    Optional<Credencial> credencialOpt = serviciosCredenciales.buscarPorUsuario(usuarioAutenticado);
+	    if (credencialOpt.isEmpty()) {
+	        redirectAttributes.addFlashAttribute("errorMessagePersona", "No se encontró la credencial del usuario.");
+	        return "redirect:/insertarEjemplar";
+	    }
+
+	    Long personaID = serviciosCredenciales.obtenerIdPersonaPorIdCredencial(credencialOpt.get().getId())
+	                     .orElseThrow(() -> new RuntimeException("No se encuentra la persona asociada."));
+
+	    Persona persona = serviciosPersona.buscarPorId(personaID)
+	                      .orElseThrow(() -> new RuntimeException("No se encuentra la persona con el ID obtenido."));
+
+	    // 🔹 Registrar el mensaje asociado al ejemplar y la persona
 	    LocalDateTime tiempo = LocalDateTime.now();
-	    Mensaje nuevoMensaje = new Mensaje(tiempo, mensaje, persona, ejemplar);
+	    String fechaFormateada = tiempo.format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy"));
+	    String mensajeGenerado = "Ejemplar añadido por " + persona.getNombre() + " a las " + fechaFormateada + ".";
+	    Mensaje nuevoMensaje = new Mensaje(tiempo, mensajeGenerado, persona, ejemplar);
+	    serviciosMensaje.insertar(nuevoMensaje);
 
-	    try {
-	        serviciosMensaje.insertar(nuevoMensaje);
-	    } catch (Exception e) {
-	        return ResponseEntity.badRequest().body("Error al insertar el mensaje: " + e.getMessage());
-	    }
+	    // 🔹 Mensaje de éxito
+	    redirectAttributes.addFlashAttribute("successMessage", "Ejemplar y mensaje registrados exitosamente.");
 
-	    // Retornar JSON con el ejemplar y mensaje
-	    Map<String, Object> response = new HashMap<>();
-	    response.put("successMessage", "Ejemplar y mensaje registrados exitosamente.");
-	    response.put("ejemplar", ejemplar);
-	    response.put("mensaje", nuevoMensaje);
+	    System.out.println("✅ Ejemplar y mensaje guardados con éxito para el usuario: " + usuarioAutenticado);
 
-	    return ResponseEntity.ok(response);
+	    return "redirect:/insertarEjemplar";  // ✅ Redirige para actualizar la página
 	}
 
+
+
+	@GetMapping("/gestionMensajes")
+	public String gestionMensajes(Model model) {
+		List<Mensaje> mensajes = serviciosMensaje.findAll();
+		List<Ejemplar> ejemplares = serviciosEjemplar.findAll();
+
+		if (ejemplares.isEmpty()) {
+			model.addAttribute("mensajeError", "No hay ejemplares registrados.");
+			return "error";
+		}
+
+		model.addAttribute("mensajes", mensajes);
+		model.addAttribute("ejemplares", ejemplares);
+		return "gestionMensajes";
+	}
 
 	@PostMapping("/gestionMensajes")
 	public String añadirMensaje(@RequestParam Long idEjemplar, @RequestParam String mensajeTexto, Model model) {

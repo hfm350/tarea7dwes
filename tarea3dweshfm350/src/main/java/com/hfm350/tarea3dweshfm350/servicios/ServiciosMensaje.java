@@ -19,14 +19,21 @@ public class ServiciosMensaje {
 
 	@Autowired
 	private EjemplarRepository ejemplarRepository;
+	
 	@Autowired
 	private MensajeRepository mensajeRepo;
 
 	public void insertar(Mensaje mensaje) {
-
-		if (mensaje.getEjemplar().getId() == null) {
-			ejemplarRepository.save(mensaje.getEjemplar());
+		if (mensaje.getEjemplar() == null || mensaje.getPersona() == null) {
+			throw new IllegalArgumentException("El mensaje debe tener un ejemplar y una persona asociada.");
 		}
+
+		// Verificar si el ejemplar existe antes de guardar el mensaje
+		if (mensaje.getEjemplar().getId() == null) {
+			Ejemplar ejemplarGuardado = ejemplarRepository.save(mensaje.getEjemplar());
+			mensaje.setEjemplar(ejemplarGuardado);
+		}
+
 		mensajeRepo.save(mensaje);
 	}
 	

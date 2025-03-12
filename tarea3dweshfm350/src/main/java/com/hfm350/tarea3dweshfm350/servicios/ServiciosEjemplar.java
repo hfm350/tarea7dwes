@@ -52,6 +52,11 @@ public class ServiciosEjemplar {
 	    return ejemplar;
 	}
 
+	public Ejemplar insertar2(Ejemplar ej) {
+	    return ejemplarRepo.saveAndFlush(ej);  // Devuelve el ejemplar guardado
+	}
+
+
 
 
 	public List<Ejemplar> findAll() {
