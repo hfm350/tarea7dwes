@@ -32,11 +32,14 @@ public class PersonaController {
     @GetMapping("/registroPersona")
     public String registroPersonas(Model model) {
         List<Credencial> listaCredenciales = servCredenciales.findAll().stream()
+                .filter(credencial -> credencial.getPersona() != null) // Filtra credenciales sin persona
                 .filter(credencial -> !credencial.getUsuario().equalsIgnoreCase("ADMIN"))
                 .collect(Collectors.toList());
+
         model.addAttribute("credenciales", listaCredenciales);
         return "registroPersona";
     }
+    
 
     @PostMapping("/registroPersona")
     public String registroPersona(@RequestParam String nombre, 

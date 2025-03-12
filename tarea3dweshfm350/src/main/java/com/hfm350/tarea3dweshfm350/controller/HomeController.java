@@ -110,31 +110,34 @@ public class HomeController {
 	}
 
 	@PostMapping("/login")
-	public String procesarLogin(@RequestParam("username") String usuario, @RequestParam("password") String password,
-			Model model, HttpSession session) {
+	public String procesarLogin(@RequestParam("username") String usuario, 
+	                            @RequestParam("password") String password,
+	                            HttpSession session, RedirectAttributes redirectAttributes) {
+	    if (serviciosCredenciales.autenticar(usuario, password)) {
+	        session.setAttribute("nombreUsuario", usuario);
+	        Optional<Credencial> credencialOpt = serviciosCredenciales.buscarPorUsuario(usuario);
 
-		if (serviciosCredenciales.autenticar(usuario, password)) {
-			session.setAttribute("nombreUsuario", usuario);
-			Optional<Credencial> credencialOpt = serviciosCredenciales.buscarPorUsuario(usuario);
+	        if (credencialOpt.isPresent()) {
+	            Credencial credencial = credencialOpt.get();
+	            String rol = credencial.getRol();
+	            session.setAttribute("rol", rol);
 
-			if (credencialOpt.isPresent()) {
-				Credencial credencial = credencialOpt.get();
-				String rol = credencial.getRol();
-				session.setAttribute("rol", rol);
+	            if ("ROLE_CLIENTE".equals(rol)) {
+	                return "redirect:/menuCliente";
+	            } else if ("ROLE_ADMIN".equals(rol)) {
+	                return "redirect:/menuAdmin";
+	            } else if ("ROLE_PERSONAL".equals(rol)) {
+	                return "redirect:/menuPersonal";
+	            }
+	        }
+	    }
 
-				if ("ROLE_CLIENTE".equals(rol)) {
-					return "redirect:/menuCliente";
-				} else if ("ROLE_ADMIN".equals(rol)) {
-					return "redirect:/menuAdmin";
-				} else if ("ROLE_PERSONAL".equals(rol)) {
-					return "redirect:/menuPersonal";
-				}
-			}
-		}
-
-		model.addAttribute("error", "Usuario o contraseña incorrectos");
-		return "inicioSesion";
+	    redirectAttributes.addFlashAttribute("error", "Usuario o contraseña incorrectos.");
+	    return "redirect:/inicioSesion";
 	}
+
+
+
 
 	@GetMapping("/logout")
 	public String cerrarSesion(HttpSession session) {
@@ -152,7 +155,8 @@ public class HomeController {
 
 	@GetMapping("/gestionEjemplares")
 	public String gestionEjemplar(Model model, HttpSession session) {
-		model.addAttribute("perfil", session.getAttribute("perfil"));
+		String rol = (String) session.getAttribute("rol");
+		model.addAttribute("rol", rol);
 		return "/gestionEjemplares";
 	}
 
@@ -178,7 +182,7 @@ public class HomeController {
 				plantas.add(planta);
 			}
 		}
-		
+
 		if (plantas.isEmpty()) {
 			model.addAttribute("errorMessagelistavacia", "No hay plantas disponibles para registrar ejemplares.");
 		} else {
@@ -186,8 +190,8 @@ public class HomeController {
 		}
 
 		model.addAttribute("ejemplares", serviciosEjemplar.findAll());
-		model.addAttribute("plantasSinEjemplar", serviciosPlanta.findAll()); 
-		return "insertarEjemplar";  // Devuelve la vista sin redirigir
+		model.addAttribute("plantasSinEjemplar", serviciosPlanta.findAll());
+		return "insertarEjemplar"; // Devuelve la vista sin redirigir
 
 	}
 
@@ -199,70 +203,69 @@ public class HomeController {
 
 	@PostMapping("/insertarEjemplar")
 	public String insertarEjemplar(@RequestParam String codigoPlanta,
-	                               
-	                               RedirectAttributes redirectAttributes,
-	                               HttpSession session) {
 
-	    // 🔹 Verificar si el usuario está autenticado en Spring Security
-	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			RedirectAttributes redirectAttributes, HttpSession session) {
 
-	    if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-	        redirectAttributes.addFlashAttribute("errorMessagePersona", "Usuario no autenticado.");
-	        System.out.println("⚠️ Usuario no autenticado. Redirigiendo...");
-	        return "redirect:/insertarEjemplar";
-	    }
+		// 🔹 Verificar si el usuario está autenticado en Spring Security
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-	    String usuarioAutenticado = authentication.getName(); // Nombre de usuario autenticado
-	    System.out.println("✅ Usuario autenticado: " + usuarioAutenticado);
+		if (authentication == null || !authentication.isAuthenticated()
+				|| authentication.getPrincipal().equals("anonymousUser")) {
+			redirectAttributes.addFlashAttribute("errorMessagePersona", "Usuario no autenticado.");
+			System.out.println("⚠️ Usuario no autenticado. Redirigiendo...");
+			return "redirect:/insertarEjemplar";
+		}
 
-	    
+		String usuarioAutenticado = authentication.getName(); // Nombre de usuario autenticado
+		System.out.println("✅ Usuario autenticado: " + usuarioAutenticado);
 
-	    // 🔹 Buscar la planta por su código
-	    Planta planta = serviciosPlanta.buscarPorCodigo(codigoPlanta);
-	    if (planta == null) {
-	        redirectAttributes.addFlashAttribute("errorMessage", "El código de la planta no es válido.");
-	        return "redirect:/insertarEjemplar";
-	    }
+		// 🔹 Buscar la planta por su código
+		Planta planta = serviciosPlanta.buscarPorCodigo(codigoPlanta);
+		if (planta == null) {
+			redirectAttributes.addFlashAttribute("errorMessage", "El código de la planta no es válido.");
+			return "redirect:/insertarEjemplar";
+		}
 
-	    // 🔹 Insertar el ejemplar automáticamente generando su nombre
-	    Ejemplar ejemplar = serviciosEjemplar.insertar(codigoPlanta);
-	    if (ejemplar == null) {
-	        redirectAttributes.addFlashAttribute("errorMessage", "Error al insertar el ejemplar.");
-	        return "redirect:/insertarEjemplar";
-	    }
+		// 🔹 Insertar el ejemplar automáticamente generando su nombre
+		Ejemplar ejemplar = serviciosEjemplar.insertar(codigoPlanta);
+		if (ejemplar == null) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Error al insertar el ejemplar.");
+			return "redirect:/insertarEjemplar";
+		}
 
-	    // 🔹 Obtener ID del usuario autenticado desde la credencial
-	    Optional<Credencial> credencialOpt = serviciosCredenciales.buscarPorUsuario(usuarioAutenticado);
-	    if (credencialOpt.isEmpty()) {
-	        redirectAttributes.addFlashAttribute("errorMessagePersona", "No se encontró la credencial del usuario.");
-	        return "redirect:/insertarEjemplar";
-	    }
+		// 🔹 Obtener ID del usuario autenticado desde la credencial
+		Optional<Credencial> credencialOpt = serviciosCredenciales.buscarPorUsuario(usuarioAutenticado);
+		if (credencialOpt.isEmpty()) {
+			redirectAttributes.addFlashAttribute("errorMessagePersona", "No se encontró la credencial del usuario.");
+			return "redirect:/insertarEjemplar";
+		}
 
-	    Long personaID = serviciosCredenciales.obtenerIdPersonaPorIdCredencial(credencialOpt.get().getId())
-	                     .orElseThrow(() -> new RuntimeException("No se encuentra la persona asociada."));
+		Long personaID = serviciosCredenciales.obtenerIdPersonaPorIdCredencial(credencialOpt.get().getId())
+				.orElseThrow(() -> new RuntimeException("No se encuentra la persona asociada."));
 
-	    Persona persona = serviciosPersona.buscarPorId(personaID)
-	                      .orElseThrow(() -> new RuntimeException("No se encuentra la persona con el ID obtenido."));
+		Persona persona = serviciosPersona.buscarPorId(personaID)
+				.orElseThrow(() -> new RuntimeException("No se encuentra la persona con el ID obtenido."));
 
-	    // 🔹 Registrar el mensaje asociado al ejemplar y la persona
-	    LocalDateTime tiempo = LocalDateTime.now();
-	    String fechaFormateada = tiempo.format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy"));
-	    String mensajeGenerado = "Ejemplar añadido por " + persona.getNombre() + " a las " + fechaFormateada + ".";
-	    Mensaje nuevoMensaje = new Mensaje(tiempo, mensajeGenerado, persona, ejemplar);
-	    serviciosMensaje.insertar(nuevoMensaje);
+		// 🔹 Registrar el mensaje asociado al ejemplar y la persona
+		LocalDateTime tiempo = LocalDateTime.now();
+		String fechaFormateada = tiempo.format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy"));
+		String mensajeGenerado = "Ejemplar añadido por " + persona.getNombre() + " a las " + fechaFormateada + ".";
+		Mensaje nuevoMensaje = new Mensaje(tiempo, mensajeGenerado, persona, ejemplar);
+		serviciosMensaje.insertar(nuevoMensaje);
 
-	    // 🔹 Mensaje de éxito
-	    redirectAttributes.addFlashAttribute("successMessage", "Ejemplar y mensaje registrados exitosamente.");
+		// 🔹 Mensaje de éxito
+		redirectAttributes.addFlashAttribute("successMessage", "Ejemplar y mensaje registrados exitosamente.");
 
-	    System.out.println("✅ Ejemplar y mensaje guardados con éxito para el usuario: " + usuarioAutenticado);
+		System.out.println("✅ Ejemplar y mensaje guardados con éxito para el usuario: " + usuarioAutenticado);
 
-	    return "redirect:/insertarEjemplar";  // ✅ Redirige para actualizar la página
+		return "redirect:/insertarEjemplar"; // ✅ Redirige para actualizar la página
 	}
 
-
-
 	@GetMapping("/gestionMensajes")
-	public String gestionMensajes(Model model) {
+	public String gestionMensajes(Model model, HttpSession session) {
+		String rol = (String) session.getAttribute("rol");
+		model.addAttribute("rol", rol); // Pasamos el rol a la vista
+
 		List<Mensaje> mensajes = serviciosMensaje.findAll();
 		List<Ejemplar> ejemplares = serviciosEjemplar.findAll();
 
@@ -428,12 +431,11 @@ public class HomeController {
 		redirectAttributes.addFlashAttribute("successMessage", "Cliente registrado exitosamente.");
 		return "redirect:/inicioSesion";
 	}
-	
+
 	@GetMapping("/registroCliente")
 	public String mostrarFormularioRegistro(Model model) {
-	    model.addAttribute("cliente", new Cliente()); // Asegurar que el modelo tiene un objeto Cliente
-	    return "registroCliente"; // Nombre de la vista HTML
+		model.addAttribute("cliente", new Cliente()); // Asegurar que el modelo tiene un objeto Cliente
+		return "registroCliente"; // Nombre de la vista HTML
 	}
-
 
 }

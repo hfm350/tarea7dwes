@@ -73,6 +73,15 @@ body {
 .regresar-link:hover {
 	text-decoration: underline;
 }
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: center;
+}
+
 </style>
 </head>
 <body>
@@ -91,6 +100,10 @@ body {
 				<label for="password">Contraseña</label> 
 				<input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required autocomplete="current-password">
 			</div>
+
+			<!-- ✅ Mensaje de error si el login falla -->
+			<p th:if="${param.error}" class="error-message">Usuario o contraseña incorrectos.</p>
+
 
 			<button type="submit" class="login-btn">Iniciar sesión</button>
 

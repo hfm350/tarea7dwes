@@ -187,7 +187,8 @@
 
     <nav class="navbar">
         <a href="#" class="logo">Gestión De Mensajes</a>
-        <a href="javascript:history.back()" class="logout-btn">Volver</a>
+        <a th:href="@{${rol == 'ROLE_ADMIN' ? '/menuAdmin' : '/menuPersonal'}}" class="logout-btn">Volver</a>
+
     </nav>
 
     <div class="button-container">

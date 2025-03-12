@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Registro de Usuario</title>
 <style>
+/* 🎨 ESTILOS GENERALES */
 body {
 	font-family: Arial, sans-serif;
 	background-image: url('vivero.png');
@@ -13,11 +14,50 @@ body {
 	margin: 0;
 	padding: 0;
 	display: flex;
-	justify-content: center;
+	flex-direction: column;
 	align-items: center;
-	height: 100vh;
+	min-height: 100vh;
 }
 
+/* 🔝 BARRA DE NAVEGACIÓN */
+.navbar {
+	width: 100%;
+	background-color: #28a745;
+	padding: 15px 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	color: white;
+	font-weight: bold;
+}
+
+.navbar .logo {
+	font-size: 24px;
+	color: white;
+	text-decoration: none;
+}
+
+.navbar .logout-btn {
+	background-color: white;
+	color: #28a745;
+	padding: 10px 15px;
+	border-radius: 5px;
+	text-decoration: none;
+	font-weight: bold;
+	cursor: pointer;
+	margin-right: 25px;
+}
+
+.navbar .logout-btn:hover {
+	background-color: #7b3939;
+	color: white;
+}
+
+/* 📌 FORMULARIO DE REGISTRO */
 .container {
 	background-color: rgba(0, 0, 0, 0.8);
 	padding: 30px;
@@ -25,10 +65,11 @@ body {
 	box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 	width: 400px;
 	text-align: center;
+	margin-top: 80px; /* Para evitar solapamiento con la navbar */
+	color: white;
 }
 
-h1 {
-	color: #fff;
+.container h1 {
 	font-size: 28px;
 	margin-bottom: 20px;
 }
@@ -68,6 +109,13 @@ button:hover {
 	margin-bottom: 10px;
 }
 
+.success-message {
+	color: #28a745;
+	font-weight: bold;
+	margin-top: 10px;
+}
+
+/* 🔙 BOTÓN VOLVER */
 .btn-back {
 	margin-top: 15px;
 	display: block;
@@ -83,41 +131,7 @@ button:hover {
 	background-color: #c82333;
 }
 
-.navbar {
-	width: 100%;
-	background-color: #28a745;
-	padding: 15px 20px;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	position: fixed;
-	top: 0;
-	left: 0;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.navbar .logo {
-	font-size: 24px;
-	font-weight: bold;
-	color: white;
-	text-decoration: none;
-}
-
-.navbar .logout-btn {
-	background-color: white;
-	color: #28a745;
-	padding: 10px 15px;
-	border-radius: 5px;
-	text-decoration: none;
-	font-weight: bold;
-	cursor: pointer;
-	margin-right: 25px;
-}
-
-.navbar .logout-btn:hover {
-	background-color: #7b3939;
-}
-
+/* 📋 LISTADO DE PERSONAS */
 .container-personas {
 	background-color: rgba(0, 0, 0, 0.8);
 	padding: 30px;
@@ -125,12 +139,8 @@ button:hover {
 	box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 	width: 600px;
 	text-align: center;
-}
-
-h1 {
-	color: #fff;
-	font-size: 28px;
-	margin-bottom: 20px;
+	color: white;
+	margin-top: 40px;
 }
 
 table {
@@ -155,15 +165,20 @@ th {
 
 td {
 	background-color: #f9f9f9;
+	color: black;
 }
 </style>
 </head>
 <body>
-	<nav class="navbar">
-		<a href="#" class="logo">Vivero Laboral</a> <a th:href="@{/menuAdmin}"
-			class="logout-btn">Volver</a>
-	</nav>
-	<div class="container">
+
+<!-- 🔝 Barra de navegación -->
+<nav class="navbar">
+	<a href="#" class="logo">Vivero Laboral</a>
+	<a th:href="@{/menuAdmin}" class="logout-btn">Volver</a>
+</nav>
+
+<!-- 📌 Formulario de Registro -->
+<div class="container">
     <h1>Registro de Persona</h1>
     <form th:action="@{/registroPersona}" method="post">
         <input type="text" name="nombre" placeholder="Nombre" required>
@@ -186,26 +201,27 @@ td {
     </div>
 </div>
 
+<!-- 📋 Listado de Personas -->
+<div class="container-personas">
+	<h1>Listado de Personas</h1>
+	<table>
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Usuario</th>
+				<th>Email</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="credencial : ${credenciales}">
+				<td th:text="${credencial.id}"></td>
+				<td th:text="${credencial.usuario}"></td>
+				<td th:text="${credencial.persona != null ? credencial.persona.email : 'No tiene email'}"></td>
 
-	<div class="container-personas">
-		<h1>Listado de Personas</h1>
-		<table>
-			<thead>
-				<tr>
-					<th>ID</th>
-					<th>Usuario</th>
-					<th>Email</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:each="credencial : ${credenciales}">
-					<td th:text="${credencial.id}"></td>
-					<td th:text="${credencial.usuario}"></td>
-					<td th:text="${credencial.persona.email}"></td>
-				</tr>
-			
-			</tbody>
-		</table>
-	</div>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
 </body>
 </html>
