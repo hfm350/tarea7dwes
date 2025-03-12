@@ -15,33 +15,37 @@ public class Ejemplar implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false, unique = true)
     private String nombre;
 
     @ManyToOne
-    @JoinColumn(name = "idplanta")
+    @JoinColumn(name = "idplanta", nullable = false)
     private Planta planta;
 
     @ManyToOne
-    @JoinColumn(name = "pedido_id")  
+    @JoinColumn(name = "pedido_id")
     private Pedido pedido;
 
     @OneToMany(mappedBy = "ejemplar", cascade = CascadeType.ALL)
     private List<Mensaje> mensajes = new LinkedList<>();
-
+    
     @Column(nullable = false)
-    private boolean disponible = true;  // Nuevo atributo con valor por defecto true
+    private boolean disponible = true;
+
 
     public Ejemplar() {}
 
-    public Ejemplar(Long id, String nombre, Planta planta, Pedido pedido, List<Mensaje> mensajes, boolean disponible) {
-        super();
+    // Constructor sin ID para nuevos ejemplares
+    public Ejemplar(Planta planta) {
+        this.planta = planta;
+    }
+
+    public Ejemplar(Long id, String nombre, Planta planta, Pedido pedido, List<Mensaje> mensajes) {
         this.id = id;
         this.nombre = nombre;
         this.planta = planta;
         this.pedido = pedido;
         this.mensajes = mensajes;
-        this.disponible = disponible;
     }
 
     public Long getId() {
@@ -50,14 +54,17 @@ public class Ejemplar implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+        setNombreAutomatico();
     }
 
     public String getNombre() {
         return nombre;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    private void setNombreAutomatico() {
+        if (planta != null && planta.getCodigo() != null && id != null) {
+            this.nombre = planta.getCodigo() + "_" + id;
+        }
     }
 
     public Planta getPlanta() {
@@ -83,23 +90,23 @@ public class Ejemplar implements Serializable {
     public void setMensajes(List<Mensaje> mensajes) {
         this.mensajes = mensajes;
     }
+    
 
     public boolean isDisponible() {
-        return disponible;
-    }
+		return disponible;
+	}
 
-    public void setDisponible(boolean disponible) {
-        this.disponible = disponible;
-    }
+	public void setDisponible(boolean disponible) {
+		this.disponible = disponible;
+	}
 
-    @Override
+	@Override
     public String toString() {
-        return "Ejemplar{" + 
-               "id=" + id + 
-               ", nombre='" + (nombre != null ? nombre : "null") + '\'' + 
-               ", planta=" + (planta != null ? planta.getId() : "null") + 
-               ", pedido=" + (pedido != null ? pedido.getId() : "null") + 
-               ", disponible=" + disponible +
+        return "Ejemplar{" +
+               "id=" + id +
+               ", nombre='" + (nombre != null ? nombre : "null") + '\'' +
+               ", planta=" + (planta != null ? planta.getId() : "null") +
+               ", pedido=" + (pedido != null ? pedido.getId() : "null") +
                '}';
     }
 }

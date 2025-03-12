@@ -27,33 +27,32 @@ public class ServiciosEjemplar {
         ejemplarRepo.saveAndFlush(ej);
     }
 	
-	public Ejemplar insertar(String nombre, String codigo) {
-	    if (nombre == null || nombre.trim().isEmpty()) {
-	        System.out.println("El nombre del ejemplar no puede estar vacío.");
+	public Ejemplar insertar(String codigoPlanta) {
+	    Optional<Planta> optionalPlanta = plantaRepo.findByCodigo(codigoPlanta);
+
+	    if (optionalPlanta.isEmpty()) {
+	        System.out.println("La planta con código " + codigoPlanta + " no existe.");
 	        return null;
 	    }
 
-	    Optional<Planta> p = plantaRepo.findByCodigo(codigo);
-
-	    if (p.isEmpty()) {
-	        System.out.println("La planta con código " + codigo + " no existe.");
-	        return null;
-	    }
-
-	    Planta planta = p.get();
-
-	    Ejemplar ejemplar = new Ejemplar();
-	    ejemplar.setNombre(nombre.trim());
-	    ejemplar.setPlanta(planta); 
+	    Planta planta = optionalPlanta.get();
+	    Ejemplar ejemplar = new Ejemplar(planta);
+	    ejemplar.setDisponible(true); // Asegurar que se asigna un valor antes de guardar
 
 	    try {
-	        ejemplarRepo.save(ejemplar);
-	        System.out.println("El ejemplar ha sido registrado exitosamente para la planta " + planta.getNombreComun());
+	        ejemplar = ejemplarRepo.save(ejemplar);
+	        ejemplar.setId(ejemplar.getId()); // Se actualiza el nombre
+	        ejemplar = ejemplarRepo.save(ejemplar); // Guarda con nombre asignado
+	        System.out.println("Ejemplar creado: " + ejemplar.getNombre());
 	    } catch (Exception e) {
 	        System.err.println("Error al registrar el ejemplar: " + e.getMessage());
+	        return null;
 	    }
-		return ejemplar;
+
+	    return ejemplar;
 	}
+
+
 
 	public List<Ejemplar> findAll() {
 		return ejemplarRepo.findAll();

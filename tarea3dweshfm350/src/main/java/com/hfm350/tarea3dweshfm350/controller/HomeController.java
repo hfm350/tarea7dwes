@@ -3,10 +3,13 @@ package com.hfm350.tarea3dweshfm350.controller;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -168,22 +171,24 @@ public class HomeController {
 		model.addAttribute("ejemplares", ejemplares);
 
 		List<Planta> plantas = serviciosPlanta.findAll();
-		List<Planta> plantasSinEjemplar = new ArrayList<>();
 
 		for (Planta planta : plantas) {
 			boolean tieneEjemplar = serviciosEjemplar.existsByPlanta(planta);
 			if (!tieneEjemplar) {
-				plantasSinEjemplar.add(planta);
+				plantas.add(planta);
 			}
 		}
-
-		if (plantasSinEjemplar.isEmpty()) {
+		
+		if (plantas.isEmpty()) {
 			model.addAttribute("errorMessagelistavacia", "No hay plantas disponibles para registrar ejemplares.");
 		} else {
-			model.addAttribute("plantasSinEjemplar", plantasSinEjemplar);
+			model.addAttribute("plantasSinEjemplar", plantas);
 		}
 
-		return "insertarEjemplar";
+		model.addAttribute("ejemplares", serviciosEjemplar.findAll());
+		model.addAttribute("plantasSinEjemplar", serviciosPlanta.findAll()); 
+		return "insertarEjemplar";  // Devuelve la vista sin redirigir
+
 	}
 
 	@GetMapping("/gestionPlantas")
@@ -193,73 +198,62 @@ public class HomeController {
 	}
 
 	@PostMapping("/insertarEjemplar")
-	public String insertarEjemplar(@RequestParam String codigoPlanta, @RequestParam String nombreEjemplar,
-			@RequestParam String mensaje, Model model, HttpSession session) {
+	@ResponseBody // Indica que este método devuelve JSON en lugar de recargar la página
+	public ResponseEntity<?> insertarEjemplar(@RequestParam String codigoPlanta,
+	                                          @RequestParam String mensaje,
+	                                          HttpSession session) {
+	    Long usuarioIdLong = controlador.getUsuarioAutenticado();
+	    if (usuarioIdLong == null) {
+	        return ResponseEntity.badRequest().body("Usuario no autenticado.");
+	    }
 
-		if (nombreEjemplar.trim().isEmpty()) {
-			model.addAttribute("errorMessage", "El nombre del ejemplar no puede estar vacío.");
-			return "insertarEjemplar";
-		}
+	    Optional<Long> personaID = serviciosCredenciales.obtenerIdPersonaPorIdCredencial(usuarioIdLong);
+	    if (personaID.isEmpty()) {
+	        return ResponseEntity.badRequest().body("No se encuentra la persona asociada.");
+	    }
 
-		if (mensaje.trim().isEmpty()) {
-			model.addAttribute("errorMessage", "El mensaje no puede estar vacío.");
-			return "insertarEjemplar";
-		}
+	    Optional<Persona> personaOptional = serviciosPersona.buscarPorId(personaID.get());
+	    if (personaOptional.isEmpty()) {
+	        return ResponseEntity.badRequest().body("No se encuentra la persona con el ID obtenido.");
+	    }
 
-		Planta planta = serviciosPlanta.buscarPorCodigo(codigoPlanta);
-		if (planta == null) {
-			model.addAttribute("errorMessage", "El código de la planta no es válido.");
-			return "insertarEjemplar";
-		}
+	    Persona persona = personaOptional.get();
 
-		Ejemplar ejemplar = serviciosEjemplar.insertar(nombreEjemplar, codigoPlanta);
-		if (ejemplar == null) {
-			model.addAttribute("errorMessage", "Error al insertar el ejemplar.");
-			return "insertarEjemplar";
-		}
+	    Planta planta = serviciosPlanta.buscarPorCodigo(codigoPlanta);
+	    if (planta == null) {
+	        return ResponseEntity.badRequest().body("El código de la planta no es válido.");
+	    }
 
-		Long usuarioIdLong = controlador.getUsuarioAutenticado();
-		if (usuarioIdLong == null) {
-			model.addAttribute("errorMessagePersona", "Usuario no autenticado.");
-			return "insertarEjemplar";
-		}
+	    // Crear y guardar el ejemplar
+	    Ejemplar ejemplar = new Ejemplar();
+	    ejemplar.setPlanta(planta);
+	    ejemplar.getNombre();
 
-		Optional<Long> personaID = serviciosCredenciales.obtenerIdPersonaPorIdCredencial(usuarioIdLong);
-		if (!personaID.isPresent()) {
-			model.addAttribute("errorMessagePersona", "No se encuentra la persona asociada.");
-			return "insertarEjemplar";
-		}
+	    try {
+	        ejemplar = serviciosEjemplar.insertar(ejemplar);
+	    } catch (Exception e) {
+	        return ResponseEntity.badRequest().body("Error al insertar el ejemplar: " + e.getMessage());
+	    }
 
-		Optional<Persona> personaOptional = serviciosPersona.buscarPorId(personaID.get());
-		if (!personaOptional.isPresent()) {
-			model.addAttribute("errorUsuario", "No se encuentra la persona con el ID obtenido");
-			return "insertarEjemplar";
-		}
+	    // Crear y guardar mensaje
+	    LocalDateTime tiempo = LocalDateTime.now();
+	    Mensaje nuevoMensaje = new Mensaje(tiempo, mensaje, persona, ejemplar);
 
-		Persona persona = personaOptional.get();
-		LocalDateTime tiempo = LocalDateTime.now();
-		Mensaje nuevoMensaje = new Mensaje(tiempo, mensaje, persona, ejemplar);
-		serviciosMensaje.insertar(nuevoMensaje);
+	    try {
+	        serviciosMensaje.insertar(nuevoMensaje);
+	    } catch (Exception e) {
+	        return ResponseEntity.badRequest().body("Error al insertar el mensaje: " + e.getMessage());
+	    }
 
-		model.addAttribute("successMessage", "Ejemplar y mensaje registrados exitosamente");
+	    // Retornar JSON con el ejemplar y mensaje
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("successMessage", "Ejemplar y mensaje registrados exitosamente.");
+	    response.put("ejemplar", ejemplar);
+	    response.put("mensaje", nuevoMensaje);
 
-		return "redirect:/insertarEjemplar";
+	    return ResponseEntity.ok(response);
 	}
 
-	@GetMapping("/gestionMensajes")
-	public String gestionMensajes(Model model) {
-		List<Mensaje> mensajes = serviciosMensaje.findAll();
-		List<Ejemplar> ejemplares = serviciosEjemplar.findAll();
-
-		if (ejemplares.isEmpty()) {
-			model.addAttribute("mensajeError", "No hay ejemplares registrados.");
-			return "error";
-		}
-
-		model.addAttribute("mensajes", mensajes);
-		model.addAttribute("ejemplares", ejemplares);
-		return "gestionMensajes";
-	}
 
 	@PostMapping("/gestionMensajes")
 	public String añadirMensaje(@RequestParam Long idEjemplar, @RequestParam String mensajeTexto, Model model) {

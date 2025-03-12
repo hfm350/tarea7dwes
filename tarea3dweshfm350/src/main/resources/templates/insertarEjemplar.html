@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Insertar Ejemplar</title>
+
 <style>
 body {
 	font-family: Arial, sans-serif;
@@ -52,6 +53,7 @@ body {
 
 .navbar .logout-btn:hover {
 	background-color: #7b3939;
+	color: white;
 }
 
 .container {
@@ -127,7 +129,7 @@ label {
 	font-weight: bold;
 }
 
-input, textarea {
+input, textarea, select {
 	width: 100%;
 	padding: 12px;
 	margin: 10px 0;
@@ -152,28 +154,24 @@ button:hover {
 }
 
 .error-message {
-    color: red;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 10px;
+	color: red;
+	font-weight: bold;
+	text-align: center;
+	margin-bottom: 10px;
 }
+
 .success-message {
-    color: green;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 10px;
+	color: green;
+	font-weight: bold;
+	text-align: center;
+	margin-bottom: 10px;
 }
 </style>
 
 <script>
 function validarFormulario() {
-    var nombreEjemplar = document.getElementById("nombreEjemplar").value.trim();
     var mensaje = document.getElementById("mensaje").value.trim();
 
-    if (nombreEjemplar === "") {
-        alert("El nombre del ejemplar no puede estar vacío.");
-        return false;
-    }
     if (mensaje === "") {
         alert("El mensaje no puede estar vacío.");
         return false;
@@ -199,7 +197,7 @@ function validarFormulario() {
                 <table>
                     <thead>
                         <tr>
-                            <th>Codigo</th>
+                            <th>Código</th>
                             <th>Nombre</th>
                         </tr>
                     </thead>
@@ -217,10 +215,14 @@ function validarFormulario() {
                 </table>
 
                 <form th:action="@{/insertarEjemplar}" method="post" onsubmit="return validarFormulario()">
-                    <input type="text" name="codigoPlanta" placeholder="Código de la Planta" required>
-                    <div th:if="${errorMessageNoCodigo}" class="error-message" th:text="${errorMessageNoCodigo}"></div>
-                    
-                    <input type="text" id="nombreEjemplar" name="nombreEjemplar" placeholder="Nombre del Ejemplar" required>
+                    <label for="codigoPlanta">Seleccione una Planta:</label>
+                    <select name="codigoPlanta" required>
+                        <option value="" selected disabled>Seleccione una planta</option>
+                        <option th:each="planta : ${plantasSinEjemplar}" 
+                                th:value="${planta.codigo}" 
+                                th:text="${planta.nombreComun}">
+                        </option>
+                    </select>
 
                     <label for="mensaje">Mensaje:</label>
                     <textarea id="mensaje" name="mensaje" rows="4" required></textarea>
@@ -229,7 +231,6 @@ function validarFormulario() {
                     <div th:if="${errorMessagePersona}" class="error-message" th:text="${errorMessagePersona}"></div>
                     <div th:if="${errorUsuario}" class="error-message" th:text="${errorUsuario}"></div>
                     <div th:if="${errorMensaje}" class="error-message" th:text="${errorMensaje}"></div>
-
                     <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
 
                     <input type="hidden" name="idPersona" th:value="${idPersona}">

@@ -128,5 +128,19 @@ public class EjemplarController {
 
         return "ejemplarDePlanta";
     }
+    
+    @PostMapping("/agregarEjemplar")
+    public String agregarEjemplar(@RequestParam("codigoPlanta") String codigoPlanta, Model model) {
+        Ejemplar ejemplar = serviciosEjemplar.insertar(codigoPlanta);
+
+        if (ejemplar == null) {
+            model.addAttribute("mensajeError", "No se pudo crear el ejemplar. Verifique el código de la planta.");
+        } else {
+            model.addAttribute("mensajeExito", "Ejemplar creado con éxito: " + ejemplar.getNombre());
+        }
+
+        return "redirect:/ejemplarDePlanta";
+    }
+
 
 }

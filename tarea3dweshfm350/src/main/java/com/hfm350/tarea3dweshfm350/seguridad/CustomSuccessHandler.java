@@ -23,6 +23,8 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
             response.sendRedirect("/menuAdmin");
         } else if ("ROLE_PERSONAL".equals(role)) {
             response.sendRedirect("/menuPersonal");
+        } else if ("ROLE_CLIENTE".equals(role)) {
+            response.sendRedirect("/menuCliente");
         } else {
             response.sendRedirect("/inicioSesion?error=true");
         }
