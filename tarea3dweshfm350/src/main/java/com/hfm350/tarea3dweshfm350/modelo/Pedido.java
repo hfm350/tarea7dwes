@@ -1,6 +1,5 @@
 package com.hfm350.tarea3dweshfm350.modelo;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
@@ -12,18 +11,24 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private LocalDateTime fechaPedido;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false)
+    private Date fecha;
 
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
-    @OneToMany
-    @JoinColumn(name = "pedido_id")
+    @ManyToMany
+    @JoinTable(
+        name = "pedido_ejemplar",
+        joinColumns = @JoinColumn(name = "pedido_id"),
+        inverseJoinColumns = @JoinColumn(name = "ejemplar_id")
+    )
     private List<Ejemplar> ejemplares;
 
     public Pedido() {
+        this.fecha = new Date();
     }
 
     public Long getId() {
@@ -34,12 +39,12 @@ public class Pedido {
         this.id = id;
     }
 
-    public LocalDateTime getFechaPedido() {
-        return fechaPedido;
+    public Date getFecha() {
+        return fecha;
     }
 
-    public void setFechaPedido(LocalDateTime fechaPedido) {
-        this.fechaPedido = fechaPedido;
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
     }
 
     public Cliente getCliente() {
@@ -57,12 +62,4 @@ public class Pedido {
     public void setEjemplares(List<Ejemplar> ejemplares) {
         this.ejemplares = ejemplares;
     }
-
-    @Override
-    public String toString() {
-        return "Pedido [id=" + id + ", fechaPedido=" + fechaPedido + ", cliente=" + cliente + ", ejemplares="
-                + ejemplares + "]";
-    }
-
-
 }

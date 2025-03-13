@@ -1,27 +1,55 @@
-<html xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Carrito de Compras</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Pedidos</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; }
+        .container { width: 50%; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        button { background-color: green; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: darkgreen; }
+        .delete-btn { background-color: red; }
+        .delete-btn:hover { background-color: darkred; }
+    </style>
 </head>
 <body>
-    <h1>Carrito de Compras</h1>
-    <table>
-        <tr>
-            <th>Nombre</th>
-            <th>Acción</th>
-        </tr>
-        <tr th:each="ejemplar : ${carrito}">
-            <td th:text="${ejemplar.nombre}"></td>
-            <td>
-                <form th:action="@{/carrito/eliminar}" method="post">
-                    <input type="hidden" name="idEjemplar" th:value="${ejemplar.id}" />
-                    <button type="submit">Eliminar</button>
-                </form>
-            </td>
-        </tr>
-    </table>
-    <form th:action="@{/pedido/confirmar}" method="post">
-        <button type="submit">Confirmar Pedido</button>
-    </form>
-    <a th:href="@{/}">Volver</a>
+
+    <div class="container">
+        <h2>Carrito de Pedidos</h2>
+        <table border="1" width="100%">
+            <thead>
+                <tr>
+                    <th>ID Pedido</th>
+                    <th>Fecha</th>
+                    <th>Ejemplares</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="pedido : ${pedidos}">
+                    <td th:text="${pedido.id}"></td>
+                    <td th:text="${pedido.fecha}"></td>
+                    <td>
+                        <ul>
+                            <li th:each="ejemplar : ${pedido.ejemplares}" th:text="${ejemplar.nombre}"></li>
+                        </ul>
+                    </td>
+                    <td>
+                        <form th:action="@{/confirmarPedido}" method="post">
+                            <input type="hidden" name="idPedido" th:value="${pedido.id}">
+                            <button type="submit">Confirmar</button>
+                        </form>
+                        <form th:action="@{/eliminarPedido}" method="post">
+                            <input type="hidden" name="idPedido" th:value="${pedido.id}">
+                            <button type="submit" class="delete-btn">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <a href="/menuCliente">Volver</a>
+    </div>
+
 </body>
 </html>
