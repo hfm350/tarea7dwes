@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.hfm350.tarea3dweshfm350.modelo.Ejemplar;
 import com.hfm350.tarea3dweshfm350.modelo.Planta;
@@ -32,6 +34,11 @@ public interface EjemplarRepository extends JpaRepository<Ejemplar, Long> {
 
     @Query("SELECT e FROM Ejemplar e WHERE e.planta.id = :plantaId AND e.disponible = true ORDER BY e.id ASC")
     List<Ejemplar> findEjemplaresDisponiblesPorPlanta(@Param("plantaId") Long plantaId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Ejemplar e SET e.disponible = true, e.pedido = NULL WHERE e.pedido.id = :pedidoId")
+    void restaurarEjemplaresDePedido(@Param("pedidoId") Long pedidoId);
 
 
 }

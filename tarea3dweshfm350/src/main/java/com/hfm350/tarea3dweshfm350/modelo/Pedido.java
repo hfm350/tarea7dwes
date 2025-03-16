@@ -80,4 +80,6 @@ public class Pedido {
     public void agregarEjemplar(Ejemplar ejemplar) {
         this.ejemplares.add(ejemplar);
     }
+    
+    
 }
