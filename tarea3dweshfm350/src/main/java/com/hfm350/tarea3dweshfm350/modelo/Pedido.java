@@ -19,13 +19,23 @@ public class Pedido {
     @JoinColumn(name = "cliente_id", nullable = false)  
     private Cliente cliente;
 
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany
+    @JoinTable(
+        name = "pedido_ejemplar",
+        joinColumns = @JoinColumn(name = "pedido_id"),
+        inverseJoinColumns = @JoinColumn(name = "ejemplar_id")
+    )
     private List<Ejemplar> ejemplares;  
+
+    @Column(nullable = false)
+    private boolean confirmado = false; // Por defecto no está confirmado
 
     public Pedido() {
         this.fecha = new Date();
+        this.confirmado = false; // Por defecto, el pedido no está confirmado
     }
 
+    // Métodos Getters y Setters
     public Long getId() {
         return id;
     }
@@ -56,8 +66,18 @@ public class Pedido {
 
     public void setEjemplares(List<Ejemplar> ejemplares) {
         this.ejemplares = ejemplares;
-        for (Ejemplar ejemplar : ejemplares) {
-            ejemplar.setPedido(this);
-        }
+    }
+
+    public boolean isConfirmado() {
+        return confirmado;
+    }
+
+    public void setConfirmado(boolean confirmado) {
+        this.confirmado = confirmado;
+    }
+
+    // Método para agregar ejemplares al pedido
+    public void agregarEjemplar(Ejemplar ejemplar) {
+        this.ejemplares.add(ejemplar);
     }
 }

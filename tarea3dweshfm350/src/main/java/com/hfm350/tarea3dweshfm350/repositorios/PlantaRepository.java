@@ -33,4 +33,8 @@ public interface PlantaRepository extends JpaRepository<Planta, Long> {
     @Modifying
     @Query("UPDATE Planta p SET p.nombreCientifico = :nombreCientifico WHERE p.codigo = :codigo")
     int actualizarNombreCientifico(@Param("codigo") String codigo, @Param("nombreCientifico") String nombreCientifico);
+    
+    @Query("SELECT p.id, p.nombreComun, COUNT(e) FROM Planta p JOIN p.ejemplares e WHERE e.disponible = true GROUP BY p.id, p.nombreComun")
+    List<Object[]> obtenerPlantasConEjemplares();
+
 }

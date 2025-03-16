@@ -12,6 +12,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
+
+import jakarta.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSessionListener;
 
 import java.util.List;
 
@@ -21,10 +25,13 @@ public class SecurityConfig {
 
     private final CredencialUserDetailsService userDetailsService;
     private final AuthenticationSuccessHandler successHandler;
+    private final CustomLogoutSuccessHandler logoutSuccessHandler;
 
-    public SecurityConfig(CredencialUserDetailsService userDetailsService, AuthenticationSuccessHandler successHandler) {
+
+    public SecurityConfig(CredencialUserDetailsService userDetailsService, AuthenticationSuccessHandler successHandler, CustomLogoutSuccessHandler logoutSuccessHandler) {
         this.userDetailsService = userDetailsService;
         this.successHandler = successHandler;
+        this.logoutSuccessHandler = logoutSuccessHandler;
     }
 
     @Bean
@@ -39,6 +46,7 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 
 
     @Bean
@@ -63,6 +71,7 @@ public class SecurityConfig {
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/inicioSesion")
+                .logoutSuccessHandler(logoutSuccessHandler)
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
                 .permitAll()
@@ -75,5 +84,13 @@ public class SecurityConfig {
             );
 
         return http.build();
+    }
+    
+    @Component
+    public class SessionCleanupListener implements HttpSessionListener {
+        @Override
+        public void sessionDestroyed(HttpSessionEvent event) {
+            event.getSession().removeAttribute("carritoPedidos");
+        }
     }
 }

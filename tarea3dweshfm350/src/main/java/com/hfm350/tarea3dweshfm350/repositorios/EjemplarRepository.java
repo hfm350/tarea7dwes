@@ -20,4 +20,18 @@ public interface EjemplarRepository extends JpaRepository<Ejemplar, Long> {
 
 	@Query("SELECT e FROM Ejemplar e WHERE e.disponible = true")
 	List<Ejemplar> findEjemplaresDisponibles();
+	
+	@Query("SELECT e FROM Ejemplar e WHERE e.planta.codigo = :codigoPlanta AND e.disponible = true")
+	List<Ejemplar> findEjemplaresDisponiblesPorPlanta(@Param("codigoPlanta") String codigoPlanta);
+
+	// Método para obtener ejemplares disponibles
+    List<Ejemplar> findByDisponibleTrue();
+    
+    @Query("SELECT e FROM Ejemplar e WHERE e.planta.id = :plantaId AND e.disponible = true ORDER BY e.id ASC LIMIT :cantidad")
+    List<Ejemplar> findTopNByPlantaIdAndDisponibleTrue(@Param("plantaId") Long plantaId, @Param("cantidad") int cantidad);
+
+    @Query("SELECT e FROM Ejemplar e WHERE e.planta.id = :plantaId AND e.disponible = true ORDER BY e.id ASC")
+    List<Ejemplar> findEjemplaresDisponiblesPorPlanta(@Param("plantaId") Long plantaId);
+
+
 }

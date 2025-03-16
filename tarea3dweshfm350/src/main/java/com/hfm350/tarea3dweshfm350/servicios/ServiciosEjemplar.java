@@ -1,6 +1,9 @@
 package com.hfm350.tarea3dweshfm350.servicios;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,10 @@ public class ServiciosEjemplar {
 	
 	@Autowired
 	private PlantaRepository plantaRepo;
+	
+	public ServiciosEjemplar(EjemplarRepository ejemplarRepositorio) {
+        this.ejemplarRepo = ejemplarRepositorio;
+    }
 	
 	public void insertar(Ejemplar ej) {
         ejemplarRepo.saveAndFlush(ej);
@@ -71,6 +78,53 @@ public class ServiciosEjemplar {
 		return ejemplarRepo.findById(idEjemplar);
 	}
 	
+	/**
+     * Obtiene la lista de ejemplares disponibles (suponiendo que el atributo `disponible` es un boolean en la entidad `Ejemplar`)
+     */
+    public List<Ejemplar> obtenerEjemplaresDisponibles() {
+        return ejemplarRepo.findByDisponibleTrue();  // Método que busca ejemplares disponibles
+    }
+    
+    public List<Ejemplar> obtenerEjemplaresPorIds(List<Long> ejemplaresIds) {
+        return ejemplarRepo.findAllById(ejemplaresIds);
+    }
+    
+    public List<Ejemplar> obtenerEjemplaresDisponiblesPorPlanta(Long plantaId, Integer cantidad) {
+        // Consultar la base de datos para obtener los ejemplares disponibles de la planta
+        return ejemplarRepo.findTopNByPlantaIdAndDisponibleTrue(plantaId, cantidad);
+    }
+    
+    public List<Map<String, Object>> obtenerPlantasConEjemplares() {
+        List<Object[]> resultados = plantaRepo.obtenerPlantasConEjemplares();
+        List<Map<String, Object>> plantas = new ArrayList<>();
+
+        for (Object[] fila : resultados) {
+            Map<String, Object> planta = new HashMap<>();
+            planta.put("id", fila[0]);
+            planta.put("nombreComun", fila[1]); // Aquí se usa nombreComun
+            planta.put("cantidadEjemplares", fila[2]);
+            plantas.add(planta);
+        }
+
+        return plantas;
+    }
+
+    
+
+    public List<Ejemplar> obtenerEjemplaresDisponiblesPorPlanta(Long plantaId, int cantidad) {
+        List<Ejemplar> ejemplaresDisponibles = ejemplarRepo.findEjemplaresDisponiblesPorPlanta(plantaId);
+
+        if (ejemplaresDisponibles.size() < cantidad) {
+            throw new RuntimeException("No hay suficientes ejemplares disponibles.");
+        }
+
+        return ejemplaresDisponibles.subList(0, cantidad);
+    }
+
+
+
+	
+    
 	
 
 	

@@ -1,0 +1,60 @@
+<h2>Selecciona las plantas para tu pedido</h2>
+
+<form id="pedidoForm" action="/realizarPedido" method="post" onsubmit="return validarSeleccion()">
+    <table border="1" th:if="${not #lists.isEmpty(plantas)}">
+        <thead>
+            <tr>
+                <th>Seleccionar</th>
+                <th>ID Planta</th>
+                <th>Nombre Común</th>
+                <th>Ejemplares Disponibles</th>
+                <th>Cantidad a Pedir</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="planta, iter : ${plantas}">
+                <td>
+                    <input type="checkbox" name="plantasSeleccionadas[]" th:value="${planta.id}" class="checkPlanta" data-index="${iter.index}">
+                </td>
+                <td th:text="${planta.id}"></td>
+                <td th:text="${planta.nombreComun}"></td>
+                <td th:text="${planta.cantidadEjemplares}"></td>
+                <td>
+                    <input type="number" name="cantidadEjemplares[]" min="1" th:max="${planta.cantidadEjemplares}" value="1" disabled class="cantidadInput" data-index="${iter.index}">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p id="errorMensaje" class="error-message" style="color: red; display: none;">Selecciona al menos una planta</p>
+    <button type="submit">Confirmar Pedido</button>
+</form>
+
+<p th:if="${plantas == null or plantas.isEmpty()}" style="color: red;">No hay plantas disponibles.</p>
+
+<script>
+    // Evento para habilitar o deshabilitar el input de cantidad según el checkbox
+    document.querySelectorAll('.checkPlanta').forEach((checkbox, index) => {
+        checkbox.addEventListener('change', function() {
+            let cantidadInputs = document.querySelectorAll('.cantidadInput');
+            cantidadInputs[index].disabled = !this.checked;
+        });
+    });
+
+    // Función de validación antes de enviar el formulario
+    function validarSeleccion() {
+        let checkboxes = document.querySelectorAll('input[name="plantasSeleccionadas[]"]');
+        let errorMensaje = document.getElementById("errorMensaje");
+
+        // Comprobar si al menos un checkbox está seleccionado
+        let seleccionados = Array.from(checkboxes).some(checkbox => checkbox.checked);
+
+        if (!seleccionados) {
+            errorMensaje.style.display = "block";
+            return false; // Evita que el formulario se envíe
+        }
+
+        errorMensaje.style.display = "none";
+        return true; // Permite el envío del formulario
+    }
+</script>

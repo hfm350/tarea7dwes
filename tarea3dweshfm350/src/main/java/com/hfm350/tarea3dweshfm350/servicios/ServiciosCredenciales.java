@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.hfm350.tarea3dweshfm350.modelo.Cliente;
 import com.hfm350.tarea3dweshfm350.modelo.Credencial;
 import com.hfm350.tarea3dweshfm350.modelo.Persona;
+import com.hfm350.tarea3dweshfm350.repositorios.ClienteRepository;
 import com.hfm350.tarea3dweshfm350.repositorios.CredencialRepository;
 import com.hfm350.tarea3dweshfm350.repositorios.PersonaRepository;
 
@@ -20,6 +22,9 @@ public class ServiciosCredenciales {
 
     @Autowired
     private CredencialRepository credencialRepo;
+    
+    @Autowired
+    private ClienteRepository clienteRepo;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -127,4 +132,11 @@ public class ServiciosCredenciales {
     public List<Credencial> findAll() {
         return credencialRepo.findAll();
     }
+    
+    public Cliente obtenerClientePorId(Long clienteId) {
+        return clienteRepo.findById(clienteId).orElse(null);
+    }
+
+
+
 }

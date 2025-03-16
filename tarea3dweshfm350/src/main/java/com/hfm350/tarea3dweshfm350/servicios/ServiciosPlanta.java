@@ -78,4 +78,9 @@ public class ServiciosPlanta {
     public List<Planta> findAll() {
         return plantaRepo.findAll();
     }
+    
+    public List<Object[]> obtenerPlantasConEjemplares() {
+        return plantaRepo.obtenerPlantasConEjemplares();
+    }
+
 }
