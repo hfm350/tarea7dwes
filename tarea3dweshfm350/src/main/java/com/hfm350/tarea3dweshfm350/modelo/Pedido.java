@@ -11,21 +11,16 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.DATE)
     @Column(nullable = false)
     private Date fecha;
 
     @ManyToOne
-    @JoinColumn(name = "cliente_id", nullable = false)
+    @JoinColumn(name = "cliente_id", nullable = false)  
     private Cliente cliente;
 
-    @ManyToMany
-    @JoinTable(
-        name = "pedido_ejemplar",
-        joinColumns = @JoinColumn(name = "pedido_id"),
-        inverseJoinColumns = @JoinColumn(name = "ejemplar_id")
-    )
-    private List<Ejemplar> ejemplares;
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Ejemplar> ejemplares;  
 
     public Pedido() {
         this.fecha = new Date();
@@ -61,5 +56,8 @@ public class Pedido {
 
     public void setEjemplares(List<Ejemplar> ejemplares) {
         this.ejemplares = ejemplares;
+        for (Ejemplar ejemplar : ejemplares) {
+            ejemplar.setPedido(this);
+        }
     }
 }

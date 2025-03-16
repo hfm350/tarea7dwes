@@ -22,6 +22,7 @@ public class Ejemplar implements Serializable {
     @JoinColumn(name = "idplanta", nullable = false)
     private Planta planta;
 
+    
     @ManyToOne
     @JoinColumn(name = "pedido_id")
     private Pedido pedido;
@@ -30,7 +31,7 @@ public class Ejemplar implements Serializable {
     private List<Mensaje> mensajes = new LinkedList<>();
     
     @Column(nullable = false)
-    private boolean disponible = true;
+    private boolean disponible = true;	
 
 
     public Ejemplar() {}
@@ -90,7 +91,7 @@ public class Ejemplar implements Serializable {
     public void setMensajes(List<Mensaje> mensajes) {
         this.mensajes = mensajes;
     }
-    
+    	
 
     public boolean isDisponible() {
 		return disponible;

@@ -2,33 +2,57 @@ package com.hfm350.tarea3dweshfm350.controller;
 
 import com.hfm350.tarea3dweshfm350.modelo.Pedido;
 import com.hfm350.tarea3dweshfm350.modelo.Cliente;
+import com.hfm350.tarea3dweshfm350.modelo.Ejemplar;
 import com.hfm350.tarea3dweshfm350.servicios.ServicioPedido;
+import com.hfm350.tarea3dweshfm350.servicios.ServiciosCredenciales;
+
 import jakarta.servlet.http.HttpSession;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Controller
 public class PedidoController {
 
     private final ServicioPedido servicioPedido;
+    private final ServiciosCredenciales serviciosCredenciales;
 
-    public PedidoController(ServicioPedido servicioPedido) {
+    public PedidoController(ServicioPedido servicioPedido, ServiciosCredenciales serviciosCredenciales) {
         this.servicioPedido = servicioPedido;
+        this.serviciosCredenciales = serviciosCredenciales;
     }
 
-    /**
-     * Muestra la vista del carrito con los pedidos en sesión.
-     */
     @GetMapping("/carrito")
     public String verCarrito(HttpSession session, Model model) {
-        Cliente cliente = (Cliente) session.getAttribute("cliente");
-
-        if (cliente == null) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
             return "redirect:/inicioSesion";
         }
 
-        model.addAttribute("pedidos", servicioPedido.obtenerPedidosPorCliente(cliente.getId()));
+        // Obtener el usuario autenticado
+        String usuarioAutenticado = authentication.getName();
+        Long clienteId = serviciosCredenciales.obtenerIdClientePorUsuario(usuarioAutenticado);
+
+        if (clienteId == null) {
+            return "redirect:/menuCliente";
+        }
+
+        // Obtener los pedidos en la sesión
+        List<Pedido> pedidos = (List<Pedido>) session.getAttribute("pedidos");
+
+        if (pedidos == null) {
+            pedidos = servicioPedido.obtenerPedidosPorCliente(clienteId);
+            session.setAttribute("pedidos", pedidos);
+        }
+
+        model.addAttribute("pedidos", pedidos);
         return "carrito";
     }
 

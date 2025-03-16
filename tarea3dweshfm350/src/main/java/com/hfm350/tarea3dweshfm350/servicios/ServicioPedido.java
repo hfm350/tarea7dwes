@@ -18,12 +18,16 @@ public class ServicioPedido {
         this.pedidoRepository = pedidoRepository;
         this.ejemplarRepository = ejemplarRepository;
     }
+    
+    
 
     /**
      * Obtiene todos los pedidos del cliente.
      */
     public List<Pedido> obtenerPedidosPorCliente(Long clienteId) {
-        return pedidoRepository.findByClienteId(clienteId);
+        List<Pedido> pedidos = pedidoRepository.findByClienteId(clienteId);
+        System.out.println("Pedidos encontrados: " + pedidos);
+        return pedidos;
     }
 
     /**
@@ -65,4 +69,7 @@ public class ServicioPedido {
     public void eliminarPedido(Long id) {
         pedidoRepository.deleteById(id);
     }
+    
+
+    
 }

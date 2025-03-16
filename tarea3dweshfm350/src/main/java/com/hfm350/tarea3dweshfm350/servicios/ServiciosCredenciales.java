@@ -50,6 +50,15 @@ public class ServiciosCredenciales {
     }
 
 
+    public Long obtenerIdClientePorUsuario(String usuario) {
+        Optional<Credencial> credencialOpt = buscarPorUsuario(usuario);
+
+        if (credencialOpt.isPresent() && credencialOpt.get().getCliente() != null) {
+            return credencialOpt.get().getCliente().getId();
+        }
+
+        return null; // Si no encuentra el cliente, retorna null
+    }
 
 
     public boolean verificarUsuario(String usuario) {

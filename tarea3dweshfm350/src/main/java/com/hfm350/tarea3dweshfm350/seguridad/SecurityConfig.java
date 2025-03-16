@@ -49,7 +49,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/inicioSesion", "/registroCliente").permitAll()
                 .requestMatchers("/images/**", "/css/**", "/vivero.png").permitAll()
                 .requestMatchers("/menuAdmin").hasAuthority("ROLE_ADMIN")
-                .requestMatchers("/menuCliente").hasAuthority("ROLE_CLIENTE")
+                .requestMatchers("/menuCliente", "/carrito", "/misPedidos").hasAuthority("ROLE_CLIENTE")
                 .requestMatchers("/menuPersonal").hasAuthority("ROLE_PERSONAL")
                 .anyRequest().authenticated()
             )

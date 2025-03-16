@@ -6,18 +6,25 @@
     <title>Carrito de Pedidos</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; }
-        .container { width: 50%; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-        button { background-color: green; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; }
+        .container { width: 60%; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid black; text-align: center; }
+        th { background-color: #28a745; color: white; }
+        ul { padding: 0; list-style-type: none; }
+        button { background-color: green; color: white; padding: 8px; border: none; border-radius: 5px; cursor: pointer; }
         button:hover { background-color: darkgreen; }
         .delete-btn { background-color: red; }
         .delete-btn:hover { background-color: darkred; }
+        .back-link { margin-top: 20px; display: block; color: blue; text-decoration: none; font-weight: bold; }
+        .back-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h2>Carrito de Pedidos</h2>
-        <table border="1" width="100%">
+
+        <table>
             <thead>
                 <tr>
                     <th>ID Pedido</th>
@@ -29,11 +36,12 @@
             <tbody>
                 <tr th:each="pedido : ${pedidos}">
                     <td th:text="${pedido.id}"></td>
-                    <td th:text="${pedido.fecha}"></td>
+                    <td th:text="${#dates.format(pedido.fecha, 'yyyy-MM-dd')}"></td>
                     <td>
-                        <ul>
+                        <ul th:if="${pedido.ejemplares != null and not #lists.isEmpty(pedido.ejemplares)}">
                             <li th:each="ejemplar : ${pedido.ejemplares}" th:text="${ejemplar.nombre}"></li>
                         </ul>
+                        <span th:if="${pedido.ejemplares == null or #lists.isEmpty(pedido.ejemplares)}">Sin ejemplares</span>
                     </td>
                     <td>
                         <form th:action="@{/confirmarPedido}" method="post">
@@ -48,7 +56,8 @@
                 </tr>
             </tbody>
         </table>
-        <a href="/menuCliente">Volver</a>
+
+        <a href="/menuCliente" class="back-link">Volver</a>
     </div>
 
 </body>
