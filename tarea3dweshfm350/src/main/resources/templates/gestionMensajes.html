@@ -1,253 +1,258 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menú Principal</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-image: url('vivero.png');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menú Principal</title>
+<style>
+body {
+	font-family: Arial, sans-serif;
+	background-image: url('vivero.png');
+	background-size: cover;
+	background-position: center;
+	background-attachment: fixed;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+}
 
-        .navbar {
-            width: 100%;
-            background-color: #28a745;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
+.navbar {
+	width: 100%;
+	background-color: #28a745;
+	padding: 15px 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
 
-        .navbar .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: white;
-            text-decoration: none;
-        }
+.navbar .logo {
+	font-size: 24px;
+	font-weight: bold;
+	color: white;
+	text-decoration: none;
+}
 
-        .navbar .logout-btn {
-            background-color: white;
-            color: #28a745;
-            padding: 10px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            cursor: pointer;
-            margin-right: 25px;
-        }
+.navbar .logout-btn {
+	background-color: white;
+	color: #28a745;
+	padding: 10px 15px;
+	border-radius: 5px;
+	text-decoration: none;
+	font-weight: bold;
+	cursor: pointer;
+	margin-right: 25px;
+}
 
-        .navbar .logout-btn:hover {
-            background-color: #7b3939;
-            color: white;
-        }
+.navbar .logout-btn:hover {
+	background-color: #7b3939;
+	color: white;
+}
 
-        .container, .message-container {
-            background-color: rgba(0, 0, 0, 0.85);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            width: 90%;
-            max-width: 800px;
-            text-align: center;
-            color: white;
-            margin-top: 50px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+.container, .message-container {
+	background-color: rgba(0, 0, 0, 0.85);
+	padding: 30px;
+	border-radius: 12px;
+	box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+	width: 90%;
+	max-width: 800px;
+	text-align: center;
+	color: white;
+	margin-top: 50px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
 
-        h1, h2 {
-            font-size: 22px;
-            margin-bottom: 15px;
-        }
+h1, h2 {
+	font-size: 22px;
+	margin-bottom: 15px;
+}
 
-        .button-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            width: 100%;
-            max-width: 600px;
-            margin-top: 30px;
-        }
+.button-container {
+	display: flex;
+	justify-content: space-between;
+	gap: 20px;
+	width: 100%;
+	max-width: 600px;
+	margin-top: 30px;
+}
 
-        .box-button {
-            width: 140px;
-            height: 140px;
-            background-color: #28a745;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: transform 0.3s, background-color 0.3s;
-            text-align: center;
-        }
+.box-button {
+	width: 140px;
+	height: 140px;
+	background-color: #28a745;
+	color: white;
+	font-size: 16px;
+	font-weight: bold;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 10px;
+	cursor: pointer;
+	text-decoration: none;
+	transition: transform 0.3s, background-color 0.3s;
+	text-align: center;
+}
 
-        .box-button:hover {
-            transform: scale(1.1);
-        }
+.box-button:hover {
+	transform: scale(1.1);
+}
 
-        form {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+form {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
 
-        label {
-            align-self: flex-start;
-            font-weight: bold;
-        }
+label {
+	align-self: flex-start;
+	font-weight: bold;
+}
 
-        select, textarea, button {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 6px;
-            font-size: 16px;
-        }
+select, textarea, button {
+	width: 100%;
+	padding: 10px;
+	margin: 10px 0;
+	border-radius: 6px;
+	font-size: 16px;
+}
 
-        select, textarea {
-            border: 1px solid #ccc;
-        }
+select, textarea {
+	border: 1px solid #ccc;
+}
 
-        button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+button {
+	background-color: #28a745;
+	color: white;
+	border: none;
+	cursor: pointer;
+	transition: background-color 0.3s;
+}
 
-        button:hover {
-            background-color: #218838;
-        }
+button:hover {
+	background-color: #218838;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 20px;
+}
 
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-        }
+th, td {
+	border: 1px solid #ddd;
+	padding: 10px;
+	text-align: center;
+}
 
-        th {
-            background-color: #28a745;
-            color: white;
-        }
+th {
+	background-color: #28a745;
+	color: white;
+}
 
-        td {
-            background-color: #f9f9f9;
-            color: black;
-        }
+td {
+	background-color: #f9f9f9;
+	color: black;
+}
 
-        /* Estilo para los mensajes de éxito y error */
-        .message {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            font-weight: bold;
-            text-align: center;
-        }
+/* Estilo para los mensajes de éxito y error */
+.message {
+	padding: 15px;
+	margin-bottom: 20px;
+	border-radius: 5px;
+	font-weight: bold;
+	text-align: center;
+}
 
-        .message-success {
-            background-color: #28a745;
-            color: white;
-        }
+.message-success {
+	background-color: #28a745;
+	color: white;
+}
 
-        .message-error {
-            background-color: #e74c3c;
-            color: white;
-        }
-    </style>
+.message-error {
+	background-color: #e74c3c;
+	color: white;
+}
+</style>
 </head>
 <body>
 
-    <!-- Barra de Navegación -->
-    <nav class="navbar">
-        <a href="#" class="logo">Gestión De Mensajes</a>
-        <a th:href="@{${rol == 'ROLE_ADMIN' ? '/menuAdmin' : '/menuPersonal'}}" class="logout-btn">Volver</a>
-    </nav>
+	<!-- Barra de Navegación -->
+	<nav class="navbar">
+		<a href="#" class="logo">Gestión De Mensajes</a>
+			<a th:href="@{${rol == 'ROLE_ADMIN'} ? '/menuAdmin' : '/menuPersonal'}" class="logout-btn">Volver</a>
+			
+	</nav>
 
-    <!-- Botones de Filtro -->
-    <div class="button-container">
-        <a th:href="@{/filtrarPorPersona}" class="box-button">Filtrar Por Persona</a>
-        <a th:href="@{/filtrarPorFecha}" class="box-button">Filtrar Por Fechas</a>
-        <a th:href="@{/filtrarPorPlanta}" class="box-button">Filtrar Por Plantas</a>
-    </div>
+	<!-- Botones de Filtro -->
+	<div class="button-container">
+		<a th:href="@{/filtrarPorPersona}" class="box-button">Filtrar Por
+			Persona</a> <a th:href="@{/filtrarPorFecha}" class="box-button">Filtrar
+			Por Fechas</a> <a th:href="@{/filtrarPorPlanta}" class="box-button">Filtrar
+			Por Plantas</a>
+	</div>
 
-    <!-- Mensajes de Éxito/Error -->
-    <div class="message-container">
-        <div th:if="${mensajeExito}" class="message message-success">
-            <p th:text="${mensajeExito}"></p>
-        </div>
+	<!-- Mensajes de Éxito/Error -->
+	<div class="message-container">
+		<div th:if="${mensajeExito}" class="message message-success">
+			<p th:text="${mensajeExito}"></p>
+		</div>
 
-        <div th:if="${mensajeError}" class="message message-error">
-            <p th:text="${mensajeError}"></p>
-        </div>
-    </div>
+		<div th:if="${mensajeError}" class="message message-error">
+			<p th:text="${mensajeError}"></p>
+		</div>
+	</div>
 
-    <!-- Formulario para Añadir Mensajes -->
-    <div class="message-container">
-        <h2>Añadir Mensaje</h2>
-        <form id="messageForm" th:action="@{/gestionMensajes}" method="post">
-            <label for="idEjemplar">Seleccionar Ejemplar:</label>
-            <select id="idEjemplar" name="idEjemplar" required>
-                <option th:each="ejemplar : ${ejemplares}" th:value="${ejemplar.id}" th:text="${ejemplar.nombre}"></option>
-            </select>
+	<!-- Formulario para Añadir Mensajes -->
+	<div class="message-container">
+		<h2>Añadir Mensaje</h2>
+		
+		<form id="messageForm" th:action="@{/gestionMensajes}" method="post">
+			<label for="idEjemplar">Seleccionar Ejemplar:</label> <select
+				id="idEjemplar" name="idEjemplar" required>
+				<option th:each="ejemplar : ${ejemplares}" th:value="${ejemplar.id}"
+					th:text="${ejemplar.nombre}"></option>
+			</select> <label for="mensajeTexto">Mensaje:</label>
+			<textarea id="mensajeTexto" name="mensajeTexto" rows="4" required></textarea>
 
-            <label for="mensajeTexto">Mensaje:</label>
-            <textarea id="mensajeTexto" name="mensajeTexto" rows="4" required></textarea>
+			<button type="submit">Añadir Mensaje</button>
+		</form>
 
-            <button type="submit">Añadir Mensaje</button>
-        </form>
-    </div>
+	</div>
 
-    <!-- Tabla de Mensajes -->
-    <div class="message-container">
-        <h2>Listado de Mensajes</h2>
-        <table id="messageTable">
-            <thead>
-                <tr>
-                    <th>Ejemplar</th>
-                    <th>Mensaje</th>
-                    <th>Creador</th>
-                    <th>Fecha</th>	
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="mensaje : ${mensajes}">
-                    <td th:text="${mensaje.ejemplar.nombre}"></td>
-                    <td th:text="${mensaje.mensaje}"></td>
-                    <td th:text="${mensaje.persona != null ? mensaje.persona.nombre : 'Cliente'}"></td>
-                    <td th:text="${#temporals.format(mensaje.tiempo, 'dd-MM-yyyy HH:mm')}"></td>
-                    
-                </tr>
-            </tbody>
-        </table>
-    </div>
+	<!-- Tabla de Mensajes -->
+	<div class="message-container">
+		<h2>Listado de Mensajes</h2>
+		<table id="messageTable">
+			<thead>
+				<tr>
+					<th>Ejemplar</th>
+					<th>Mensaje</th>
+					<th>Creador</th>
+					<th>Fecha</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="mensaje : ${mensajes}">
+					<td th:text="${mensaje.ejemplar.nombre}"></td>
+					<td th:text="${mensaje.mensaje}"></td>
+					<td
+						th:text="${mensaje.persona != null ? mensaje.persona.nombre : mensaje.cliente.nombre}"></td>
+					<td
+						th:text="${#temporals.format(mensaje.tiempo, 'dd-MM-yyyy HH:mm')}"></td>
+
+				</tr>
+			</tbody>
+		</table>
+	</div>
 
 </body>
 

@@ -33,7 +33,7 @@ public class PersonaController {
     public String registroPersonas(Model model) {
         List<Credencial> listaCredenciales = servCredenciales.findAll().stream()
                 .filter(credencial -> credencial.getPersona() != null) // Filtra credenciales sin persona
-                .filter(credencial -> !credencial.getUsuario().equalsIgnoreCase("ADMIN"))
+                .filter(credencial -> !credencial.getRol().equalsIgnoreCase("ROLE_ADMIN")&& !credencial.getRol().equalsIgnoreCase("ROLE_CLIENTE"))
                 .collect(Collectors.toList());
 
         model.addAttribute("credenciales", listaCredenciales);
@@ -90,7 +90,7 @@ public class PersonaController {
         servPersona.insertar(p);
 
 
-        // Crea la Credencial y asígnale el rol ROLE_PERSONAL
+        // Crea la Credencial y asigna el rol ROLE_PERSONAL
         Credencial credencial = new Credencial();
         credencial.setUsuario(usuario);
         credencial.setPassword(contraseña);
@@ -104,7 +104,7 @@ public class PersonaController {
 
         List<Credencial> listaCredenciales = servCredenciales.findAll()
                 .stream()
-                .filter(credencialExistente -> !credencialExistente.getUsuario().equalsIgnoreCase("ADMIN"))
+                .filter(credencialExistente -> !credencialExistente.getUsuario().equalsIgnoreCase("ADMIN")&& !credencialExistente.getRol().equalsIgnoreCase("ROLE_CLIENTE"))
                 .collect(Collectors.toList());
         model.addAttribute("credenciales", listaCredenciales);
 

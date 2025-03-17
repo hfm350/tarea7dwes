@@ -13,11 +13,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.hfm350.tarea3dweshfm350.modelo.Planta;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosPlanta;
 
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 public class PlantasController {
 
 	@Autowired
 	private ServiciosPlanta serviciosPlanta;
+	
+	
+	
+	@GetMapping("/gestionPlantas")
+	public String gestionPlantas(Model model, HttpSession session) {
+		model.addAttribute("perfil", session.getAttribute("perfil"));
+		return "gestionPlantas";
+	}
 
 	@GetMapping("/registrarPlantas")
 	public String registrarPlantas(Model model) {

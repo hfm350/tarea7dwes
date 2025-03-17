@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.hfm350.tarea3dweshfm350.modelo.Ejemplar;
 import com.hfm350.tarea3dweshfm350.modelo.Mensaje;
@@ -23,19 +24,20 @@ public class ServiciosMensaje {
 	@Autowired
 	private MensajeRepository mensajeRepo;
 
-	public void insertar(Mensaje mensaje) {
-		if (mensaje.getEjemplar() == null || mensaje.getPersona() == null) {
-			throw new IllegalArgumentException("El mensaje debe tener un ejemplar y una persona asociada.");
-		}
+	 @Transactional
+	    public void insertar(Mensaje mensaje) {
+	        if (mensaje.getEjemplar() == null || mensaje.getPersona() == null) {
+	            throw new IllegalArgumentException("El mensaje debe tener un ejemplar y una persona asociada.");
+	        }
 
-		// Verificar si el ejemplar existe antes de guardar el mensaje
-		if (mensaje.getEjemplar().getId() == null) {
-			Ejemplar ejemplarGuardado = ejemplarRepository.save(mensaje.getEjemplar());
-			mensaje.setEjemplar(ejemplarGuardado);
-		}
+	        // Verificar si el ejemplar existe antes de guardar el mensaje
+	        if (mensaje.getEjemplar().getId() == null) {
+	            Ejemplar ejemplarGuardado = ejemplarRepository.save(mensaje.getEjemplar());
+	            mensaje.setEjemplar(ejemplarGuardado);
+	        }
 
-		mensajeRepo.save(mensaje);
-	}
+	        mensajeRepo.save(mensaje);
+	    }
 	
 	public List<Mensaje> findAll() {
 		return mensajeRepo.findAll();

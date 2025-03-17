@@ -243,7 +243,7 @@ button:hover {
                         <tr th:each="mensaje : ${mensajes}">
                             <td th:text="${mensaje.fechahora}"></td>
                             <td th:text="${mensaje.mensaje}"></td>
-                            <td th:text="${mensaje.persona.nombre}"></td>
+                            <td th:text="${mensaje.persona != null ? mensaje.persona.nombre : mensaje.cliente.nombre}"></td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(mensajes)}">
                             <td colspan="3" class="error-message">No hay mensajes para este ejemplar.</td>

@@ -137,6 +137,12 @@ public class ServiciosCredenciales {
         return clienteRepo.findById(clienteId).orElse(null);
     }
 
+    public Optional<Persona> buscarPersonaPorUsuario2(String usuario) {
+        return credencialRepo.findByUsuario(usuario)  // Retorna Optional<Credencial>
+            .map(Credencial::getPersona);           // Extrae Persona si existe
+    }
+
+
 
 
 }

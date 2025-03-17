@@ -27,7 +27,7 @@ body {
 	border-radius: 8px;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 	width: 300px;
-	margin-top:90px;
+	margin-top: 90px;
 	text-align: center;
 }
 
@@ -107,7 +107,6 @@ button:hover, .btn:hover {
 	background-color: #7b3939;
 }
 
-
 .message-list {
 	list-style-type: none;
 	padding: 0;
@@ -143,50 +142,61 @@ button:hover, .btn:hover {
 </head>
 
 <body>
-    <div class="navbar">
-        <a href="#" class="logo">Filtrar Mensajes por Fecha</a>
-        <a href="/gestionMensajes" class="logout-btn">Volver</a>
-    </div>
+	<div class="navbar">
+		<a href="#" class="logo">Filtrar Mensajes por Fecha</a> <a
+			href="/gestionMensajes" class="logout-btn">Volver</a>
+	</div>
 
-    <div class="container">
-        <header>
-            <h1>Filtrar Mensajes por Fecha</h1>
-        </header>
+	<div class="container">
+		<header>
+			<h1>Filtrar Mensajes por Fecha</h1>
+		</header>
 
-        <div class="content">
-            <div th:if="${mensajeError}" class="error-message">
-                <p th:text="${mensajeError}"></p>
-            </div>
+		<div class="content">
+			<div th:if="${mensajeError}" class="error-message">
+				<p th:text="${mensajeError}"></p>
+			</div>
 
-            <form th:action="@{/filtrarPorFecha}" method="post">
-                <div class="form-group">
-                    <label for="fechaInicio">Fecha de inicio:</label>
-                    <input type="date" id="fechaInicio" name="fechaInicio" class="form-control">
-                </div>
+			<form th:action="@{/filtrarPorFecha}" method="post">
+				<div class="form-group">
+					<label for="fechaInicio">Fecha de inicio:</label> <input
+						type="date" id="fechaInicio" name="fechaInicio"
+						class="form-control">
+				</div>
 
-                <div class="form-group">
-                    <label for="fechaFin">Fecha de fin:</label>
-                    <input type="date" id="fechaFin" name="fechaFin" class="form-control">
-                </div>
+				<div class="form-group">
+					<label for="fechaFin">Fecha de fin:</label> <input type="date"
+						id="fechaFin" name="fechaFin" class="form-control">
+				</div>
 
-                <button type="submit" class="btn">Filtrar Mensajes</button>
-            </form>
+				<button type="submit" class="btn">Filtrar Mensajes</button>
+			</form>
 
-            <div th:if="${mensajes != null}">
-                <h3>Mensajes entre <span th:text="${fechaInicio}"></span> y <span th:text="${fechaFin}"></span>:</h3>
-                <ul class="message-list">
-                    <th:block th:each="mensaje : ${mensajes}">
-                        <li>
-                            <h4 th:text="${mensaje.mensaje}"></h4>
-                            <p class="message-date" th:text="${mensaje.fechahora}"></p>
-                            <p><strong>Persona:</strong> <span th:text="${mensaje.persona.nombre}"></span></p>
-                            <p><strong>Ejemplar:</strong> <span th:text="${mensaje.ejemplar.nombre}"></span></p>
-                        </li>
-                    </th:block>
-                </ul>
-            </div>
-        </div>
-    </div>
+			<div th:if="${mensajes != null}">
+				<h3>
+					Mensajes entre <span th:text="${fechaInicio}"></span> y <span
+						th:text="${fechaFin}"></span>:
+				</h3>
+				<ul class="message-list">
+					<th:block th:each="mensaje : ${mensajes}">
+						<li>
+							<h4 th:text="${mensaje.mensaje}"></h4>
+							<p class="message-date" th:text="${mensaje.fechahora}"></p>
+							<p>
+								<strong>Creador:</strong> <span
+									th:text="${mensaje.persona != null ? mensaje.persona.nombre : mensaje.cliente.nombre}"></span>
+							</p>
+
+							<p>
+								<strong>Ejemplar:</strong> <span
+									th:text="${mensaje.ejemplar.nombre}"></span>
+							</p>
+						</li>
+					</th:block>
+				</ul>
+			</div>
+		</div>
+	</div>
 </body>
 
 </html>

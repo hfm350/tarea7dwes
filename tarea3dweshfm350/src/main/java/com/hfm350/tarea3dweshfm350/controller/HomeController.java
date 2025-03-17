@@ -153,12 +153,7 @@ public class HomeController {
 		return "index";
 	}
 
-	@GetMapping("/gestionEjemplares")
-	public String gestionEjemplar(Model model, HttpSession session) {
-		String rol = (String) session.getAttribute("rol");
-		model.addAttribute("rol", rol);
-		return "/gestionEjemplares";
-	}
+	
 
 	@GetMapping("/verPlantas")
 	public String verPlantas(Model model, HttpSession session) {
@@ -169,160 +164,9 @@ public class HomeController {
 
 	}
 
-	@GetMapping("/insertarEjemplar")
-	public String insertarEjemplar(Model model, HttpSession session) {
-		List<Ejemplar> ejemplares = serviciosEjemplar.findAll();
-		model.addAttribute("ejemplares", ejemplares);
+	
 
-		List<Planta> plantas = serviciosPlanta.findAll();
-
-		for (Planta planta : plantas) {
-			boolean tieneEjemplar = serviciosEjemplar.existsByPlanta(planta);
-			if (!tieneEjemplar) {
-				plantas.add(planta);
-			}
-		}
-
-		if (plantas.isEmpty()) {
-			model.addAttribute("errorMessagelistavacia", "No hay plantas disponibles para registrar ejemplares.");
-		} else {
-			model.addAttribute("plantasSinEjemplar", plantas);
-		}
-
-		model.addAttribute("ejemplares", serviciosEjemplar.findAll());
-		model.addAttribute("plantasSinEjemplar", serviciosPlanta.findAll());
-		return "insertarEjemplar"; // Devuelve la vista sin redirigir
-
-	}
-
-	@GetMapping("/gestionPlantas")
-	public String gestionPlantas(Model model, HttpSession session) {
-		model.addAttribute("perfil", session.getAttribute("perfil"));
-		return "gestionPlantas";
-	}
-
-	@PostMapping("/insertarEjemplar")
-	public String insertarEjemplar(@RequestParam String codigoPlanta,
-
-			RedirectAttributes redirectAttributes, HttpSession session) {
-
-		// Verificar si el usuario está autenticado en Spring Security
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-		if (authentication == null || !authentication.isAuthenticated()
-				|| authentication.getPrincipal().equals("anonymousUser")) {
-			redirectAttributes.addFlashAttribute("errorMessagePersona", "Usuario no autenticado.");
-			System.out.println("⚠️ Usuario no autenticado. Redirigiendo...");
-			return "redirect:/insertarEjemplar";
-		}
-
-		String usuarioAutenticado = authentication.getName(); // Nombre de usuario autenticado
-		System.out.println("✅ Usuario autenticado: " + usuarioAutenticado);
-
-		// Buscar la planta por su código
-		Planta planta = serviciosPlanta.buscarPorCodigo(codigoPlanta);
-		if (planta == null) {
-			redirectAttributes.addFlashAttribute("errorMessage", "El código de la planta no es válido.");
-			return "redirect:/insertarEjemplar";
-		}
-
-		// Insertar el ejemplar automáticamente generando su nombre
-		Ejemplar ejemplar = serviciosEjemplar.insertar(codigoPlanta);
-		if (ejemplar == null) {
-			redirectAttributes.addFlashAttribute("errorMessage", "Error al insertar el ejemplar.");
-			return "redirect:/insertarEjemplar";
-		}
-
-		// Obtener ID del usuario autenticado desde la credencial
-		Optional<Credencial> credencialOpt = serviciosCredenciales.buscarPorUsuario(usuarioAutenticado);
-		if (credencialOpt.isEmpty()) {
-			redirectAttributes.addFlashAttribute("errorMessagePersona", "No se encontró la credencial del usuario.");
-			return "redirect:/insertarEjemplar";
-		}
-
-		Long personaID = serviciosCredenciales.obtenerIdPersonaPorIdCredencial(credencialOpt.get().getId())
-				.orElseThrow(() -> new RuntimeException("No se encuentra la persona asociada."));
-
-		Persona persona = serviciosPersona.buscarPorId(personaID)
-				.orElseThrow(() -> new RuntimeException("No se encuentra la persona con el ID obtenido."));
-
-		// Registrar el mensaje asociado al ejemplar y la persona
-		LocalDateTime tiempo = LocalDateTime.now();
-		String fechaFormateada = tiempo.format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy"));
-		String mensajeGenerado = "Ejemplar añadido por " + persona.getNombre() + " a las " + fechaFormateada + ".";
-		Mensaje nuevoMensaje = new Mensaje(tiempo, mensajeGenerado, persona, ejemplar);
-		serviciosMensaje.insertar(nuevoMensaje);
-
-		// Mensaje de éxito
-		redirectAttributes.addFlashAttribute("successMessage", "Ejemplar y mensaje registrados exitosamente.");
-
-		System.out.println("✅ Ejemplar y mensaje guardados con éxito para el usuario: " + usuarioAutenticado);
-
-		return "redirect:/insertarEjemplar";
-	}
-
-	@GetMapping("/gestionMensajes")
-	public String gestionMensajes(Model model, HttpSession session) {
-		String rol = (String) session.getAttribute("rol");
-		model.addAttribute("rol", rol); // Pasamos el rol a la vista
-
-		List<Mensaje> mensajes = serviciosMensaje.findAll();
-		List<Ejemplar> ejemplares = serviciosEjemplar.findAll();
-
-		if (ejemplares.isEmpty()) {
-			model.addAttribute("mensajeError", "No hay ejemplares registrados.");
-			return "error";
-		}
-
-		model.addAttribute("mensajes", mensajes);
-		model.addAttribute("ejemplares", ejemplares);
-		return "gestionMensajes";
-	}
-
-	@PostMapping("/gestionMensajes")
-	public String añadirMensaje(@RequestParam Long idEjemplar, @RequestParam String mensajeTexto, Model model) {
-		Optional<Ejemplar> ejemplarOptional = serviciosEjemplar.buscarPorId(idEjemplar);
-		if (!ejemplarOptional.isPresent()) {
-			model.addAttribute("mensajeError", "Ejemplar no encontrado.");
-			return "gestionMensajes";
-		}
-
-		Ejemplar ejemplar = ejemplarOptional.get();
-
-		Long usuarioIdLong = controlador.getUsuarioAutenticado();
-		if (usuarioIdLong == null) {
-			model.addAttribute("errorMessagePersona", "Usuario no autenticado.");
-			return "gestionMensajes";
-		}
-
-		Optional<Long> personaID = serviciosCredenciales.obtenerIdPersonaPorIdCredencial(usuarioIdLong);
-		if (!personaID.isPresent()) {
-			model.addAttribute("errorMessagePersona", "No se encuentra la persona asociada.");
-			return "gestionMensajes";
-		}
-
-		Optional<Persona> personaOptional = serviciosPersona.buscarPorId(personaID.get());
-		if (!personaOptional.isPresent()) {
-			model.addAttribute("errorUsuario", "No se encuentra la persona con el ID obtenido.");
-			return "gestionMensajes";
-		}
-
-		Persona persona = personaOptional.get();
-
-		if (persona == null) {
-			model.addAttribute("errorUsuario", "La persona no es válida.");
-			return "gestionMensajes";
-		}
-
-		Mensaje mensaje = new Mensaje(LocalDateTime.now(), mensajeTexto, persona, ejemplar);
-		serviciosMensaje.insertar(mensaje);
-
-		model.addAttribute("mensajeExito", "Mensaje añadido correctamente.");
-		List<Mensaje> mensajes = serviciosMensaje.findAll();
-		model.addAttribute("mensajes", mensajes);
-
-		return "gestionMensajes";
-	}
+	
 
 	@GetMapping("/filtrarPorPersona")
 	public String filtrarMensajesPorPersona(Model model) {
