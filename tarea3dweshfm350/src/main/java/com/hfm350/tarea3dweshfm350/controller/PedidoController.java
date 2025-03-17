@@ -1,6 +1,8 @@
 package com.hfm350.tarea3dweshfm350.controller;
 
 import com.hfm350.tarea3dweshfm350.modelo.Pedido;
+import com.hfm350.tarea3dweshfm350.modelo.Planta;
+import com.hfm350.tarea3dweshfm350.repositorios.EjemplarRepository;
 import com.hfm350.tarea3dweshfm350.modelo.Cliente;
 import com.hfm350.tarea3dweshfm350.modelo.Ejemplar;
 import com.hfm350.tarea3dweshfm350.servicios.ServicioPedido;
@@ -29,12 +31,14 @@ public class PedidoController {
     private final ServiciosEjemplar servicioEjemplar;
     private final ServiciosCredenciales serviciosCredenciales;
     private final ServiciosPlanta servicioPlanta;
+    private final EjemplarRepository ejemplarRepo;
 
-    public PedidoController(ServicioPedido servicioPedido, ServiciosEjemplar servicioEjemplar, ServiciosCredenciales serviciosCredenciales, ServiciosPlanta servicioPlanta) {
+    public PedidoController(ServicioPedido servicioPedido, ServiciosEjemplar servicioEjemplar, ServiciosCredenciales serviciosCredenciales, ServiciosPlanta servicioPlanta, EjemplarRepository ejemplarRepo) {
         this.servicioPedido = servicioPedido;
         this.servicioEjemplar = servicioEjemplar;
         this.serviciosCredenciales = serviciosCredenciales;
         this.servicioPlanta = servicioPlanta;
+        this.ejemplarRepo = ejemplarRepo;
     }
 
     /**
@@ -58,10 +62,17 @@ public class PedidoController {
 
         // Obtener los pedidos actualizados desde la BD
         List<Pedido> pedidos = servicioPedido.obtenerPedidosPorCliente(clienteId);
-        model.addAttribute("pedidos", pedidos);
+
+        // Filtrar solo pedidos NO confirmados
+        List<Pedido> pedidosNoConfirmados = pedidos.stream()
+            .filter(pedido -> !pedido.isConfirmado()) // Excluir los confirmados
+            .toList();
+
+        model.addAttribute("pedidos", pedidosNoConfirmados);
 
         return "carrito";
     }
+
 
     /**
      * Vista para realizar un nuevo pedido con selección de ejemplares
@@ -108,6 +119,13 @@ public class PedidoController {
             Integer cantidad = cantidades.get(i);
 
             List<Ejemplar> ejemplaresDisponibles = servicioEjemplar.obtenerEjemplaresDisponiblesPorPlanta(plantaId, cantidad);
+
+            // Aquí marcamos los ejemplares como NO disponibles antes de añadirlos al pedido
+            for (Ejemplar ejemplar : ejemplaresDisponibles) {
+                ejemplar.setDisponible(false);  // Se marca como NO disponible
+                ejemplarRepo.save(ejemplar);  // Se guarda en la BD
+            }
+
             ejemplaresSeleccionados.addAll(ejemplaresDisponibles);
         }
 
@@ -116,14 +134,13 @@ public class PedidoController {
         }
 
         nuevoPedido.setEjemplares(ejemplaresSeleccionados);
+        
+        // Guardamos el pedido en la BD
         servicioPedido.guardarPedido(nuevoPedido);
 
-        return "redirect:/carrito"; 
+        return "redirect:/realizarPedido"; 
     }
 
-
-
-    
 
     /**
      * Finaliza un pedido (antes llamado confirmarPedido)
@@ -131,7 +148,7 @@ public class PedidoController {
     @PostMapping("/finalizarPedido")
     public String finalizarPedido(@RequestParam Long idPedido) {
         servicioPedido.confirmarPedido(idPedido);  
-        return "redirect:/menuCliente";
+        return "redirect:/carrito";
     }
 
 

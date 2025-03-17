@@ -12,7 +12,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.stereotype.Component;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
@@ -50,7 +53,7 @@ public class SecurityConfig {
 
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, ClienteSessionFilter clienteSessionFilter) throws Exception {
         http
             .csrf(csrf -> csrf.disable()) 
             .authorizeHttpRequests(auth -> auth
@@ -77,11 +80,14 @@ public class SecurityConfig {
                 .permitAll()
             )
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) 
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .maximumSessions(1) // Evita sesiones múltiples por usuario
+                .expiredUrl("/inicioSesion?error=sessionExpired") // Redirigir si la sesión expira
             )
             .securityContext(securityContext -> securityContext
                 .requireExplicitSave(true) 
-            );
+            )
+            .addFilterBefore(clienteSessionFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -92,5 +98,10 @@ public class SecurityConfig {
         public void sessionDestroyed(HttpSessionEvent event) {
             event.getSession().removeAttribute("carritoPedidos");
         }
+    }
+    
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
     }
 }

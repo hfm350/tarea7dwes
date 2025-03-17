@@ -39,8 +39,8 @@ public class ServiciosCredenciales {
         if (credencialOpt.isPresent()) {
             Credencial credencial = credencialOpt.get();
             
-            System.out.println("🔑 Contraseña ingresada: " + clave);
-            System.out.println("🔐 Contraseña en BD: " + credencial.getPassword());
+            System.out.println("Contraseña ingresada: " + clave);
+            System.out.println("Contraseña en BD: " + credencial.getPassword());
 
             //Compara la contraseña ingresada (sin encriptar) con la almacenada (encriptada)
             boolean coincide = passwordEncoder.matches(clave, credencial.getPassword());

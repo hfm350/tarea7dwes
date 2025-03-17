@@ -4,21 +4,164 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carrito de Pedidos</title>
+    <link rel="stylesheet" th:href="@{/1.css}">
+
     <style>
-        body { font-family: Arial, sans-serif; background-color: #222; color: white; text-align: center; }
-        .container { width: 60%; margin: auto; background: black; padding: 20px; border-radius: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid white; padding: 10px; text-align: center; }
-        th { background-color: green; color: white; }
-        button { padding: 10px; border: none; border-radius: 5px; cursor: pointer; }
-        .confirm-btn { background-color: green; color: white; }
-        .delete-btn { background-color: red; color: white; }
+        /* Estilo general */
+        body {
+            font-family: Arial, sans-serif;
+            background-size: cover;
+            background-position: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Barra de navegación */
+        .navbar {
+            width: 100%;
+            background-color: #28a745;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .navbar .login-btn {
+            background-color: white;
+            color: #28a745;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 25px;
+        }
+
+        .navbar .login-btn:hover {
+            background-color: #7b3939;
+        }
+
+        /* Contenedor principal */
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 1200px;
+            margin-top: 80px;
+        }
+
+        /* Estilo de la tabla */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #28a745;
+            color: white;
+            font-size: 20px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #333;
+            color: #fff;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #444;
+            color: #fff;
+        }
+
+        tr:hover {
+            background-color: #555;
+        }
+
+        /* Botones */
+        .btn {
+            display: block;
+            margin: 10px auto;
+            width: 150px;
+            text-align: center;
+            padding: 10px;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-confirmar {
+            background-color: #28a745;
+        }
+
+        .btn-confirmar:hover {
+            background-color: #218838;
+        }
+
+        .btn-eliminar {
+            background-color: #dc3545;
+        }
+
+        .btn-eliminar:hover {
+            background-color: #c82333;
+        }
+
+        /* Enlace de volver */
+        .regresar-link {
+            display: block;
+            margin-top: 20px;
+            color: #007bff;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .regresar-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
 
+    <!-- Barra de Navegación -->
+    <nav class="navbar">
+        <a href="#" class="logo">Carrito de Pedidos</a>
+        <a href="/menuCliente" class="login-btn">Volver</a>
+    </nav>
+
+    <!-- Contenedor principal -->
     <div class="container">
         <h2>Carrito de Pedidos</h2>
+
         <table>
             <thead>
                 <tr>
@@ -39,19 +182,19 @@
                     </td>
                     <td>
                         <form action="/finalizarPedido" method="post">
-    <input type="hidden" name="idPedido" th:value="${pedido.id}">
-    <button type="submit" class="btn-confirmar">Confirmar</button>
-</form>
+                            <input type="hidden" name="idPedido" th:value="${pedido.id}">
+                            <button type="submit" class="btn btn-confirmar">Confirmar</button>
+                        </form>
 
                         <form th:action="@{/eliminarPedido}" method="post">
                             <input type="hidden" name="idPedido" th:value="${pedido.id}">
-                            <button type="submit" class="delete-btn">Eliminar</button>
+                            <button type="submit" class="btn btn-eliminar">Eliminar</button>
                         </form>
                     </td>
                 </tr>
             </tbody>
         </table>
-        <a href="/menuCliente" style="color: violet; text-decoration: none; font-weight: bold;">Volver</a>
+
     </div>
 
 </body>

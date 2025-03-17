@@ -22,23 +22,27 @@ public interface EjemplarRepository extends JpaRepository<Ejemplar, Long> {
 
 	@Query("SELECT e FROM Ejemplar e WHERE e.disponible = true")
 	List<Ejemplar> findEjemplaresDisponibles();
-	
+
 	@Query("SELECT e FROM Ejemplar e WHERE e.planta.codigo = :codigoPlanta AND e.disponible = true")
 	List<Ejemplar> findEjemplaresDisponiblesPorPlanta(@Param("codigoPlanta") String codigoPlanta);
 
-	// Método para obtener ejemplares disponibles
-    List<Ejemplar> findByDisponibleTrue();
-    
-    @Query("SELECT e FROM Ejemplar e WHERE e.planta.id = :plantaId AND e.disponible = true ORDER BY e.id ASC LIMIT :cantidad")
-    List<Ejemplar> findTopNByPlantaIdAndDisponibleTrue(@Param("plantaId") Long plantaId, @Param("cantidad") int cantidad);
+	List<Ejemplar> findByDisponibleTrue();
 
-    @Query("SELECT e FROM Ejemplar e WHERE e.planta.id = :plantaId AND e.disponible = true ORDER BY e.id ASC")
-    List<Ejemplar> findEjemplaresDisponiblesPorPlanta(@Param("plantaId") Long plantaId);
+	@Query("SELECT e FROM Ejemplar e WHERE e.planta.id = :plantaId AND e.disponible = true ORDER BY e.id ASC LIMIT :cantidad")
+	List<Ejemplar> findTopNByPlantaIdAndDisponibleTrue(@Param("plantaId") Long plantaId,
+			@Param("cantidad") int cantidad);
 
-    @Modifying
-    @Transactional
-    @Query("UPDATE Ejemplar e SET e.disponible = true, e.pedido = NULL WHERE e.pedido.id = :pedidoId")
-    void restaurarEjemplaresDePedido(@Param("pedidoId") Long pedidoId);
+	@Query("SELECT e FROM Ejemplar e WHERE e.planta.id = :plantaId AND e.disponible = true ORDER BY e.id ASC")
+	List<Ejemplar> findEjemplaresDisponiblesPorPlanta(@Param("plantaId") Long plantaId);
 
+	@Modifying
+	@Transactional
+	@Query("UPDATE Ejemplar e SET e.disponible = true, e.pedido = NULL WHERE e.pedido.id = :pedidoId")
+	void restaurarEjemplaresDePedido(@Param("pedidoId") Long pedidoId);
+
+	@Modifying
+	@Transactional
+	@Query("UPDATE Ejemplar e SET e.disponible = false WHERE e.id IN :ids")
+	void marcarEjemplaresNoDisponibles(@Param("ids") List<Long> ids);
 
 }

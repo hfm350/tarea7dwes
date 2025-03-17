@@ -23,7 +23,7 @@ public class Principal implements CommandLineRunner {
 
         boolean match = encoder.matches(inputPassword, storedPassword);
 
-        System.out.println("Contraseñas: " + match);
+        System.out.println("Contraseñas coinciden: " + match);
 		
         String rawPassword = "1234";
         String encodedPassword = encoder.encode(rawPassword);

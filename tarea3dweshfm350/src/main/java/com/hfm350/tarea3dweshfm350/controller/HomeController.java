@@ -206,7 +206,7 @@ public class HomeController {
 
 			RedirectAttributes redirectAttributes, HttpSession session) {
 
-		// 🔹 Verificar si el usuario está autenticado en Spring Security
+		// Verificar si el usuario está autenticado en Spring Security
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		if (authentication == null || !authentication.isAuthenticated()
@@ -219,21 +219,21 @@ public class HomeController {
 		String usuarioAutenticado = authentication.getName(); // Nombre de usuario autenticado
 		System.out.println("✅ Usuario autenticado: " + usuarioAutenticado);
 
-		// 🔹 Buscar la planta por su código
+		// Buscar la planta por su código
 		Planta planta = serviciosPlanta.buscarPorCodigo(codigoPlanta);
 		if (planta == null) {
 			redirectAttributes.addFlashAttribute("errorMessage", "El código de la planta no es válido.");
 			return "redirect:/insertarEjemplar";
 		}
 
-		// 🔹 Insertar el ejemplar automáticamente generando su nombre
+		// Insertar el ejemplar automáticamente generando su nombre
 		Ejemplar ejemplar = serviciosEjemplar.insertar(codigoPlanta);
 		if (ejemplar == null) {
 			redirectAttributes.addFlashAttribute("errorMessage", "Error al insertar el ejemplar.");
 			return "redirect:/insertarEjemplar";
 		}
 
-		// 🔹 Obtener ID del usuario autenticado desde la credencial
+		// Obtener ID del usuario autenticado desde la credencial
 		Optional<Credencial> credencialOpt = serviciosCredenciales.buscarPorUsuario(usuarioAutenticado);
 		if (credencialOpt.isEmpty()) {
 			redirectAttributes.addFlashAttribute("errorMessagePersona", "No se encontró la credencial del usuario.");
@@ -246,19 +246,19 @@ public class HomeController {
 		Persona persona = serviciosPersona.buscarPorId(personaID)
 				.orElseThrow(() -> new RuntimeException("No se encuentra la persona con el ID obtenido."));
 
-		// 🔹 Registrar el mensaje asociado al ejemplar y la persona
+		// Registrar el mensaje asociado al ejemplar y la persona
 		LocalDateTime tiempo = LocalDateTime.now();
 		String fechaFormateada = tiempo.format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy"));
 		String mensajeGenerado = "Ejemplar añadido por " + persona.getNombre() + " a las " + fechaFormateada + ".";
 		Mensaje nuevoMensaje = new Mensaje(tiempo, mensajeGenerado, persona, ejemplar);
 		serviciosMensaje.insertar(nuevoMensaje);
 
-		// 🔹 Mensaje de éxito
+		// Mensaje de éxito
 		redirectAttributes.addFlashAttribute("successMessage", "Ejemplar y mensaje registrados exitosamente.");
 
 		System.out.println("✅ Ejemplar y mensaje guardados con éxito para el usuario: " + usuarioAutenticado);
 
-		return "redirect:/insertarEjemplar"; // ✅ Redirige para actualizar la página
+		return "redirect:/insertarEjemplar";
 	}
 
 	@GetMapping("/gestionMensajes")
@@ -389,48 +389,88 @@ public class HomeController {
 		return "menuCliente";
 	}
 
+
 	@PostMapping("/registroCliente")
-	public String registrarCliente(@ModelAttribute Cliente cliente, @RequestParam String username,
-			@RequestParam String password, Model model, RedirectAttributes redirectAttributes) {
+	public String registrarCliente(@ModelAttribute Cliente cliente,
+	                               @RequestParam String username,
+	                               @RequestParam String password,
+	                               Model model,
+	                               RedirectAttributes redirectAttributes) {
 
-		// 🚨 **Verificar si el nombre de usuario ya está en uso**
-		if (serviciosCredenciales.existeUsuario(username)) {
-			model.addAttribute("errorMessage", "El nombre de usuario ya está en uso.");
-			return "registroCliente";
-		}
+	    boolean valido = true;
 
-		// 🚨 **Verificar si el email ya está registrado en Cliente**
-		if (serviciosCliente.existeEmail(cliente.getEmail())) {
-			model.addAttribute("errorMessage", "El email ya está registrado.");
-			return "registroCliente";
-		}
+	    // 🔍 **Validaciones**
+	    if (cliente.getNombre().isEmpty() || !cliente.getNombre().matches("[A-Z][a-z]+(\\s[A-Z][a-z]+)*")) {
+	        model.addAttribute("errorMessageNombre", "El nombre debe comenzar con mayúscula y solo contener letras.");
+	        valido = false;
+	    }
 
-		// 🚨 **Verificar si el NIF/NIE ya está registrado**
-		if (serviciosCliente.existeNifNie(cliente.getNifNie())) {
-			model.addAttribute("errorMessage", "El NIF/NIE ya está registrado.");
-			return "registroCliente";
-		}
 
-		// ✅ **Encriptar la contraseña antes de guardarla**
-		String encryptedPassword = passwordEncoder.encode(password);
+	    if (cliente.getEmail().isEmpty() || !cliente.getEmail().matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$")) {
+	        model.addAttribute("errorMessageEmail", "El email debe tener el formato correcto.");
+	        valido = false;
+	    } else if (serviciosCliente.existeEmail(cliente.getEmail())) {
+	        model.addAttribute("errorMessageEmail", "El email ya está registrado.");
+	        valido = false;
+	    }
 
-		// ✅ **Crear Credencial con Rol "ROLE_CLIENTE"**
-		Credencial credencial = new Credencial();
-		credencial.setUsuario(username);
-		credencial.setPassword(encryptedPassword); // Se guarda encriptada
-		credencial.setRol("ROLE_CLIENTE");
+	    if (username.isEmpty() || username.contains(" ")) {
+	        model.addAttribute("errorMessageUsuario", "El usuario no puede contener espacios en blanco.");
+	        valido = false;
+	    } else if (serviciosCredenciales.existeUsuario(username)) {
+	        model.addAttribute("errorMessageUsuario", "El usuario ya está en uso.");
+	        valido = false;
+	    }
 
-		// ✅ **Asociar Credencial con Cliente**
-		cliente.setCredenciales(credencial);
-		credencial.setCliente(cliente);
+	    if (password.isEmpty() || !password.matches("\\d{4}")) {
+	        model.addAttribute("errorMessagePassword", "La contraseña debe tener exactamente 4 dígitos numéricos.");
+	        valido = false;
+	    }
 
-		// ✅ **Guardar Cliente (cascada guarda Credencial automáticamente)**
-		cliente = serviciosCliente.guardar2(cliente);
+	    if (cliente.getNifNie().isEmpty() || !cliente.getNifNie().matches("[0-9]{8}[A-Z]")) {
+	        model.addAttribute("errorMessageNifNie", "El NIF/NIE debe tener 8 números seguidos de una letra mayúscula.");
+	        valido = false;
+	    } else if (serviciosCliente.existeNifNie(cliente.getNifNie())) {
+	        model.addAttribute("errorMessageNifNie", "El NIF/NIE ya está registrado.");
+	        valido = false;
+	    }
 
-		// ✅ **Mensaje de éxito y redirección**
-		redirectAttributes.addFlashAttribute("successMessage", "Cliente registrado exitosamente.");
-		return "redirect:/inicioSesion";
+	    if (cliente.getDireccion().isEmpty()) {
+	        model.addAttribute("errorMessageDireccion", "La dirección no puede estar vacía.");
+	        valido = false;
+	    }
+
+	    if (cliente.getTelefono().isEmpty() || !cliente.getTelefono().matches("\\d{9}")) {
+	        model.addAttribute("errorMessageTelefono", "El teléfono debe tener exactamente 9 dígitos numéricos.");
+	        valido = false;
+	    }
+
+	    // Si hay errores, volver a mostrar el formulario con los mensajes
+	    if (!valido) {
+	        return "registroCliente";
+	    }
+
+	    // Encriptar la contraseña
+	    String encryptedPassword = passwordEncoder.encode(password);
+
+	    // Crear Credencial y asociarla al Cliente
+	    Credencial credencial = new Credencial();
+	    credencial.setUsuario(username);
+	    credencial.setPassword(encryptedPassword);
+	    credencial.setRol("ROLE_CLIENTE");
+
+	    cliente.setCredenciales(credencial);
+	    credencial.setCliente(cliente);
+
+	    // Guardar Cliente (cascada guarda Credencial)
+	    serviciosCliente.guardar2(cliente);
+
+	    // Redirigir con mensaje de éxito
+	    redirectAttributes.addFlashAttribute("successMessage", "Cliente registrado exitosamente.");
+	    return "redirect:/inicioSesion";
 	}
+
+
 
 	@GetMapping("/registroCliente")
 	public String mostrarFormularioRegistro(Model model) {

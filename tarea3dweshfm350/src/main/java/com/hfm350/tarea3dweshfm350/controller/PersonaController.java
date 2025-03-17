@@ -50,7 +50,7 @@ public class PersonaController {
         boolean valido = true;
 
         // Validaciones
-        if (nombre.isEmpty() || !nombre.matches("[A-Z][a-z]+")) {
+        if (nombre.isEmpty() || !nombre.matches("[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(\\s[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*")) {
             model.addAttribute("errorMessageNombre", "El nombre debe comenzar con mayúscula y solo contener letras.");
             valido = false;
         }

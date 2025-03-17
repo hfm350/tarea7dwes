@@ -46,7 +46,7 @@ public class ServicioPedido {
 
         // 🔴 IMPORTANTE: Marcar los ejemplares como NO disponibles y guardarlos en la BD
         for (Ejemplar ejemplar : pedido.getEjemplares()) {
-            ejemplar.setDisponible(false);  // Se marca como NO disponible
+        	ejemplar.setDisponible(false); //Se marca como NO disponible
             ejemplar.setPedido(pedido);     // Se asocia al pedido
             ejemplarRepository.save(ejemplar); // Se guarda en la BD
         }
@@ -58,7 +58,7 @@ public class ServicioPedido {
 
 
     /**
-     * Confirma un pedido en la BD.
+     * Confirma un pedido en la BD. /carrito
      */
     @Transactional
     public void confirmarPedido(Long idPedido) {
@@ -67,17 +67,19 @@ public class ServicioPedido {
         if (pedidoOpt.isPresent()) {
             Pedido pedido = pedidoOpt.get();
 
-            // 🔴 IMPORTANTE: Asegurarnos de que los ejemplares queden como NO disponibles
+            // IMPORTANTE: Asegurarnos de que los ejemplares queden como NO disponibles
             for (Ejemplar ejemplar : pedido.getEjemplares()) {
-                ejemplar.setDisponible(false);  // Se asegura que queden no disponibles
+                //ejemplar.setDisponible(false);  // Se asegura que queden no disponibles
                 ejemplarRepository.save(ejemplar);  // Se guarda en la BD
             }
+            
 
-            // 🔵 Marcar el pedido como confirmado
+            // Marcar el pedido como confirmado
+            pedido.setConfirmado(true);
             pedidoRepository.save(pedido);
-            System.out.println("✅ Pedido confirmado correctamente: " + pedido.getId());
+            System.out.println("Pedido confirmado correctamente: " + pedido.getId());
         } else {
-            System.err.println("❌ Error: Pedido no encontrado con ID " + idPedido);
+            System.err.println("Error: Pedido no encontrado con ID " + idPedido);
         }
     }
 
@@ -89,24 +91,37 @@ public class ServicioPedido {
         if (pedidoOpt.isPresent()) {
             Pedido pedido = pedidoOpt.get();
 
-            // 🔴 Si el pedido estaba confirmado, hacer que los ejemplares vuelvan a estar disponibles
-            if (pedido.isConfirmado()) {
-                List<Ejemplar> ejemplares = pedido.getEjemplares();
-                
-                for (Ejemplar ejemplar : ejemplares) {
-                    ejemplar.setDisponible(true);  // Marcarlo como disponible
-                    ejemplar.setPedido(null);      // Desasociarlo del pedido eliminado
-                    ejemplarRepository.save(ejemplar); // Guardarlo en la BD
-                }
+            System.out.println("Eliminando pedido ID: " + pedido.getId() + " (Confirmado: " + pedido.isConfirmado() + ")");
+
+            // Recuperar y restaurar ejemplares ANTES de eliminar el pedido
+            List<Ejemplar> ejemplares = pedido.getEjemplares();
+
+            if (ejemplares != null && !ejemplares.isEmpty()) {
+                ejemplares.forEach(ejemplar -> {
+                    ejemplar.setDisponible(true);  // Marcar como disponible
+                    ejemplar.setPedido(null);      // Desvincular del pedido eliminado
+                });
+                ejemplarRepository.saveAll(ejemplares); // Guardar todos de una vez para optimizar
+                System.out.println("Todos los ejemplares restaurados correctamente.");
+            } else {
+                System.out.println("No hay ejemplares asociados a este pedido.");
             }
 
-            // 🔵 Finalmente, eliminar el pedido de la BD
-            pedidoRepository.deleteById(id);
-            System.out.println("✅ Pedido eliminado y ejemplares restaurados.");
+            // IMPORTANTE: Primero guardar cambios en los ejemplares
+            ejemplarRepository.flush();  // Asegura que los cambios se reflejan en la BD antes de eliminar el pedido
+
+            // Finalmente, eliminar el pedido de la BD
+            pedidoRepository.delete(pedido);
+            pedidoRepository.flush();  // Asegura que la eliminación se ejecute correctamente
+
+            System.out.println("Pedido eliminado correctamente.");
         } else {
-            System.err.println("❌ Error: No se encontró el pedido con ID " + id);
+            System.err.println("Error: No se encontró el pedido con ID " + id);
         }
     }
+
+
+
 
 
     
@@ -117,12 +132,40 @@ public class ServicioPedido {
 
     @Transactional
     public void eliminarPedidosNoConfirmados(Long clienteId) {
-    	pedidoRepository.eliminarPedidosNoConfirmados(clienteId);
+        List<Pedido> pedidosNoConfirmados = pedidoRepository.findByClienteIdAndConfirmadoFalse(clienteId);
+        
+
+        if (!pedidosNoConfirmados.isEmpty()) {
+            pedidosNoConfirmados.forEach(pedido -> {
+                // Restaurar los ejemplares antes de eliminar el pedido
+                pedido.getEjemplares().forEach(ejemplar -> {
+                    ejemplar.setDisponible(true);
+                    ejemplar.setPedido(null);
+                });
+                ejemplarRepository.saveAll(pedido.getEjemplares());
+            });
+
+            ejemplarRepository.flush(); // Asegura que los cambios se reflejan en la BD antes de eliminar pedidos
+
+            // Eliminar los pedidos después de restaurar los ejemplares
+            pedidoRepository.deleteAll(pedidosNoConfirmados);
+            pedidoRepository.flush();
+
+            System.out.println("Pedidos no confirmados eliminados exitosamente.");
+        } else {
+            System.out.println("No había pedidos no confirmados para eliminar.");
+        }
     }
 
+
+   
+    
     public Long obtenerIdClientePorUsuario(String usuario) {
-        return pedidoRepository.obtenerIdClientePorUsuario(usuario);
+        Long id = pedidoRepository.obtenerIdClientePorUsuario(usuario);
+        System.out.println("📌 ID del cliente obtenido: " + id);
+        return id;
     }
+
     
 
 
