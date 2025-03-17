@@ -11,6 +11,7 @@ import com.hfm350.tarea3dweshfm350.servicios.ServiciosPlanta;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosCredenciales;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosEjemplar;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 import java.time.LocalDate;
@@ -158,6 +159,49 @@ public class PedidoController {
     @PostMapping("/eliminarPedido")
     public String eliminarPedido(@RequestParam Long idPedido) {
         servicioPedido.eliminarPedido(idPedido); 
+        return "redirect:/carrito"; 
+    }
+
+    @GetMapping("/misPedidos")
+    public String verMisPedidos(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            return "redirect:/inicioSesion";
+        }
+
+        String usuarioAutenticado = authentication.getName();
+        Long clienteId = serviciosCredenciales.obtenerIdClientePorUsuario(usuarioAutenticado);
+
+        if (clienteId == null) {
+            return "redirect:/menuCliente";
+        }
+        
+        List<Pedido> pedidos = servicioPedido.obtenerPedidosPorCliente(clienteId);
+        List<Pedido> pedidosConfirmados = pedidos.stream()
+                .filter(pedido -> pedido.isConfirmado()) // Excluir los no confirmados
+                .toList();
+
+        model.addAttribute("pedidos", pedidosConfirmados);
+
+        return "misPedidos";
+    }
+
+
+    @PostMapping("/misPedidos")
+    public String procesarMisPedidos(Model model) {
+        return verMisPedidos(model); 
+    }
+    
+    @PostMapping("/eliminarPedido2")
+    public String eliminarPedido(@RequestParam Long idPedido, HttpServletRequest request) {
+        servicioPedido.eliminarPedido(idPedido);
+
+        // Redirigir dependiendo de la página de origen
+        String referer = request.getHeader("Referer");
+        if (referer != null && referer.contains("misPedidos")) {
+            return "redirect:/misPedidos";
+        }
         return "redirect:/carrito"; 
     }
 
