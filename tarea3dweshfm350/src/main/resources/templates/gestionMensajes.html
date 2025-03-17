@@ -185,29 +185,32 @@
 </head>
 <body>
 
+    <!-- Barra de Navegación -->
     <nav class="navbar">
         <a href="#" class="logo">Gestión De Mensajes</a>
         <a th:href="@{${rol == 'ROLE_ADMIN' ? '/menuAdmin' : '/menuPersonal'}}" class="logout-btn">Volver</a>
-
     </nav>
 
+    <!-- Botones de Filtro -->
     <div class="button-container">
         <a th:href="@{/filtrarPorPersona}" class="box-button">Filtrar Por Persona</a>
         <a th:href="@{/filtrarPorFecha}" class="box-button">Filtrar Por Fechas</a>
         <a th:href="@{/filtrarPorPlanta}" class="box-button">Filtrar Por Plantas</a>
     </div>
 
+    <!-- Mensajes de Éxito/Error -->
     <div class="message-container">
-
         <div th:if="${mensajeExito}" class="message message-success">
             <p th:text="${mensajeExito}"></p>
         </div>
 
-     
         <div th:if="${mensajeError}" class="message message-error">
             <p th:text="${mensajeError}"></p>
         </div>
+    </div>
 
+    <!-- Formulario para Añadir Mensajes -->
+    <div class="message-container">
         <h2>Añadir Mensaje</h2>
         <form id="messageForm" th:action="@{/gestionMensajes}" method="post">
             <label for="idEjemplar">Seleccionar Ejemplar:</label>
@@ -216,12 +219,13 @@
             </select>
 
             <label for="mensajeTexto">Mensaje:</label>
-<textarea id="mensajeTexto" name="mensajeTexto" rows="4" required></textarea>
+            <textarea id="mensajeTexto" name="mensajeTexto" rows="4" required></textarea>
 
             <button type="submit">Añadir Mensaje</button>
         </form>
     </div>
 
+    <!-- Tabla de Mensajes -->
     <div class="message-container">
         <h2>Listado de Mensajes</h2>
         <table id="messageTable">
@@ -229,18 +233,22 @@
                 <tr>
                     <th>Ejemplar</th>
                     <th>Mensaje</th>
-                    <th>Persona</th>
+                    <th>Creador</th>
+                    <th>Fecha</th>	
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="mensaje : ${mensajes}">
                     <td th:text="${mensaje.ejemplar.nombre}"></td>
                     <td th:text="${mensaje.mensaje}"></td>
-                    <td th:text="${mensaje.persona.nombre}"></td>
+                    <td th:text="${mensaje.persona != null ? mensaje.persona.nombre : 'Cliente'}"></td>
+                    <td th:text="${#temporals.format(mensaje.tiempo, 'dd-MM-yyyy HH:mm')}"></td>
+                    
                 </tr>
             </tbody>
         </table>
     </div>
 
 </body>
+
 </html>

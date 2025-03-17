@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.hfm350.tarea3dweshfm350.modelo.Mensaje;
+import com.hfm350.tarea3dweshfm350.modelo.Persona;
 import com.hfm350.tarea3dweshfm350.modelo.Planta;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosMensaje;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosPlanta;
@@ -81,6 +82,13 @@ public class MensajeController {
 
 	    List<Mensaje> mensajes = servMensaje.buscarPorPlanta(planta);
 
+	    // 🔹 Validamos que cada mensaje tenga persona o cliente
+	    for (Mensaje mensaje : mensajes) {
+	        if (mensaje.getPersona() == null && mensaje.getCliente() == null) {
+	            //mensaje.setPersona(new Persona("Desconocido")); // Crear un objeto persona temporal
+	        }
+	    }
+
 	    if (mensajes.isEmpty()) {
 	        model.addAttribute("mensajeError", "No hay mensajes para esta planta.");
 	    } else {
@@ -93,6 +101,7 @@ public class MensajeController {
 
 	    return "filtrarPorPlanta";
 	}
+
 
 
 }

@@ -25,30 +25,36 @@ public class Mensaje implements Serializable {
 	private Long id;
 
 	@Column()
-	private LocalDateTime tiempo ;
+	private LocalDateTime tiempo;
 
 	@Column
 	private String mensaje;
 
 	@ManyToOne
-	@JoinColumn(name = "persona_id", nullable = false)
+	@JoinColumn(name = "persona_id", nullable = true)
 	private Persona persona;
 
 	@ManyToOne
-	@JoinColumn(name = "ejemplar_id", nullable = false)
+	@JoinColumn(name = "ejemplar_id", nullable = true)
 	private Ejemplar ejemplar;
+
+	@ManyToOne
+	@JoinColumn(name = "cliente_id", nullable = true)
+	private Cliente cliente;
+
+	@ManyToOne
+	@JoinColumn(name = "pedido_id", nullable = true)
+	private Pedido pedido;
 
 	public Mensaje() {
 	}
-	
-	public Mensaje(LocalDateTime tiempo, String mensaje, Persona persona, Ejemplar ejemplar) {
-	    this.tiempo = tiempo;
-	    this.mensaje = mensaje;
-	    this.persona = persona;
-	    this.ejemplar = ejemplar;
-	}
 
-	
+	public Mensaje(LocalDateTime tiempo, String mensaje, Persona persona, Ejemplar ejemplar) {
+		this.tiempo = tiempo;
+		this.mensaje = mensaje;
+		this.persona = persona;
+		this.ejemplar = ejemplar;
+	}
 
 	public Mensaje(Long id, LocalDateTime tiempo, String mensaje, Persona persona, Ejemplar ejemplar) {
 		super();
@@ -59,7 +65,13 @@ public class Mensaje implements Serializable {
 		this.ejemplar = ejemplar;
 	}
 
-
+	public Mensaje(LocalDateTime tiempo, String mensaje, Cliente cliente, Pedido pedido, Ejemplar ejemplar) {
+		this.tiempo = tiempo;
+		this.mensaje = mensaje;
+		this.cliente = cliente;
+		this.pedido = pedido;
+		this.ejemplar = ejemplar;
+	}
 
 	public Long getId() {
 		return id;
@@ -75,6 +87,14 @@ public class Mensaje implements Serializable {
 
 	public void setFechahora(LocalDateTime fechahora) {
 		this.tiempo = fechahora;
+	}
+
+	public LocalDateTime getTiempo() {
+		return tiempo;
+	}
+
+	public void setTiempo(LocalDateTime tiempo) {
+		this.tiempo = tiempo;
 	}
 
 	public String getMensaje() {
@@ -93,6 +113,23 @@ public class Mensaje implements Serializable {
 		this.persona = persona;
 	}
 
+	public Pedido getPedido() {
+		return pedido;
+	}
+
+
+	public Cliente getCliente() {
+		return cliente;
+	}
+
+	public void setCliente(Cliente cliente) {
+		this.cliente = cliente;
+	}
+
+	public void setPedido(Pedido pedido) {
+		this.pedido = pedido;
+	}
+
 	public Ejemplar getEjemplar() {
 		return ejemplar;
 	}
@@ -106,7 +143,5 @@ public class Mensaje implements Serializable {
 		return "Mensaje [id=" + id + ", fechahora=" + tiempo + ", mensaje=" + mensaje + ", persona=" + persona
 				+ ", ejemplar=" + ejemplar + "]";
 	}
-	
-	
 
 }

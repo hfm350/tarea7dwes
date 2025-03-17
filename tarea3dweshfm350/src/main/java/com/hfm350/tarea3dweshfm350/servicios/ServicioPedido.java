@@ -3,23 +3,35 @@ package com.hfm350.tarea3dweshfm350.servicios;
 import com.hfm350.tarea3dweshfm350.modelo.Pedido;
 import com.hfm350.tarea3dweshfm350.modelo.Cliente;
 import com.hfm350.tarea3dweshfm350.modelo.Ejemplar;
+import com.hfm350.tarea3dweshfm350.modelo.Mensaje;
 import com.hfm350.tarea3dweshfm350.repositorios.PedidoRepository;
 
 import jakarta.transaction.Transactional;
 
+import com.hfm350.tarea3dweshfm350.repositorios.ClienteRepository;
 import com.hfm350.tarea3dweshfm350.repositorios.EjemplarRepository;
+import com.hfm350.tarea3dweshfm350.repositorios.MensajeRepository;
+
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ServicioPedido {
-    private final PedidoRepository pedidoRepository;
+	private final PedidoRepository pedidoRepository;
     private final EjemplarRepository ejemplarRepository;
+    private final MensajeRepository mensajeRepository;
+    private final ClienteRepository clienteRepository;
 
-    public ServicioPedido(PedidoRepository pedidoRepository, EjemplarRepository ejemplarRepository) {
+    public ServicioPedido(PedidoRepository pedidoRepository, EjemplarRepository ejemplarRepository, 
+                          MensajeRepository mensajeRepository, ClienteRepository clienteRepository) {
         this.pedidoRepository = pedidoRepository;
         this.ejemplarRepository = ejemplarRepository;
+        this.mensajeRepository = mensajeRepository;
+        this.clienteRepository = clienteRepository;
     }
 
     /**
@@ -66,20 +78,27 @@ public class ServicioPedido {
 
         if (pedidoOpt.isPresent()) {
             Pedido pedido = pedidoOpt.get();
+            Cliente cliente = pedido.getCliente();
+            LocalDateTime fechaHoraActual = LocalDateTime.now();
 
-            // IMPORTANTE: Asegurarnos de que los ejemplares queden como NO disponibles
             for (Ejemplar ejemplar : pedido.getEjemplares()) {
-                //ejemplar.setDisponible(false);  // Se asegura que queden no disponibles
-                ejemplarRepository.save(ejemplar);  // Se guarda en la BD
+                // Crear el mensaje
+                String mensajeTexto = cliente.getNombre() + " compró el ejemplar " + 
+                                      ejemplar.getId() + " el día " + 
+                                      fechaHoraActual.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")) + 
+                                      " en el pedido " + pedido.getId() + ".";
+
+                // Guardar la anotación
+                Mensaje mensaje = new Mensaje(fechaHoraActual, mensajeTexto, cliente, pedido, ejemplar);
+                mensajeRepository.save(mensaje);
             }
-            
 
             // Marcar el pedido como confirmado
             pedido.setConfirmado(true);
             pedidoRepository.save(pedido);
-            System.out.println("Pedido confirmado correctamente: " + pedido.getId());
+            System.out.println("✅ Pedido confirmado y mensajes registrados: " + pedido.getId());
         } else {
-            System.err.println("Error: Pedido no encontrado con ID " + idPedido);
+            System.err.println("❌ Error: Pedido no encontrado con ID " + idPedido);
         }
     }
 
@@ -91,39 +110,27 @@ public class ServicioPedido {
         if (pedidoOpt.isPresent()) {
             Pedido pedido = pedidoOpt.get();
 
-            System.out.println("Eliminando pedido ID: " + pedido.getId() + " (Confirmado: " + pedido.isConfirmado() + ")");
+            System.out.println("📌 Eliminando pedido ID: " + pedido.getId() + " (Confirmado: " + pedido.isConfirmado() + ")");
 
-            // Recuperar y restaurar ejemplares ANTES de eliminar el pedido
-            List<Ejemplar> ejemplares = pedido.getEjemplares();
-
-            if (ejemplares != null && !ejemplares.isEmpty()) {
-                ejemplares.forEach(ejemplar -> {
-                    ejemplar.setDisponible(true);  // Marcar como disponible
-                    ejemplar.setPedido(null);      // Desvincular del pedido eliminado
-                });
-                ejemplarRepository.saveAll(ejemplares); // Guardar todos de una vez para optimizar
-                System.out.println("Todos los ejemplares restaurados correctamente.");
-            } else {
-                System.out.println("No hay ejemplares asociados a este pedido.");
+            for (Ejemplar ejemplar : pedido.getEjemplares()) {
+                mensajeRepository.deleteByEjemplarId(ejemplar.getId());
             }
-
-            // IMPORTANTE: Primero guardar cambios en los ejemplares
-            ejemplarRepository.flush();  // Asegura que los cambios se reflejan en la BD antes de eliminar el pedido
-
-            // Finalmente, eliminar el pedido de la BD
+            
+            // 🟢 Restaurar ejemplares antes de eliminar el pedido
+            List<Ejemplar> ejemplares = pedido.getEjemplares();
+            for (Ejemplar ejemplar : ejemplares) {
+                ejemplar.setDisponible(true);
+                ejemplar.setPedido(null);
+                ejemplarRepository.save(ejemplar);
+            }
+            
+            // 🟢 Eliminar el pedido
             pedidoRepository.delete(pedido);
-            pedidoRepository.flush();  // Asegura que la eliminación se ejecute correctamente
-
-            System.out.println("Pedido eliminado correctamente.");
+            System.out.println("✅ Pedido eliminado correctamente.");
         } else {
-            System.err.println("Error: No se encontró el pedido con ID " + id);
+            System.err.println("❌ Error: No se encontró el pedido con ID " + id);
         }
     }
-
-
-
-
-
     
     public void guardarPedido(Pedido pedido) {
         pedidoRepository.save(pedido);

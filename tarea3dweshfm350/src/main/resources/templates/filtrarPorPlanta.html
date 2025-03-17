@@ -27,7 +27,7 @@ body {
 	border-radius: 8px;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 	width: 300px;
-	margin-top:90px;
+	margin-top: 90px;
 	text-align: center;
 }
 
@@ -107,7 +107,6 @@ button:hover, .btn:hover {
 	background-color: #7b3939;
 }
 
-
 .message-list {
 	list-style-type: none;
 	padding: 0;
@@ -143,56 +142,73 @@ button:hover, .btn:hover {
 </head>
 
 <body>
-    <div class="navbar">
-        <a href="#" class="logo">Filtrar Mensajes por Planta</a>
-        <a href="/gestionMensajes" class="logout-btn">Volver</a>
-    </div>
+	<div class="navbar">
+		<a href="#" class="logo">Filtrar Mensajes por Planta</a> <a
+			href="/gestionMensajes" class="logout-btn">Volver</a>
+	</div>
 
-    <div class="container">
-        <header>
-            <h1>Filtrar Mensajes por Planta</h1>
-        </header>
+	<div class="container">
+		<header>
+			<h1>Filtrar Mensajes por Planta</h1>
+		</header>
 
-        <div class="content">
-            <div th:if="${mensajeError}" class="error-message">
-                <p th:text="${mensajeError}"></p>
-            </div>
+		<div class="content">
+			<div th:if="${mensajeError}" class="error-message">
+				<p th:text="${mensajeError}"></p>
+			</div>
 
-            <form th:action="@{/filtrarPorPlanta}" method="post">
-                <div class="form-group">
-                    <label for="codigoPlanta">Selecciona una Planta:</label>
-                    <select id="codigoPlanta" name="codigoPlanta" class="form-control">
-                        <option value="" disabled>Seleccione una planta</option>
-                        <th:block th:each="planta : ${plantas}">
-                            <option th:value="${planta.codigo}" th:text="${planta.nombreComun}" 
-                                    th:selected="${planta.codigo == codigoPlantaSeleccionada}">
-                            </option>
-                        </th:block>
-                    </select>
-                </div>
+			<form th:action="@{/filtrarPorPlanta}" method="post">
+				<div class="form-group">
+					<label for="codigoPlanta">Selecciona una Planta:</label> <select
+						id="codigoPlanta" name="codigoPlanta" class="form-control">
+						<option value="" disabled>Seleccione una planta</option>
+						<th:block th:each="planta : ${plantas}">
+							<option th:value="${planta.codigo}"
+								th:text="${planta.nombreComun}"
+								th:selected="${planta.codigo == codigoPlantaSeleccionada}">
+							</option>
+						</th:block>
+					</select>
+				</div>
 
-                <button type="submit" class="btn">Filtrar Mensajes</button>
-            </form>
+				<button type="submit" class="btn">Filtrar Mensajes</button>
+			</form>
 
-            <div th:if="${mensajes != null and not #lists.isEmpty(mensajes)}">
-                <h3>Mensajes para la planta: <span th:text="${planta.nombreComun}"></span></h3>
-                <ul class="message-list">
-                    <th:block th:each="mensaje : ${mensajes}">
-                        <li>
-                            <h4 th:text="${mensaje.mensaje}"></h4>
-                            <p class="message-date" th:text="${#temporals.format(mensaje.fechahora, 'yyyy-MM-dd HH:mm:ss')}"></p>
-                            <p><strong>Persona:</strong> <span th:text="${mensaje.persona.nombre}"></span></p>
-                            <p><strong>Ejemplar:</strong> <span th:text="${mensaje.ejemplar.nombre}"></span></p>
-                        </li>
-                    </th:block>
-                </ul>
-            </div>
+			<div th:if="${mensajes != null and not #lists.isEmpty(mensajes)}">
+				<h3>
+					Mensajes para la planta: <span th:text="${planta.nombreComun}"></span>
+				</h3>
+				<ul class="message-list">
+					<th:block th:each="mensaje : ${mensajes}">
+						<li>
+							<h4 th:text="${mensaje.mensaje}"></h4>
+							<p class="message-date"
+								th:text="${#temporals.format(mensaje.fechahora, 'yyyy-MM-dd HH:mm:ss')}"></p>
+							<p>
+								<strong>Creador:</strong> <span
+									th:if="${mensaje.persona != null}"
+									th:text="${mensaje.persona.nombre}"></span> <span
+									th:if="${mensaje.cliente != null}"
+									th:text="${mensaje.cliente.nombre}"></span> <span
+									th:if="${mensaje.persona == null and mensaje.cliente == null}">Desconocido</span>
+							</p>
 
-            <div th:if="${mensajes != null and #lists.isEmpty(mensajes)}">
-                <p class="no-messages">No hay mensajes para esta planta.</p>
-            </div>
-        </div>
-    </div>
+
+
+							<p>
+								<strong>Ejemplar:</strong> <span
+									th:text="${mensaje.ejemplar.nombre}"></span>
+							</p>
+						</li>
+					</th:block>
+				</ul>
+			</div>
+
+			<div th:if="${mensajes != null and #lists.isEmpty(mensajes)}">
+				<p class="no-messages">No hay mensajes para esta planta.</p>
+			</div>
+		</div>
+	</div>
 </body>
 
 
