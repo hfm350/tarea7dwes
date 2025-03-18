@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.hibernate.query.sqm.tree.SqmDeleteOrUpdateStatement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,38 +117,35 @@ public class EjemplarController {
     @PostMapping("/ejemplarDePlanta")
     public String verEjemplares(@RequestParam("codigoPlanta") String codigoPlanta, Model model) {
         List<Planta> listaDePlantas = serviciosPlanta.findAll();
-        List<Ejemplar> ejemplares = serviciosEjemplar.findAll();
-
         model.addAttribute("plantas", listaDePlantas);
         model.addAttribute("codigoBuscado", codigoPlanta);
 
-        Planta plantaEncontrada = null;
-        for (Planta p : listaDePlantas) {
-            if (p.getCodigo().equalsIgnoreCase(codigoPlanta.trim())) {
-                plantaEncontrada = p;
-                break;
-            }
-        }
+        // Buscar la planta por código
+        Planta plantaEncontrada = listaDePlantas.stream()
+            .filter(p -> p.getCodigo().equalsIgnoreCase(codigoPlanta.trim()))
+            .findFirst()
+            .orElse(null);
 
         if (plantaEncontrada != null) {
-            List<Ejemplar> ejemplaresDePlanta = new ArrayList<>();
-            for (Ejemplar ej : ejemplares) {
-                if (ej.getPlanta().getId().equals(plantaEncontrada.getId())) {
-                    ejemplaresDePlanta.add(ej);
-                }
-            }
+            // Filtrar solo los ejemplares disponibles de la planta encontrada
+            List<Ejemplar> ejemplaresDisponibles = serviciosEjemplar.findAll()
+                .stream()
+                .filter(ej -> ej.getPlanta().getId().equals(plantaEncontrada.getId()))
+                .filter(Ejemplar::isDisponible)  // Solo ejemplares disponibles
+                .collect(Collectors.toList());
 
-            model.addAttribute("ejemplares", ejemplaresDePlanta);
+            model.addAttribute("ejemplares", ejemplaresDisponibles);
 
-            if (ejemplaresDePlanta.isEmpty()) {
-                model.addAttribute("mensajeError", "No hay EJEMPLAR");
+            if (ejemplaresDisponibles.isEmpty()) {
+                model.addAttribute("mensajeError", "No hay EJEMPLARES DISPONIBLES para esta planta.");
             }
         } else {
-            model.addAttribute("mensajeError", "CODIGO de planta erroneo");
+            model.addAttribute("mensajeError", "CÓDIGO de planta erróneo.");
         }
 
         return "ejemplarDePlanta";
     }
+
     
     @PostMapping("/agregarEjemplar")
     public String agregarEjemplar(@RequestParam("codigoPlanta") String codigoPlanta, Model model) {
@@ -164,8 +162,11 @@ public class EjemplarController {
 
     @GetMapping("/insertarEjemplar")
 	public String insertarEjemplar(Model model, HttpSession session) {
-		List<Ejemplar> ejemplares = serviciosEjemplar.findAll();
-		model.addAttribute("ejemplares", ejemplares);
+    	List<Ejemplar> ejemplaresDisponibles = serviciosEjemplar.findAll()
+    	        .stream()
+    	        .filter(Ejemplar::isDisponible) // Filtrar solo los disponibles
+    	        .collect(Collectors.toList());
+		
 		List<Planta> plantas = serviciosPlanta.findAll();
 		List<Planta> plantasSinEjemplar = new ArrayList<>();
 
@@ -183,7 +184,7 @@ public class EjemplarController {
 			model.addAttribute("plantasSinEjemplar", plantas);
 		}
 
-		model.addAttribute("ejemplares", serviciosEjemplar.findAll());
+		model.addAttribute("ejemplares", ejemplaresDisponibles);
 		model.addAttribute("plantasSinEjemplar", serviciosPlanta.findAll());
 		return "insertarEjemplar"; // Devuelve la vista sin redirigir
 
