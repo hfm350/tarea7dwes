@@ -24,8 +24,9 @@ public class Ejemplar implements Serializable {
 
     
     @ManyToOne
-    @JoinColumn(name = "pedido_id")
+    @JoinColumn(name = "pedido_id", nullable = false)
     private Pedido pedido;
+
 
     @OneToMany(mappedBy = "ejemplar", cascade = CascadeType.ALL)
     private List<Mensaje> mensajes = new LinkedList<>();

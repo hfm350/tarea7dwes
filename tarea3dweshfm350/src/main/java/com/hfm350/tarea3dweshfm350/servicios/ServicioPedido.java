@@ -172,8 +172,20 @@ public class ServicioPedido {
         System.out.println("📌 ID del cliente obtenido: " + id);
         return id;
     }
+    
+    public List<Pedido> obtenerPedidosNoConfirmadosPorCliente(Long clienteId) {
+        return pedidoRepository.findByClienteIdAndConfirmadoFalse(clienteId);
+    }
+    
+    public List<Pedido> obtenerPedidosConfirmadosPorCliente(Long clienteId) {
+        return pedidoRepository.findByClienteIdAndConfirmadoTrue(clienteId);
+    }	
 
     
+    public Pedido guardarPedido2(Pedido pedido) {
+        return pedidoRepository.save(pedido);  // ✅ Ahora devuelve el pedido guardado
+    }
+
 
 
 

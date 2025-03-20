@@ -9,21 +9,17 @@ import com.hfm350.tarea3dweshfm350.servicios.ServicioPedido;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosEjemplar;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosPlanta;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosCredenciales;
-import com.hfm350.tarea3dweshfm350.servicios.ServiciosEjemplar;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class PedidoController {
@@ -42,18 +38,13 @@ public class PedidoController {
         this.ejemplarRepo = ejemplarRepo;
     }
 
-    /**
-     * Vista del carrito: Lista los pedidos actuales del cliente
-     */
     @GetMapping("/carrito")
     public String verCarrito(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
             return "redirect:/inicioSesion";
         }
 
-        // Obtener el usuario autenticado
         String usuarioAutenticado = authentication.getName();
         Long clienteId = serviciosCredenciales.obtenerIdClientePorUsuario(usuarioAutenticado);
 
@@ -61,49 +52,31 @@ public class PedidoController {
             return "redirect:/menuCliente";
         }
 
-        // Obtener los pedidos actualizados desde la BD
-        List<Pedido> pedidos = servicioPedido.obtenerPedidosPorCliente(clienteId);
-
-        // Filtrar solo pedidos NO confirmados
-        List<Pedido> pedidosNoConfirmados = pedidos.stream()
-            .filter(pedido -> !pedido.isConfirmado()) // Excluir los confirmados
-            .toList();
-
+        List<Pedido> pedidosNoConfirmados = servicioPedido.obtenerPedidosNoConfirmadosPorCliente(clienteId);
         model.addAttribute("pedidos", pedidosNoConfirmados);
 
         return "carrito";
     }
 
-
-    /**
-     * Vista para realizar un nuevo pedido con selección de ejemplares
-     */
     @GetMapping("/realizarPedido")
     public String mostrarPlantasDisponibles(Model model) {
         List<Map<String, Object>> plantas = servicioEjemplar.obtenerPlantasConEjemplares();
-        model.addAttribute("plantas", plantas); // Asegurarse de que "plantas" se pasa correctamente
+        model.addAttribute("plantas", plantas);
         return "realizarPedido";
     }
 
-    
-
-    /**
-     * Método que crea un nuevo pedido con los ejemplares seleccionados
-     */
     @PostMapping("/realizarPedido")
     public String realizarPedido(
             @RequestParam("plantasSeleccionadas[]") List<Long> plantasIds,
             @RequestParam("cantidadEjemplares[]") List<Integer> cantidades) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
             return "redirect:/inicioSesion";
         }
 
         String usuarioAutenticado = authentication.getName();
         Long clienteId = serviciosCredenciales.obtenerIdClientePorUsuario(usuarioAutenticado);
-
         if (clienteId == null) {
             return "redirect:/menuCliente";
         }
@@ -113,6 +86,10 @@ public class PedidoController {
         nuevoPedido.setCliente(cliente);
         nuevoPedido.setFecha(java.sql.Date.valueOf(LocalDate.now()));
 
+     // 🔹 GUARDAR PRIMERO EL PEDIDO
+        nuevoPedido = servicioPedido.guardarPedido2(nuevoPedido);  // ✅ Ahora el método devuelve el Pedido
+
+
         List<Ejemplar> ejemplaresSeleccionados = new ArrayList<>();
 
         for (int i = 0; i < plantasIds.size(); i++) {
@@ -121,10 +98,10 @@ public class PedidoController {
 
             List<Ejemplar> ejemplaresDisponibles = servicioEjemplar.obtenerEjemplaresDisponiblesPorPlanta(plantaId, cantidad);
 
-            // Aquí marcamos los ejemplares como NO disponibles antes de añadirlos al pedido
             for (Ejemplar ejemplar : ejemplaresDisponibles) {
-                ejemplar.setDisponible(false);  // Se marca como NO disponible
-                ejemplarRepo.save(ejemplar);  // Se guarda en la BD
+                ejemplar.setDisponible(false);
+                ejemplar.setPedido(nuevoPedido);  // ✅ Ahora el pedido ya está en la base de datos
+                ejemplarRepo.save(ejemplar);  // ✅ Guardamos el ejemplar con el pedido asignado
             }
 
             ejemplaresSeleccionados.addAll(ejemplaresDisponibles);
@@ -134,78 +111,47 @@ public class PedidoController {
             return "redirect:/realizarPedido?error=noEjemplares";
         }
 
-        nuevoPedido.setEjemplares(ejemplaresSeleccionados);
-        
-        // Guardamos el pedido en la BD
-        servicioPedido.guardarPedido(nuevoPedido);
-
-        return "redirect:/realizarPedido"; 
+        return "redirect:/realizarPedido";
     }
 
 
-    /**
-     * Finaliza un pedido (antes llamado confirmarPedido)
-     */
     @PostMapping("/finalizarPedido")
     public String finalizarPedido(@RequestParam Long idPedido) {
-        servicioPedido.confirmarPedido(idPedido);  
+        servicioPedido.confirmarPedido(idPedido);
         return "redirect:/carrito";
     }
 
-
-    /**
-     * Elimina un pedido del carrito
-     */
     @PostMapping("/eliminarPedido")
     public String eliminarPedido(@RequestParam Long idPedido) {
-        servicioPedido.eliminarPedido(idPedido); 
-        return "redirect:/carrito"; 
+        servicioPedido.eliminarPedido(idPedido);
+        return "redirect:/carrito";
     }
 
     @GetMapping("/misPedidos")
     public String verMisPedidos(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
             return "redirect:/inicioSesion";
         }
 
         String usuarioAutenticado = authentication.getName();
         Long clienteId = serviciosCredenciales.obtenerIdClientePorUsuario(usuarioAutenticado);
-
         if (clienteId == null) {
             return "redirect:/menuCliente";
         }
         
-        List<Pedido> pedidos = servicioPedido.obtenerPedidosPorCliente(clienteId);
-        List<Pedido> pedidosConfirmados = pedidos.stream()
-                .filter(pedido -> pedido.isConfirmado()) // Excluir los no confirmados
-                .toList();
-
+        List<Pedido> pedidosConfirmados = servicioPedido.obtenerPedidosConfirmadosPorCliente(clienteId);
         model.addAttribute("pedidos", pedidosConfirmados);
-
         return "misPedidos";
     }
 
-
-    @PostMapping("/misPedidos")
-    public String procesarMisPedidos(Model model) {
-        return verMisPedidos(model); 
-    }
-    
     @PostMapping("/eliminarPedido2")
     public String eliminarPedido(@RequestParam Long idPedido, HttpServletRequest request) {
         servicioPedido.eliminarPedido(idPedido);
-
-        // Redirigir dependiendo de la página de origen
         String referer = request.getHeader("Referer");
         if (referer != null && referer.contains("misPedidos")) {
             return "redirect:/misPedidos";
         }
-        return "redirect:/carrito"; 
+        return "redirect:/carrito";
     }
-
-    
-
-    
 }

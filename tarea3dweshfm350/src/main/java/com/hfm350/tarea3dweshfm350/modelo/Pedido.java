@@ -19,13 +19,9 @@ public class Pedido {
     @JoinColumn(name = "cliente_id", nullable = false)  
     private Cliente cliente;
 
-    @ManyToMany
-    @JoinTable(
-        name = "pedido_ejemplar",
-        joinColumns = @JoinColumn(name = "pedido_id"),
-        inverseJoinColumns = @JoinColumn(name = "ejemplar_id")
-    )
-    private List<Ejemplar> ejemplares;  
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    private List<Ejemplar> ejemplares;
+
 
     @Column(nullable = false)
     private boolean confirmado = false; // Por defecto no está confirmado

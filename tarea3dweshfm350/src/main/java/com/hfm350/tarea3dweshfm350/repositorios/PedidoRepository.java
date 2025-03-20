@@ -26,7 +26,11 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 	@Query("SELECT c.id FROM Cliente c WHERE c.credenciales.usuario = :usuario")
 	Long obtenerIdClientePorUsuario(@Param("usuario") String usuario);
 
-	@Query("SELECT p FROM Pedido p WHERE p.cliente.id = :clienteId AND p.confirmado = false")
-	List<Pedido> findByClienteIdAndConfirmadoFalse(@Param("clienteId") Long clienteId);
+	//@Query("SELECT p FROM Pedido p WHERE p.cliente.id = :clienteId AND p.confirmado = false")
+	//List<Pedido> findByClienteIdAndConfirmadoFalse(@Param("clienteId") Long clienteId);
+	
+	List<Pedido> findByClienteIdAndConfirmadoFalse(Long clienteId);
+	
+	List<Pedido> findByClienteIdAndConfirmadoTrue(Long clienteId);
 
 }
