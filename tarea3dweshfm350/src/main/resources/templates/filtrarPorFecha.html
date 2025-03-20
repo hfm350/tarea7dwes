@@ -1,202 +1,188 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Filtrar Mensajes por Persona</title>
+<title>Filtrar Mensajes por Fecha</title>
 <style>
-body {
-	font-family: Arial, sans-serif;
-	background-color: #f4f4f4;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	height: 100vh;
-	background-image: url('vivero.png');
-	background-size: cover;
-	background-position: center;
-	position: relative;
-}
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
 
-.container {
-	background-color: rgba(255, 255, 255, 0.9);
-	padding: 20px;
-	border-radius: 8px;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-	width: 300px;
-	margin-top: 90px;
-	text-align: center;
-}
+    body {
+        background: url('vivero.png') no-repeat center center/cover;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100vh;
+        padding-top: 90px;
+    }
 
-header h1 {
-	margin-bottom: 20px;
-	font-size: 24px;
-	color: #333;
-}
+    .navbar {
+        width: 100%;
+        background-color: #2c6e49;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+    }
 
-.options-section {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-}
+    .navbar .logo {
+        font-size: 24px;
+        font-weight: bold;
+        color: white;
+        text-decoration: none;
+    }
 
-button, .btn {
-	padding: 10px;
-	background-color: #28a745;
-	color: #fff;
-	border: none;
-	border-radius: 4px;
-	font-size: 16px;
-	cursor: pointer;
-	width: 100%;
-	margin-top: 10px;
-	text-decoration: none;
-	text-align: center;
-}
+    .navbar .logout-btn {
+        background-color: white;
+        color: #2c6e49;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
 
-button:hover, .btn:hover {
-	background-color: #218838;
-}
+    .navbar .logout-btn:hover {
+        background-color: #1e5032;
+        color: white;
+    }
 
-.login-section {
-	position: absolute;
-	bottom: 20px;
-	right: 20px;
-}
+    .container {
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 600px;
+        text-align: center;
+        margin-top: 30px;
+    }
 
-.login-section a {
-	display: block;
-	width: 100%;
-}
+    h1 {
+        color: #2c6e49;
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
 
-.navbar {
-	width: 100%;
-	background-color: #28a745;
-	padding: 15px 20px;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	position: fixed;
-	top: 0;
-	left: 0;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
 
-.navbar .logo {
-	font-size: 24px;
-	font-weight: bold;
-	color: white;
-	text-decoration: none;
-}
+    label {
+        font-weight: bold;
+    }
 
-.navbar .logout-btn {
-	background-color: white;
-	color: #28a745;
-	padding: 10px 15px;
-	border-radius: 5px;
-	text-decoration: none;
-	font-weight: bold;
-	cursor: pointer;
-	margin-right: 25px;
-}
+    input, button {
+        width: 100%;
+        padding: 12px;
+        border-radius: 6px;
+        font-size: 16px;
+    }
 
-.navbar .logout-btn:hover {
-	background-color: #7b3939;
-}
+    input {
+        border: 1px solid #ccc;
+    }
 
-.message-list {
-	list-style-type: none;
-	padding: 0;
-	margin-top: 10px;
-	text-align: left;
-}
+    button {
+        background-color: #2c6e49;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
 
-.message-list li {
-	background-color: #f9f9f9;
-	border-radius: 5px;
-	margin-bottom: 15px;
-	padding: 15px;
-	box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-}
+    button:hover {
+        background-color: #1e5032;
+    }
 
-.message-list li h4 {
-	margin: 0;
-	font-size: 18px;
-	color: #333;
-}
+    .message-container {
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 800px;
+        text-align: center;
+        margin-top: 20px;
+    }
 
-.message-list li p {
-	margin: 5px 0;
-	font-size: 16px;
-	color: #555;
-}
+    .message-list {
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin-top: 20px;
+        background: white;
+    }
 
-.message-list li .message-date {
-	font-size: 14px;
-	color: #777;
-}
+    .message-list li {
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        padding: 15px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .message-list li h4 {
+        margin: 0;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .message-list li p {
+        margin: 5px 0;
+        font-size: 16px;
+        color: #555;
+    }
+
 </style>
 </head>
-
 <body>
-	<div class="navbar">
-		<a href="#" class="logo">Filtrar Mensajes por Fecha</a> <a
-			href="/gestionMensajes" class="logout-btn">Volver</a>
-	</div>
+    <nav class="navbar">
+        <a href="#" class="logo">Filtrar Mensajes por Fecha</a>
+        <a href="/gestionMensajes" class="logout-btn">Volver</a>
+    </nav>
 
-	<div class="container">
-		<header>
-			<h1>Filtrar Mensajes por Fecha</h1>
-		</header>
+    <div class="container">
+        <h1>Filtrar Mensajes por Fecha</h1>
+        <form th:action="@{/filtrarPorFecha}" method="post">
+            <label for="fechaInicio">Fecha de inicio:</label>
+            <input type="date" id="fechaInicio" name="fechaInicio">
 
-		<div class="content">
-			<div th:if="${mensajeError}" class="error-message">
-				<p th:text="${mensajeError}"></p>
-			</div>
+            <label for="fechaFin">Fecha de fin:</label>
+            <input type="date" id="fechaFin" name="fechaFin">
 
-			<form th:action="@{/filtrarPorFecha}" method="post">
-				<div class="form-group">
-					<label for="fechaInicio">Fecha de inicio:</label> <input
-						type="date" id="fechaInicio" name="fechaInicio"
-						class="form-control">
-				</div>
+            <button type="submit">Filtrar Mensajes</button>
+        </form>
+    </div>
 
-				<div class="form-group">
-					<label for="fechaFin">Fecha de fin:</label> <input type="date"
-						id="fechaFin" name="fechaFin" class="form-control">
-				</div>
-
-				<button type="submit" class="btn">Filtrar Mensajes</button>
-			</form>
-
-			<div th:if="${mensajes != null}">
-				<h3>
-					Mensajes entre <span th:text="${fechaInicio}"></span> y <span
-						th:text="${fechaFin}"></span>:
-				</h3>
-				<ul class="message-list">
-					<th:block th:each="mensaje : ${mensajes}">
-						<li>
-							<h4 th:text="${mensaje.mensaje}"></h4>
-							<p class="message-date" th:text="${mensaje.fechahora}"></p>
-							<p>
-								<strong>Creador:</strong> <span
-									th:text="${mensaje.persona != null ? mensaje.persona.nombre : mensaje.cliente.nombre}"></span>
-							</p>
-
-							<p>
-								<strong>Ejemplar:</strong> <span
-									th:text="${mensaje.ejemplar.nombre}"></span>
-							</p>
-						</li>
-					</th:block>
-				</ul>
-			</div>
-		</div>
-	</div>
+    <div class="message-container" th:if="${mensajes != null}">
+        <h2>Mensajes entre <span th:text="${fechaInicio}"></span> y <span th:text="${fechaFin}"></span>:</h2>
+        <ul class="message-list">
+            <th:block th:each="mensaje : ${mensajes}">
+                <li>
+                    <h4 th:text="${mensaje.mensaje}"></h4>
+                    <p class="message-date" th:text="${mensaje.fechahora}"></p>
+                    <p><strong>Creador:</strong> <span th:text="${mensaje.persona != null ? mensaje.persona.nombre : mensaje.cliente.nombre}"></span></p>
+                    <p><strong>Ejemplar:</strong> <span th:text="${mensaje.ejemplar.nombre}"></span></p>
+                </li>
+            </th:block>
+        </ul>
+    </div>
 </body>
-
 </html>

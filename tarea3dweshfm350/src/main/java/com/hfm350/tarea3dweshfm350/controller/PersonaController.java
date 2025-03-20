@@ -101,10 +101,11 @@ public class PersonaController {
         servCredenciales.insertar(credencial.getUsuario(), credencial.getPassword(), credencial.getPersona().getId());
 
         model.addAttribute("successMessage", "¡Usuario registrado exitosamente!");
-
+        
         List<Credencial> listaCredenciales = servCredenciales.findAll()
                 .stream()
-                .filter(credencialExistente -> !credencialExistente.getUsuario().equalsIgnoreCase("ADMIN")&& !credencialExistente.getRol().equalsIgnoreCase("ROLE_CLIENTE"))
+                .filter(credencialExistente -> credencialExistente.getPersona()  != null)
+                .filter(credencialExistente -> !credencialExistente.getRol().equalsIgnoreCase("ROLE_ADMIN")&& !credencialExistente.getRol().equalsIgnoreCase("ROLE_CLIENTE"))
                 .collect(Collectors.toList());
         model.addAttribute("credenciales", listaCredenciales);
 

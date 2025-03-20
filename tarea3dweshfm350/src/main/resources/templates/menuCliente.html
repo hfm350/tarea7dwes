@@ -3,66 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio</title>
+    <title>Panel Cliente</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-image: url('vivero.png');
-            background-size: cover;
-            background-position: center;
-            position: relative;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
         }
 
-        .container {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 350px;
-            text-align: center;
-        }
-
-        header h1 {
-            margin-bottom: 20px;
-            font-size: 24px;
-            color: #333;
-        }
-
-        .options-section {
+        body {
+            background: url('/vivero.png') no-repeat center center/cover;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 10px;
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            text-decoration: none;
-            text-align: center;
-            display: block;
-        }
-
-        .btn:hover {
-            background-color: #218838;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding-top: 70px;
         }
 
         .navbar {
             width: 100%;
-            background-color: #28a745;
+            height: 6%;
+            background-color: #2c6e49;
             padding: 15px 20px;
             display: flex;
             justify-content: space-between;
@@ -74,7 +37,7 @@
         }
 
         .navbar .logo {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bold;
             color: white;
             text-decoration: none;
@@ -82,30 +45,70 @@
 
         .navbar .logout-btn {
             background-color: white;
-            color: #28a745;
+            color: #2c6e49;
             padding: 10px 15px;
             border-radius: 5px;
             text-decoration: none;
             font-weight: bold;
             cursor: pointer;
+            transition: 0.3s;
         }
 
         .navbar .logout-btn:hover {
-            background-color: #7b3939;
+            background-color: #1e5032;
             color: white;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c6e49;
+            margin-bottom: 20px;
+        }
+
+        .options-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px;
+            background-color: #2c6e49;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: 0.3s;
+            display: block;
+        }
+
+        .btn:hover {
+            background-color: #1e5032;
         }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
-        <a href="#" class="logo">Bienvenido, <span th:text="${nombreUsuario.toUpperCase()}"></span></a>
+        <p class="logo">Panel Cliente</p>
         <a th:href="@{/logout}" class="logout-btn">Cerrar Sesión</a>
     </nav>
 
     <div class="container">
         <header>
-            <h1>Vivero-Laboral</h1>
+            <h1>Bienvenido, <span th:text="${nombreUsuario.toUpperCase()}"></span></h1>
         </header>
 
         <section class="options-section">

@@ -3,204 +3,252 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Menú Principal</title>
+<title>Gestión Mensajes</title>
 <style>
-body {
-	font-family: Arial, sans-serif;
-	background-image: url('vivero.png');
-	background-size: cover;
-	background-position: center;
-	background-attachment: fixed;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: flex-start;
-}
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
 
-.navbar {
-	width: 100%;
-	background-color: #28a745;
-	padding: 15px 20px;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	position: fixed;
-	top: 0;
-	left: 0;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
+    body {
+        background: url('vivero.png') no-repeat center center/cover;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100vh;
+        padding-top: 90px;
+    }
 
-.navbar .logo {
-	font-size: 24px;
-	font-weight: bold;
-	color: white;
-	text-decoration: none;
-}
+    .navbar {
+        width: 100%;
+        background-color: #2c6e49;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+    }
 
-.navbar .logout-btn {
-	background-color: white;
-	color: #28a745;
-	padding: 10px 15px;
-	border-radius: 5px;
-	text-decoration: none;
-	font-weight: bold;
-	cursor: pointer;
-	margin-right: 25px;
-}
+    .navbar .logo {
+        font-size: 24px;
+        font-weight: bold;
+        color: white;
+        text-decoration: none;
+    }
 
-.navbar .logout-btn:hover {
-	background-color: #7b3939;
-	color: white;
-}
+    .navbar .logout-btn {
+        background-color: white;
+        color: #2c6e49;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
 
-.container, .message-container {
-	background-color: rgba(0, 0, 0, 0.85);
-	padding: 30px;
-	border-radius: 12px;
-	box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-	width: 90%;
-	max-width: 800px;
-	text-align: center;
-	color: white;
-	margin-top: 50px;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-}
+    .navbar .logout-btn:hover {
+        background-color: #1e5032;
+        color: white;
+    }
 
-h1, h2 {
-	font-size: 22px;
-	margin-bottom: 15px;
-}
+    .container {
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 800px;
+        text-align: center;
+        margin-top: 30px;
+    }
 
-.button-container {
-	display: flex;
-	justify-content: space-between;
-	gap: 20px;
-	width: 100%;
-	max-width: 600px;
-	margin-top: 30px;
-}
+    h1, h2 {
+        color: #2c6e49;
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
 
-.box-button {
-	width: 140px;
-	height: 140px;
-	background-color: #28a745;
-	color: white;
-	font-size: 16px;
-	font-weight: bold;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: 10px;
-	cursor: pointer;
-	text-decoration: none;
-	transition: transform 0.3s, background-color 0.3s;
-	text-align: center;
-}
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
 
-.box-button:hover {
-	transform: scale(1.1);
-}
+    .box-button {
+        width: 160px;
+        height: 160px;
+        background-color: #2c6e49;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: transform 0.3s, background-color 0.3s;
+        text-align: center;
+    }
 
-form {
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-}
+    .box-button:hover {
+        background-color: #1e5032;
+        transform: scale(1.05);
+    }
 
-label {
-	align-self: flex-start;
-	font-weight: bold;
-}
+    .message-container {
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 800px;
+        text-align: center;
+        margin-top: 20px;
+    }
 
-select, textarea, button {
-	width: 100%;
-	padding: 10px;
-	margin: 10px 0;
-	border-radius: 6px;
-	font-size: 16px;
-}
+    .message {
+        padding: 15px;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+    }
 
-select, textarea {
-	border: 1px solid #ccc;
-}
+    .message-success {
+        background-color: #28a745;
+        color: white;
+    }
 
-button {
-	background-color: #28a745;
-	color: white;
-	border: none;
-	cursor: pointer;
-	transition: background-color 0.3s;
-}
+    .message-error {
+        background-color: #e74c3c;
+        color: white;
+    }
 
-button:hover {
-	background-color: #218838;
-}
+    .form-container {
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 600px;
+        text-align: center;
+        margin-top: 20px;
+    }
 
-table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-top: 20px;
-}
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
 
-th, td {
-	border: 1px solid #ddd;
-	padding: 10px;
-	text-align: center;
-}
+    label {
+        font-weight: bold;
+    }
 
-th {
-	background-color: #28a745;
-	color: white;
-}
+    select, textarea, button {
+        width: 100%;
+        padding: 12px;
+        border-radius: 6px;
+        font-size: 16px;
+    }
 
-td {
-	background-color: #f9f9f9;
-	color: black;
-}
+    button {
+        background-color: #2c6e49;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
 
-/* Estilo para los mensajes de éxito y error */
-.message {
-	padding: 15px;
-	margin-bottom: 20px;
-	border-radius: 5px;
-	font-weight: bold;
-	text-align: center;
-}
+    button:hover {
+        background-color: #1e5032;
+    }
+    
+    .message-container {
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 800px;
+        text-align: center;
+        margin-top: 20px;
+    }
 
-.message-success {
-	background-color: #28a745;
-	color: white;
-}
+    .message {
+        padding: 15px;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+    }
 
-.message-error {
-	background-color: #e74c3c;
-	color: white;
-}
+    .message-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .message-error {
+        background-color: #e74c3c;
+        color: white;
+    }
+
+    /* Estilos para la tabla con desplazamiento */
+    .table-container {
+        max-height: 300px;
+        overflow-y: auto;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin-top: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #2c6e49;
+        color: white;
+    }
+
+    td {
+        background-color: #f9f9f9;
+        color: black;
+    }
 </style>
 </head>
 <body>
 
-	<!-- Barra de Navegación -->
-	<nav class="navbar">
-		<a href="#" class="logo">Gestión De Mensajes</a>
-			<a th:href="@{${rol == 'ROLE_ADMIN'} ? '/menuAdmin' : '/menuPersonal'}" class="logout-btn">Volver</a>
-			
-	</nav>
+    <nav class="navbar">
+        <a href="#" class="logo">Panel Gestión Mensajes</a>
+        <a th:href="@{${rol == 'ROLE_ADMIN'} ? '/menuAdmin' : '/menuPersonal'}" class="logout-btn">Volver</a>
+    </nav>
 
-	<!-- Botones de Filtro -->
-	<div class="button-container">
-		<a th:href="@{/filtrarPorPersona}" class="box-button">Filtrar Por
-			Persona</a> <a th:href="@{/filtrarPorFecha}" class="box-button">Filtrar
-			Por Fechas</a> <a th:href="@{/filtrarPorPlanta}" class="box-button">Filtrar
-			Por Plantas</a>
-	</div>
-
-	<!-- Mensajes de Éxito/Error -->
+    <div class="container">
+        <h1>Opciones</h1>
+        <div class="button-container">
+            <a th:href="@{/filtrarPorPersona}" class="box-button">Filtrar Por Persona</a>
+            <a th:href="@{/filtrarPorFecha}" class="box-button">Filtrar Por Fechas</a>
+            <a th:href="@{/filtrarPorPlanta}" class="box-button">Filtrar Por Plantas</a>
+        </div>
+    </div>
+    
+    <!-- Mensajes de Éxito/Error -->
 	<div class="message-container">
 		<div th:if="${mensajeExito}" class="message message-success">
 			<p th:text="${mensajeExito}"></p>
@@ -211,49 +259,41 @@ td {
 		</div>
 	</div>
 
-	<!-- Formulario para Añadir Mensajes -->
-	<div class="message-container">
-		<h2>Añadir Mensaje</h2>
-		
-		<form id="messageForm" th:action="@{/gestionMensajes}" method="post">
-			<label for="idEjemplar">Seleccionar Ejemplar:</label> <select
-				id="idEjemplar" name="idEjemplar" required>
-				<option th:each="ejemplar : ${ejemplares}" th:value="${ejemplar.id}"
-					th:text="${ejemplar.nombre}"></option>
-			</select> <label for="mensajeTexto">Mensaje:</label>
-			<textarea id="mensajeTexto" name="mensajeTexto" rows="4" required></textarea>
-
-			<button type="submit">Añadir Mensaje</button>
-		</form>
-
-	</div>
-
-	<!-- Tabla de Mensajes -->
-	<div class="message-container">
-		<h2>Listado de Mensajes</h2>
-		<table id="messageTable">
-			<thead>
-				<tr>
-					<th>Ejemplar</th>
-					<th>Mensaje</th>
-					<th>Creador</th>
-					<th>Fecha</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:each="mensaje : ${mensajes}">
-					<td th:text="${mensaje.ejemplar.nombre}"></td>
-					<td th:text="${mensaje.mensaje}"></td>
-					<td
-						th:text="${mensaje.persona != null ? mensaje.persona.nombre : mensaje.cliente.nombre}"></td>
-					<td
-						th:text="${#temporals.format(mensaje.tiempo, 'dd-MM-yyyy HH:mm')}"></td>
-
-				</tr>
-			</tbody>
-		</table>
-	</div>
-
+    <div class="form-container">
+        <h2>Añadir Mensaje</h2>
+        <form id="messageForm" th:action="@{/gestionMensajes}" method="post">
+            <label for="idEjemplar">Seleccionar Ejemplar:</label>
+            <select id="idEjemplar" name="idEjemplar" required>
+                <option th:each="ejemplar : ${ejemplares}" th:value="${ejemplar.id}" th:text="${ejemplar.nombre}"></option>
+            </select>
+            <label for="mensajeTexto">Mensaje:</label>
+            <textarea id="mensajeTexto" name="mensajeTexto" rows="4" required></textarea>
+            <button type="submit">Añadir Mensaje</button>
+        </form>
+    </div>
+    
+    <div class="message-container">
+        <h2>Listado de Mensajes</h2>
+        <div class="table-container">
+            <table id="messageTable">
+                <thead>
+                    <tr>
+                        <th>Ejemplar</th>
+                        <th>Mensaje</th>
+                        <th>Creador</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="mensaje : ${mensajes}">
+                        <td th:text="${mensaje.ejemplar.nombre}"></td>
+                        <td th:text="${mensaje.mensaje}"></td>
+                        <td th:text="${mensaje.persona != null ? mensaje.persona.nombre : mensaje.cliente.nombre}"></td>
+                        <td th:text="${#temporals.format(mensaje.tiempo, 'dd-MM-yyyy HH:mm')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
-
 </html>

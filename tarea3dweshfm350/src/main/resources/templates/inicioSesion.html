@@ -3,114 +3,157 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Iniciar Sesión</title>
+<title>Iniciar Sesión - Viverium</title>
 <style>
-body {
-	font-family: Arial, sans-serif;
-	background-color: #f4f4f4;
-	background-image: url('/vivero.png');
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	height: 100vh;
-}
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
 
-.login-container {
-	background-color: white;
-	padding: 20px;
-	border-radius: 8px;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-	width: 300px;
-	text-align: center;
-}
+    body {
+        background: url('/vivero.png') no-repeat center center/cover;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        padding-top: 70px;
+    }
 
-.login-container h2 {
-	margin-bottom: 20px;
-}
+    .navbar {
+        width: 100%;
+        height: 6%;
+        background-color: #2c6e49;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
 
-.form-group {
-	margin-bottom: 15px;
-	text-align: left;
-}
+    .navbar .logo {
+        font-size: 24px;
+        font-weight: bold;
+        color: white;
+        text-decoration: none;
+    }
 
-.form-group label {
-	display: block;
-	font-weight: bold;
-}
+    .navbar a {
+        background-color: white;
+        color: #2c6e49;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: 0.3s;
+    }
 
-.form-group input {
-	width: 100%;
-	padding: 8px;
-	margin-top: 5px;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-}
+    .navbar a:hover {
+        background-color: #1e5032;
+        color: white;
+    }
 
-.login-btn {
-	width: 100%;
-	padding: 10px;
-	border: none;
-	border-radius: 5px;
-	background-color: #28a745;
-	color: white;
-	font-size: 16px;
-	cursor: pointer;
-}
+    .login-container {
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+    }
 
-.login-btn:hover {
-	background-color: #218838;
-}
+    h2 {
+        color: #2c6e49;
+        margin-bottom: 20px;
+    }
 
-.regresar-link {
-	display: block;
-	margin-top: 15px;
-	color: #007bff;
-	text-decoration: none;
-	font-size: 14px;
-	font-weight: bold;
-}
+    .form-group {
+        margin-bottom: 15px;
+        text-align: left;
+    }
 
-.regresar-link:hover {
-	text-decoration: underline;
-}
+    .form-group label {
+        display: block;
+        font-weight: bold;
+    }
 
-.error-message {
-    color: red;
-    font-size: 14px;
-    font-weight: bold;
-    margin-top: 10px;
-    text-align: center;
-}
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
 
+    .login-btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        background-color: #2c6e49;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .login-btn:hover {
+        background-color: #1e5032;
+    }
+
+    .regresar-link {
+        display: block;
+        margin-top: 15px;
+        color: #2c6e49;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .regresar-link:hover {
+        text-decoration: underline;
+    }
+
+    .error-message {
+        color: red;
+        font-size: 14px;
+        font-weight: bold;
+        margin-top: 10px;
+        text-align: center;
+    }
 </style>
 </head>
 <body>
+    <nav class="navbar">
+        <p class="logo">Panel de inicio de sesión</p>
+    </nav>
 
-	<div class="login-container">
-		<h2>Iniciar Sesión</h2>
+    <div class="login-container">
+        <h2>Iniciar Sesión</h2>
 
-		<form th:action="@{/login}" method="post">
+        <form th:action="@{/login}" method="post">
+            <div class="form-group">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" name="username" placeholder="Ingrese su usuario" required autocomplete="username">
+            </div>
 
-			<div class="form-group">
-				<label for="username">Usuario</label> 
-				<input type="text" id="username" name="username" placeholder="Ingrese su usuario" required autocomplete="username">
-			</div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required autocomplete="current-password">
+            </div>
 
-			<div class="form-group">
-				<label for="password">Contraseña</label> 
-				<input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required autocomplete="current-password">
-			</div>
+            <p th:if="${param.error}" class="error-message">Usuario o contraseña incorrectos.</p>
 
-			<!-- ✅ Mensaje de error si el login falla -->
-			<p th:if="${param.error}" class="error-message">Usuario o contraseña incorrectos.</p>
+            <button type="submit" class="login-btn">Iniciar sesión</button>
+        </form>
 
-
-			<button type="submit" class="login-btn">Iniciar sesión</button>
-
-		</form>
-
-		<a href="/" class="regresar-link">Regresar</a>
-	</div>
-
+        <a href="/" class="regresar-link">Regresar</a>
+    </div>
 </body>
 </html>

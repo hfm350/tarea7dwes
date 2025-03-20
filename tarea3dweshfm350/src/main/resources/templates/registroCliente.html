@@ -1,32 +1,77 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Cliente</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            background-image: url('/vivero.png');
+            background: url('/vivero.png') no-repeat center center/cover;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             height: 100vh;
+            padding-top: 70px;
+        }
+
+        .navbar {
+            width: 100%;
+            height: 6%;
+            background-color: #2c6e49;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .navbar .volver-btn {
+            background-color: white;
+            color: #2c6e49;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .navbar .volver-btn:hover {
+            background-color: #1e5032;
+            color: white;
         }
 
         .registro-container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 350px;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
             text-align: center;
         }
 
         h2 {
+            color: #2c6e49;
             margin-bottom: 20px;
-            color: #333;
         }
 
         .form-group {
@@ -52,7 +97,7 @@
             padding: 10px;
             border: none;
             border-radius: 5px;
-            background-color: #28a745;
+            background-color: #2c6e49;
             color: white;
             font-size: 16px;
             cursor: pointer;
@@ -60,20 +105,7 @@
         }
 
         .register-btn:hover {
-            background-color: #218838;
-        }
-
-        .regresar-link {
-            display: block;
-            margin-top: 15px;
-            color: #007bff;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .regresar-link:hover {
-            text-decoration: underline;
+            background-color: #1e5032;
         }
 
         .error-message {
@@ -88,6 +120,10 @@
     </style>
 </head>
 <body>
+    <nav class="navbar">
+        <p class="logo">Panel de Registro</p>
+        <a href="/" class="volver-btn">Volver</a>
+    </nav>
 
     <div class="registro-container">
         <h2>Registrar Cliente</h2>
@@ -145,10 +181,6 @@
         </form>
 
         <p th:if="${successMessage}" class="success-message" th:text="${successMessage}"></p>
-
-        <a href="/" class="regresar-link">Regresar</a>
     </div>
-
 </body>
-
 </html>
