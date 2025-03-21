@@ -15,6 +15,8 @@ import com.hfm350.tarea3dweshfm350.repositorios.EjemplarRepository;
 import com.hfm350.tarea3dweshfm350.repositorios.MensajeRepository;
 import com.hfm350.tarea3dweshfm350.repositorios.PlantaRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class ServiciosMensaje {
 
@@ -51,7 +53,20 @@ public class ServiciosMensaje {
 		return mensajeRepo.buscarPorFechas(fechaInicio, fechaFin);
 	}
 
-	public List<Mensaje> buscarPorPersona(Persona persona) {
-		return mensajeRepo.findByPersona(persona);
+	
+	public List<Mensaje> findAllWithEjemplar() {
+        return mensajeRepo.findAllWithEjemplar(); 
 	}
+	
+	
+	public Mensaje obtenerMensajeConEjemplar(Long id) {
+	    return mensajeRepo.findByIdWithEjemplar(id)
+	        .orElseThrow(() -> new EntityNotFoundException("Mensaje no encontrado"));
+	}
+
+	public List<Mensaje> buscarPorPersona(Persona persona) {
+	    return mensajeRepo.buscarPorPersonaConEjemplar(persona);
+	}
+
+
 }

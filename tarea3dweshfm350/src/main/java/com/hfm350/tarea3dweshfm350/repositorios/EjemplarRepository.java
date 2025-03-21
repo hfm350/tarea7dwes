@@ -18,7 +18,9 @@ public interface EjemplarRepository extends JpaRepository<Ejemplar, Long> {
 	@Query("SELECT COUNT(e) > 0 FROM Ejemplar e WHERE e.planta = :planta")
 	boolean existePlanta(@Param("planta") Planta planta);
 
-	Optional<Ejemplar> findById(Long id);
+	@Query("SELECT e FROM Ejemplar e LEFT JOIN FETCH e.pedido WHERE e.id = :id")
+	Optional<Ejemplar> findById(@Param("id") Long id);
+
 
 	@Query("SELECT e FROM Ejemplar e WHERE e.disponible = true")
 	List<Ejemplar> findEjemplaresDisponibles();

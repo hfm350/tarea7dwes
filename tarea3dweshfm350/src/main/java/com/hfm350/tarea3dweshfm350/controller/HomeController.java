@@ -164,12 +164,9 @@ public class HomeController {
 
 	}
 
-	
-
-	
-
 	@GetMapping("/filtrarPorPersona")
 	public String filtrarMensajesPorPersona(Model model) {
+		
 		List<Persona> personas = serviciosPersona.obtenerTodasLasPersonas();
 		if (personas.isEmpty()) {
 			model.addAttribute("mensajeError", "No hay personas registradas.");

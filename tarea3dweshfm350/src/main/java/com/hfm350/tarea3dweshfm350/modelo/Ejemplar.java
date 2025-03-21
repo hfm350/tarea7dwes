@@ -28,7 +28,7 @@ public class Ejemplar implements Serializable {
     private Pedido pedido;
 
 
-    @OneToMany(mappedBy = "ejemplar", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "ejemplar", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Mensaje> mensajes = new LinkedList<>();
     
     @Column(nullable = false)

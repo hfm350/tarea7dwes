@@ -2,6 +2,7 @@ package com.hfm350.tarea3dweshfm350.repositorios;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -20,9 +21,10 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Long>{
 	@Query("SELECT m FROM Mensaje m JOIN m.ejemplar e WHERE e.planta = :planta")
 	List<Mensaje> buscarPorPlanta(@Param("planta") Planta planta);
 
-	@Query("SELECT m FROM Mensaje m WHERE m.tiempo BETWEEN :fechaInicio AND :fechaFin")
-    List<Mensaje> buscarPorFechas(@Param("fechaInicio") LocalDateTime fechaInicio, 
-                                  @Param("fechaFin") LocalDateTime fechaFin);
+	@Query("SELECT m FROM Mensaje m LEFT JOIN FETCH m.ejemplar WHERE m.tiempo BETWEEN :fechaInicio AND :fechaFin")
+	List<Mensaje> buscarPorFechas(@Param("fechaInicio") LocalDateTime fechaInicio, 
+	                              @Param("fechaFin") LocalDateTime fechaFin);
+
 
 	List<Mensaje> findByPersona(Persona persona);
 
@@ -36,6 +38,17 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Long>{
     @Transactional
     @Query("DELETE FROM Mensaje m WHERE m.ejemplar.id = :ejemplarId")
     void deleteByEjemplarId(@Param("ejemplarId") Long ejemplarId);
-	
+
+    @Query("SELECT m FROM Mensaje m JOIN FETCH m.ejemplar")
+    List<Mensaje> findAllWithEjemplar();
+   
+    @Query("SELECT m FROM Mensaje m JOIN FETCH m.ejemplar WHERE m.id = :id")
+    Optional<Mensaje> findByIdWithEjemplar(@Param("id") Long id);
+
+    @Query("SELECT m FROM Mensaje m JOIN FETCH m.ejemplar WHERE m.persona = :persona")
+    List<Mensaje> buscarPorPersonaConEjemplar(@Param("persona") Persona persona);
+
+    
+
 
 }

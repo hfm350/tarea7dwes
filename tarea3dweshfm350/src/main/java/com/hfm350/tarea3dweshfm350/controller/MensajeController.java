@@ -7,7 +7,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +27,9 @@ import com.hfm350.tarea3dweshfm350.servicios.ServiciosMensaje;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosPersona;
 import com.hfm350.tarea3dweshfm350.servicios.ServiciosPlanta;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 public class MensajeController {
 
@@ -34,88 +39,97 @@ public class MensajeController {
 	private ServiciosPlanta servPlanta;
 	@Autowired
 	private ServiciosEjemplar serviciosEjemplar;
-	
+
 	@Autowired
 	private ServiciosMensaje serviciosMensaje;
 	@Autowired
 	private ServiciosCredenciales serviciosCredenciales;
 	@Autowired
 	private ServiciosPersona serviciosPersona;
-	
+
 	@Autowired
 	private Controlador controlador;
-	
+
 	@GetMapping("/gestionMensajes")
 	public String gestionMensajes(Model model) {
-	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-	    if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
-	        return "redirect:/inicioSesion"; // Redirigir al login si no está autenticado
-	    }
+		if (authentication == null || !authentication.isAuthenticated()
+				|| "anonymousUser".equals(authentication.getPrincipal())) {
+			return "redirect:/inicioSesion"; // Redirigir al login si no está autenticado
+		}
 
-	    String usuarioAutenticado = authentication.getName();
-	    boolean esAdmin = authentication.getAuthorities().stream()
-	        .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+		String usuarioAutenticado = authentication.getName();
+		boolean esAdmin = authentication.getAuthorities().stream()
+				.anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
 
-	    // Obtener los mensajes y ejemplares
-	    List<Mensaje> mensajes = serviciosMensaje.findAll();
-	    List<Ejemplar> ejemplares = serviciosEjemplar.findAll();
+		// Obtener los mensajes y ejemplares
+		List<Mensaje> mensajes = serviciosMensaje.findAllWithEjemplar();
+		List<Ejemplar> ejemplares = serviciosEjemplar.findAll();
 
-	    model.addAttribute("mensajes", mensajes);
-	    model.addAttribute("ejemplares", ejemplares);
-	    model.addAttribute("rol", esAdmin ? "ROLE_ADMIN" : "ROLE_PERSONAL"); // Se pasa correctamente el rol
+		model.addAttribute("mensajes", mensajes);
+		model.addAttribute("ejemplares", ejemplares);
+		model.addAttribute("rol", esAdmin ? "ROLE_ADMIN" : "ROLE_PERSONAL"); // Se pasa correctamente el rol
 
-	    return "gestionMensajes";
+		return "gestionMensajes";
 	}
-
-
 
 	@PostMapping("/gestionMensajes")
-	public String añadirMensaje(@RequestParam Long idEjemplar, 
-	                             @RequestParam String mensajeTexto, 
-	                             Model model) {
-	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	public String añadirMensaje(@RequestParam Long idEjemplar, @RequestParam String mensajeTexto, Model model,
+			HttpServletRequest request) {
 
-	    // Verificar si el usuario está autenticado
-	    if (authentication == null || !authentication.isAuthenticated() || 
-	        "anonymousUser".equals(authentication.getPrincipal())) {
-	        model.addAttribute("mensajeError", "Usuario no autenticado. Inicie sesión nuevamente.");
-	        return "redirect:/inicioSesion"; // Redirigir al login si la sesión expiró
-	    }
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		String usuarioAutenticado = authentication.getName();
+		boolean esAdmin = authentication.getAuthorities().stream()
+				.anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
 
-	    String usuarioAutenticado = authentication.getName();
-	    System.out.println("✅ Usuario autenticado: " + usuarioAutenticado);
+		System.out.println("Antes de guardar el mensaje:");
+		System.out.println("Usuario autenticado: " + authentication.getName());
+		System.out.println("Roles: " + authentication.getAuthorities());
 
-	    // Buscar la persona asociada al usuario autenticado
-	    Optional<Persona> personaOptional = serviciosCredenciales.buscarPersonaPorUsuario2(usuarioAutenticado);
-	    if (personaOptional.isEmpty()) {
-	        model.addAttribute("mensajeError", "No se encuentra la persona asociada.");
-	        return "gestionMensajes";
-	    }
+		if (authentication == null || !authentication.isAuthenticated()
+				|| "anonymousUser".equals(authentication.getPrincipal())) {
+			model.addAttribute("mensajeError", "Usuario no autenticado. Inicie sesión nuevamente.");
+			return "redirect:/inicioSesion";
+		}
 
-	    Persona persona = personaOptional.get();
 
-	    // Buscar el ejemplar
-	    Optional<Ejemplar> ejemplarOptional = serviciosEjemplar.buscarPorId(idEjemplar);
-	    if (ejemplarOptional.isEmpty()) {
-	        model.addAttribute("mensajeError", "Ejemplar no encontrado.");
-	        return "gestionMensajes";
-	    }
+		Optional<Persona> personaOptional = serviciosCredenciales.buscarPersonaPorUsuario2(usuarioAutenticado);
+		if (personaOptional.isEmpty()) {
+			model.addAttribute("mensajeError", "No se encuentra la persona asociada.");
+			return "gestionMensajes";
+		}
 
-	    Ejemplar ejemplar = ejemplarOptional.get();
+		Persona persona = personaOptional.get();
+		Optional<Ejemplar> ejemplarOptional = serviciosEjemplar.buscarPorId(idEjemplar);
+		if (ejemplarOptional.isEmpty()) {
+			model.addAttribute("mensajeError", "Ejemplar no encontrado.");
+			return "gestionMensajes";
+		}
 
-	    // Crear y guardar el mensaje
-	    Mensaje mensaje = new Mensaje(LocalDateTime.now(), mensajeTexto, persona, ejemplar);
-	    serviciosMensaje.insertar(mensaje);
+		
+		Ejemplar ejemplar = ejemplarOptional.get();
+		Mensaje mensaje = new Mensaje(LocalDateTime.now(), mensajeTexto, persona, ejemplar);
+		serviciosMensaje.insertar(mensaje);
 
-	    // Agregar mensaje de éxito
-	    model.addAttribute("mensajeExito", "Mensaje añadido correctamente.");
-	    model.addAttribute("ejemplares", serviciosEjemplar.findAll());
-	    model.addAttribute("mensajes", serviciosMensaje.findAll());
+		// 🔥 Asegurar que el ROLE_ADMIN no se pierde después de la acción
+		SecurityContext context = SecurityContextHolder.getContext();
+		context.setAuthentication(authentication);
+		request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
 
-	    return "gestionMensajes";
+		authentication = SecurityContextHolder.getContext().getAuthentication();
+		System.out.println("Después de guardar el mensaje:");
+		System.out.println("Usuario autenticado: " + authentication.getName());
+		System.out.println("Roles: " + authentication.getAuthorities());
+
+		model.addAttribute("mensajeExito", "Mensaje añadido correctamente.");
+		model.addAttribute("ejemplares", serviciosEjemplar.findAll());
+		model.addAttribute("mensajes", serviciosMensaje.findAll());
+		model.addAttribute("rol", esAdmin ? "ROLE_ADMIN" : "ROLE_PERSONAL"); // Se pasa correctamente el rol
+
+		return "gestionMensajes";
 	}
-
 
 	@GetMapping("/filtrarPorFecha")
 	public String mostrarFormularioFiltrarFecha() {
@@ -159,41 +173,40 @@ public class MensajeController {
 
 	@PostMapping("/filtrarPorPlanta")
 	public String filtrarMensajesPorPlanta(@RequestParam(required = false) String codigoPlanta, Model model) {
-	    if (codigoPlanta == null || codigoPlanta.trim().isEmpty()) {
-	        model.addAttribute("mensajeError", "Debe seleccionar una planta.");
-	        model.addAttribute("plantas", servPlanta.findAll());
-	        return "filtrarPorPlanta";
-	    }
+		if (codigoPlanta == null || codigoPlanta.trim().isEmpty()) {
+			model.addAttribute("mensajeError", "Debe seleccionar una planta.");
+			model.addAttribute("plantas", servPlanta.findAll());
+			return "filtrarPorPlanta";
+		}
 
-	    Planta planta = servPlanta.buscarPorCodigo(codigoPlanta.toUpperCase());
-	    if (planta == null) {
-	        model.addAttribute("mensajeError", "Planta no encontrada.");
-	        model.addAttribute("plantas", servPlanta.findAll());
-	        return "filtrarPorPlanta";
-	    }
+		Planta planta = servPlanta.buscarPorCodigo(codigoPlanta.toUpperCase());
+		if (planta == null) {
+			model.addAttribute("mensajeError", "Planta no encontrada.");
+			model.addAttribute("plantas", servPlanta.findAll());
+			return "filtrarPorPlanta";
+		}
 
-	    List<Mensaje> mensajes = servMensaje.buscarPorPlanta(planta);
+		List<Mensaje> mensajes = servMensaje.buscarPorPlanta(planta);
 
-	    // Validamos que cada mensaje tenga persona o cliente
-	    for (Mensaje mensaje : mensajes) {
-	        if (mensaje.getPersona() == null && mensaje.getCliente() == null) {
-	            //mensaje.setPersona(new Persona("Desconocido")); // Crear un objeto persona temporal
-	        }
-	    }
+		// Validamos que cada mensaje tenga persona o cliente
+		for (Mensaje mensaje : mensajes) {
+			if (mensaje.getPersona() == null && mensaje.getCliente() == null) {
+				// mensaje.setPersona(new Persona("Desconocido")); // Crear un objeto persona
+				// temporal
+			}
+		}
 
-	    if (mensajes.isEmpty()) {
-	        model.addAttribute("mensajeError", "No hay mensajes para esta planta.");
-	    } else {
-	        model.addAttribute("mensajes", mensajes);
-	    }
+		if (mensajes.isEmpty()) {
+			model.addAttribute("mensajeError", "No hay mensajes para esta planta.");
+		} else {
+			model.addAttribute("mensajes", mensajes);
+		}
 
-	    model.addAttribute("planta", planta);
-	    model.addAttribute("plantas", servPlanta.findAll());
-	    model.addAttribute("codigoPlantaSeleccionada", codigoPlanta);
+		model.addAttribute("planta", planta);
+		model.addAttribute("plantas", servPlanta.findAll());
+		model.addAttribute("codigoPlantaSeleccionada", codigoPlanta);
 
-	    return "filtrarPorPlanta";
+		return "filtrarPorPlanta";
 	}
-
-
 
 }
