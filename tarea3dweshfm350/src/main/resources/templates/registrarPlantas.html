@@ -171,10 +171,10 @@ tr:hover {
 	<div class="container">
 		<h1>Registrar Planta</h1>
 		<form th:action="@{/registrarPlantas}" method="post">
-			<input type="text" name="codigo" placeholder="Código Planta" required>
+			<input type="text" name="codigo" placeholder="Código Planta" >
 			<input type="text" name="nombreComun" placeholder="Nombre Común"
-				required> <input type="text" name="nombreCientifico"
-				placeholder="Nombre Científico" required>
+				> <input type="text" name="nombreCientifico"
+				placeholder="Nombre Científico" >
 			<button type="submit" class="btn">Registrar Planta</button>
 		</form>
 		<div th:if="${errorMessage}" class="error-message"

@@ -27,7 +27,7 @@ public class ServiciosPlanta {
     public Planta buscarPorID(long id) {
         return plantaRepo.findById(id).orElse(null);
     }
-
+    
     @Transactional
     public boolean actualizarNombreComun(String codigo, String nombreComun) {
         int updated = plantaRepo.actualizarNombreComun(codigo, nombreComun);

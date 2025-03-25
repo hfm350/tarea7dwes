@@ -178,8 +178,8 @@
         <div class="container">
             <h1>Modificar Nombre Común</h1>
             <form th:action="@{/modificarNombreComun}" method="post">
-                <input type="text" name="codigo" placeholder="Código de la Planta" required>
-                <input type="text" name="nuevoNombreComun" placeholder="Nuevo Nombre Común" required>
+                <input type="text" name="codigo" placeholder="Código de la Planta">
+                <input type="text" name="nuevoNombreComun" placeholder="Nuevo Nombre Común">
                 <button type="submit" class="btn">Modificar Nombre Común</button>
             </form>
             <div th:if="${errorNombreComun}" class="error-message" th:text="${errorNombreComun}"></div>
@@ -189,8 +189,8 @@
         <div class="container">
             <h1>Modificar Nombre Científico</h1>
             <form th:action="@{/modificarNombreCientifico}" method="post">
-                <input type="text" name="codigo" placeholder="Código de la Planta" required>
-                <input type="text" name="nuevoNombreCientifico" placeholder="Nuevo Nombre Científico" required>
+                <input type="text" name="codigo" placeholder="Código de la Planta">
+                <input type="text" name="nuevoNombreCientifico" placeholder="Nuevo Nombre Científico">
                 <button type="submit" class="btn">Modificar Nombre Científico</button>
             </form>
             <div th:if="${errorNombreCientifico}" class="error-message" th:text="${errorNombreCientifico}"></div>
