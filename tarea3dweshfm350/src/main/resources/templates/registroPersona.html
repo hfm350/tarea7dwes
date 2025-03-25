@@ -169,17 +169,17 @@ tr:hover {
 	<div class="container">
 		<h1>Registro de Persona</h1>
 		<form th:action="@{/registroPersona}" method="post">
-			<input type="text" name="nombre" placeholder="Nombre" required>
+			<input type="text" name="nombre" placeholder="Nombre" >
 			<div th:if="${errorMessageNombre}" class="error-message"
 				th:text="${errorMessageNombre}"></div>
-			<input type="email" name="email" placeholder="Email" required>
+			<input type="email" name="email" placeholder="Email" >
 			<div th:if="${errorMessageEmail}" class="error-message"
 				th:text="${errorMessageEmail}"></div>
-			<input type="text" name="usuario" placeholder="Usuario" required>
+			<input type="text" name="usuario" placeholder="Usuario" >
 			<div th:if="${errorMessageUsuario}" class="error-message"
 				th:text="${errorMessageUsuario}"></div>
 			<input type="password" name="contraseña" placeholder="Contraseña"
-				required>
+				>
 			<div th:if="${errorMessageContraseña}" class="error-message"
 				th:text="${errorMessageContraseña}"></div>
 
