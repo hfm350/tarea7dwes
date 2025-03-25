@@ -72,97 +72,16 @@ public class ServicioPedido {
     /**
      * Confirma un pedido en la BD. /carrito
      */
-    @Transactional
-    public void confirmarPedido(Long idPedido) {
-        Optional<Pedido> pedidoOpt = pedidoRepository.findById(idPedido);
-
-        if (pedidoOpt.isPresent()) {
-            Pedido pedido = pedidoOpt.get();
-            Cliente cliente = pedido.getCliente();
-            LocalDateTime fechaHoraActual = LocalDateTime.now();
-
-            for (Ejemplar ejemplar : pedido.getEjemplares()) {
-                // Crear el mensaje
-                String mensajeTexto = cliente.getNombre() + " compró el ejemplar " + 
-                                      ejemplar.getId() + " el día " + 
-                                      fechaHoraActual.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")) + 
-                                      " en el pedido " + pedido.getId() + ".";
-
-                // Guardar la anotación
-                Mensaje mensaje = new Mensaje(fechaHoraActual, mensajeTexto, cliente, pedido, ejemplar);
-                mensajeRepository.save(mensaje);
-            }
-
-            // Marcar el pedido como confirmado
-            pedido.setConfirmado(true);
-            pedidoRepository.save(pedido);
-            System.out.println("Pedido confirmado y mensajes registrados: " + pedido.getId());
-        } else {
-            System.err.println("Error: Pedido no encontrado con ID " + idPedido);
-        }
-    }
+    
 
 
-    @Transactional
-    public void eliminarPedido(Long id) {
-        Optional<Pedido> pedidoOpt = pedidoRepository.findById(id);
-
-        if (pedidoOpt.isPresent()) {
-            Pedido pedido = pedidoOpt.get();
-
-            System.out.println("Eliminando pedido ID: " + pedido.getId() + " (Confirmado: " + pedido.isConfirmado() + ")");
-
-            for (Ejemplar ejemplar : pedido.getEjemplares()) {
-                mensajeRepository.deleteByEjemplarId(ejemplar.getId());
-            }
-            
-            // Restaurar ejemplares antes de eliminar el pedido
-            List<Ejemplar> ejemplares = pedido.getEjemplares();
-            for (Ejemplar ejemplar : ejemplares) {
-                ejemplar.setDisponible(true);
-                ejemplar.setPedido(null);
-                ejemplarRepository.save(ejemplar);
-            }
-            
-            // Eliminar el pedido
-            pedidoRepository.delete(pedido);
-            System.out.println("Pedido eliminado correctamente.");
-        } else {
-            System.err.println("Error: No se encontró el pedido con ID " + id);
-        }
-    }
     
     public void guardarPedido(Pedido pedido) {
         pedidoRepository.save(pedido);
     }
     
 
-    @Transactional
-    public void eliminarPedidosNoConfirmados(Long clienteId) {
-        List<Pedido> pedidosNoConfirmados = pedidoRepository.findByClienteIdAndConfirmadoFalse(clienteId);
-        
-
-        if (!pedidosNoConfirmados.isEmpty()) {
-            pedidosNoConfirmados.forEach(pedido -> {
-                // Restaurar los ejemplares antes de eliminar el pedido
-                pedido.getEjemplares().forEach(ejemplar -> {
-                    ejemplar.setDisponible(true);
-                    ejemplar.setPedido(null);
-                });
-                ejemplarRepository.saveAll(pedido.getEjemplares());
-            });
-
-            ejemplarRepository.flush(); // Asegura que los cambios se reflejan en la BD antes de eliminar pedidos
-
-            // Eliminar los pedidos después de restaurar los ejemplares
-            pedidoRepository.deleteAll(pedidosNoConfirmados);
-            pedidoRepository.flush();
-
-            System.out.println("Pedidos no confirmados eliminados exitosamente.");
-        } else {
-            System.out.println("No había pedidos no confirmados para eliminar.");
-        }
-    }
+    
 
 
    
@@ -173,18 +92,30 @@ public class ServicioPedido {
         return id;
     }
     
-    public List<Pedido> obtenerPedidosNoConfirmadosPorCliente(Long clienteId) {
-        return pedidoRepository.findByClienteIdAndConfirmadoFalse(clienteId);
-    }
-    
-    public List<Pedido> obtenerPedidosConfirmadosPorCliente(Long clienteId) {
-        return pedidoRepository.findByClienteIdAndConfirmadoTrue(clienteId);
-    }	
-
+   
     
     public Pedido guardarPedido2(Pedido pedido) {
         return pedidoRepository.save(pedido);  // ✅ Ahora devuelve el pedido guardado
     }
+
+    @Transactional
+    public void eliminarPedido(Long idPedido) {
+        // 1. Buscar todos los ejemplares relacionados con ese pedido
+        List<Ejemplar> ejemplares = ejemplarRepository.findByPedidoId(idPedido);
+
+        // 2. Desasociar los ejemplares del pedido (sin borrarlos, opcional)
+        for (Ejemplar e : ejemplares) {
+            e.setPedido(null);
+            e.setDisponible(true); // opcional, si quieres que se puedan volver a pedir
+            ejemplarRepository.save(e);
+        }
+
+        // 3. Ahora que no tienen restricción, se puede eliminar el pedido
+        pedidoRepository.deleteById(idPedido);
+    }
+
+
+
 
 
 

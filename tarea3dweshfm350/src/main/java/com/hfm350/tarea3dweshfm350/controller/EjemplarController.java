@@ -213,12 +213,12 @@ public class EjemplarController {
 		if (authentication == null || !authentication.isAuthenticated()
 				|| authentication.getPrincipal().equals("anonymousUser")) {
 			redirectAttributes.addFlashAttribute("errorMessagePersona", "Usuario no autenticado.");
-			System.out.println("⚠️ Usuario no autenticado. Redirigiendo...");
+			System.out.println("Usuario no autenticado.");
 			return "redirect:/insertarEjemplar";
 		}
 
 		String usuarioAutenticado = authentication.getName(); // Nombre de usuario autenticado
-		System.out.println("✅ Usuario autenticado: " + usuarioAutenticado);
+		System.out.println("Usuario autenticado: " + usuarioAutenticado);
 
 		// Buscar la planta por su código
 		Planta planta = serviciosPlanta.buscarPorCodigo(codigoPlanta);
@@ -257,7 +257,7 @@ public class EjemplarController {
 		// Mensaje de éxito
 		redirectAttributes.addFlashAttribute("successMessage", "Ejemplar y mensaje registrados exitosamente.");
 
-		System.out.println("✅ Ejemplar y mensaje guardados con éxito para el usuario: " + usuarioAutenticado);
+		System.out.println("Ejemplar y mensaje guardados con éxito para el usuario: " + usuarioAutenticado);
 
 		return "redirect:/insertarEjemplar";
 	}

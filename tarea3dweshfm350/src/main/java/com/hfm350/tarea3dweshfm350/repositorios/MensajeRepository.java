@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import com.hfm350.tarea3dweshfm350.modelo.Mensaje;
 import com.hfm350.tarea3dweshfm350.modelo.Persona;
 import com.hfm350.tarea3dweshfm350.modelo.Planta;
@@ -48,6 +49,10 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Long>{
     @Query("SELECT m FROM Mensaje m JOIN FETCH m.ejemplar WHERE m.persona = :persona")
     List<Mensaje> buscarPorPersonaConEjemplar(@Param("persona") Persona persona);
 
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Mensaje m WHERE m.pedido.id = :pedidoId")
+    void deleteByPedidoId(Long pedidoId);
     
 
 

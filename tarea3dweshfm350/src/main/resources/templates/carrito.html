@@ -148,39 +148,37 @@
 
     <div class="container">
         <h2>Pedidos en la cesta</h2>
+		<div th:if="${errorMensaje}" style="color: red; text-align: center; font-size: 18px; margin-bottom: 20px;">
+    <p th:text="${errorMensaje}"></p>
+</div>
 
+		
         <table>
             <thead>
                 <tr>
-                    <th>ID Pedido</th>
-                    <th>Fecha</th>
+                    <th>ID Ejemplar</th>
                     <th>Ejemplares</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="pedido : ${pedidos}">
-                    <td th:text="${pedido.id}"></td>
-                    <td th:text="${pedido.fecha}"></td>
-                    <td>
-                        <ul>
-                            <li th:each="ejemplar : ${pedido.ejemplares}" th:text="${ejemplar.nombre}"></li>
-                        </ul>
-                    </td>
-                    <td>
-                        <form action="/finalizarPedido" method="post">
-                            <input type="hidden" name="idPedido" th:value="${pedido.id}">
-                            <button type="submit" class="btn">Confirmar</button>
-                        </form>
+    <tr th:each="ejemplar : ${carrito}">
+        <td th:text="${ejemplar.id}"></td>
+        <td th:text="${ejemplar.nombre}"></td>
+        <td>
+            <form th:action="@{/carrito/eliminar}" method="post">
+                <input type="hidden" name="ejemplarId" th:value="${ejemplar.id}">
+                <button type="submit" class="btn btn-eliminar">Eliminar</button>
+            </form>
+        </td>
+    </tr>
+</tbody>
 
-                        <form th:action="@{/eliminarPedido}" method="post">
-                            <input type="hidden" name="idPedido" th:value="${pedido.id}">
-                            <button type="submit" class="btn btn-eliminar">Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
-            </tbody>
         </table>
+        <form th:action="@{/carrito/confirmar}" method="post">
+    <button type="submit" class="btn">Confirmar Pedido</button>
+</form>
+        
     </div>
 </body>
 </html>

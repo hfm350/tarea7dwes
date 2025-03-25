@@ -21,7 +21,6 @@ public interface EjemplarRepository extends JpaRepository<Ejemplar, Long> {
 	@Query("SELECT e FROM Ejemplar e LEFT JOIN FETCH e.pedido WHERE e.id = :id")
 	Optional<Ejemplar> findById(@Param("id") Long id);
 
-
 	@Query("SELECT e FROM Ejemplar e WHERE e.disponible = true")
 	List<Ejemplar> findEjemplaresDisponibles();
 
@@ -46,5 +45,12 @@ public interface EjemplarRepository extends JpaRepository<Ejemplar, Long> {
 	@Transactional
 	@Query("UPDATE Ejemplar e SET e.disponible = false WHERE e.id IN :ids")
 	void marcarEjemplaresNoDisponibles(@Param("ids") List<Long> ids);
+
+	void deleteByPedidoId(Long pedidoId);
+
+	List<Ejemplar> findByPedidoId(Long pedidoId);
+	
+	List<Ejemplar> findByPlanta(Planta planta);
+
 
 }

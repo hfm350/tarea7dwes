@@ -23,12 +23,9 @@ public class Pedido {
     private List<Ejemplar> ejemplares;
 
 
-    @Column(nullable = false)
-    private boolean confirmado = false; // Por defecto no está confirmado
 
     public Pedido() {
         this.fecha = new Date();
-        this.confirmado = false; // Por defecto, el pedido no está confirmado
     }
 
     // Métodos Getters y Setters
@@ -64,13 +61,7 @@ public class Pedido {
         this.ejemplares = ejemplares;
     }
 
-    public boolean isConfirmado() {
-        return confirmado;
-    }
-
-    public void setConfirmado(boolean confirmado) {
-        this.confirmado = confirmado;
-    }
+    
 
     // Método para agregar ejemplares al pedido
     public void agregarEjemplar(Ejemplar ejemplar) {

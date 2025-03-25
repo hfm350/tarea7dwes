@@ -26,7 +26,7 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 
             if (clienteId != null) {
                 // Eliminar pedidos NO confirmados de la BD
-                servicioPedido.eliminarPedidosNoConfirmados(clienteId);
+                
             }
         }
 
