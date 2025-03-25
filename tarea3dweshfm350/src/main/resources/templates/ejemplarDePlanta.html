@@ -142,6 +142,61 @@
         text-align: center;
         margin-bottom: 10px;
     }
+    
+    .checkbox-list {
+    text-align: left;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.checkbox-item {
+    margin-bottom: 10px;
+}
+
+.checkbox-item label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+    position: relative;
+}
+
+.checkbox-item input[type="checkbox"] {
+    display: none;
+}
+
+.custom-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #2c6e49;
+    border-radius: 4px;
+    margin-right: 10px;
+    position: relative;
+    transition: 0.2s;
+}
+
+.checkbox-item input[type="checkbox"]:checked + .custom-checkbox::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid #2c6e49;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.label-text {
+    flex: 1;
+}
+    
 </style>
 </head>
 <body>
@@ -154,10 +209,20 @@
         <h1>Menú</h1>
 		<br>
         <form th:action="@{/ejemplarDePlanta}" method="post">
-            <h3><label for="codigoPlanta">Código de la Planta:</label></h3>
-            <input type="text" id="codigoPlanta" name="codigoPlanta" required>
-            <button type="submit">Buscar Ejemplares</button>
-        </form>
+    <h3>Selecciona una o más Plantas:</h3>
+    <div class="checkbox-list">
+        <div class="checkbox-item" th:each="planta : ${plantas}">
+            <label>
+                <input type="checkbox" name="codigoPlantas" th:value="${planta.codigo}">
+                <span class="custom-checkbox"></span>
+                <span class="label-text" th:text="${planta.codigo + ' - ' + planta.nombreComun}"></span>
+            </label>
+        </div>
+    </div>
+    <button type="submit">Buscar Ejemplares</button>
+</form>
+
+
 
         <div th:if="${mensajeError}" class="error-message">
             <p th:text="${mensajeError}"></p>
@@ -165,7 +230,7 @@
 
         <div th:if="${codigoBuscado}">
         <br><br>
-            <h3>Ejemplares de la Planta con Código: <span th:text="${codigoBuscado}"></span></h3>
+            <h3>Ejemplares de la Planta con Códigos: <span th:text="${codigoBuscado}"></span></h3>
             <table>
                 <thead>
                     <tr>

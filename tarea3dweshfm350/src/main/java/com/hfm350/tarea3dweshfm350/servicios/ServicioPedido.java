@@ -96,9 +96,9 @@ public class ServicioPedido {
             // Marcar el pedido como confirmado
             pedido.setConfirmado(true);
             pedidoRepository.save(pedido);
-            System.out.println("✅ Pedido confirmado y mensajes registrados: " + pedido.getId());
+            System.out.println("Pedido confirmado y mensajes registrados: " + pedido.getId());
         } else {
-            System.err.println("❌ Error: Pedido no encontrado con ID " + idPedido);
+            System.err.println("Error: Pedido no encontrado con ID " + idPedido);
         }
     }
 
@@ -110,13 +110,13 @@ public class ServicioPedido {
         if (pedidoOpt.isPresent()) {
             Pedido pedido = pedidoOpt.get();
 
-            System.out.println("📌 Eliminando pedido ID: " + pedido.getId() + " (Confirmado: " + pedido.isConfirmado() + ")");
+            System.out.println("Eliminando pedido ID: " + pedido.getId() + " (Confirmado: " + pedido.isConfirmado() + ")");
 
             for (Ejemplar ejemplar : pedido.getEjemplares()) {
                 mensajeRepository.deleteByEjemplarId(ejemplar.getId());
             }
             
-            // 🟢 Restaurar ejemplares antes de eliminar el pedido
+            // Restaurar ejemplares antes de eliminar el pedido
             List<Ejemplar> ejemplares = pedido.getEjemplares();
             for (Ejemplar ejemplar : ejemplares) {
                 ejemplar.setDisponible(true);
@@ -124,11 +124,11 @@ public class ServicioPedido {
                 ejemplarRepository.save(ejemplar);
             }
             
-            // 🟢 Eliminar el pedido
+            // Eliminar el pedido
             pedidoRepository.delete(pedido);
-            System.out.println("✅ Pedido eliminado correctamente.");
+            System.out.println("Pedido eliminado correctamente.");
         } else {
-            System.err.println("❌ Error: No se encontró el pedido con ID " + id);
+            System.err.println("Error: No se encontró el pedido con ID " + id);
         }
     }
     

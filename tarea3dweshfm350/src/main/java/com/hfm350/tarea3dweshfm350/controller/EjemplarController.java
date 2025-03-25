@@ -115,36 +115,46 @@ public class EjemplarController {
     }
 
     @PostMapping("/ejemplarDePlanta")
-    public String verEjemplares(@RequestParam("codigoPlanta") String codigoPlanta, Model model) {
+    public String verEjemplares(@RequestParam(value = "codigoPlantas", required = false) List<String> codigosSeleccionados, Model model) {
         List<Planta> listaDePlantas = serviciosPlanta.findAll();
         model.addAttribute("plantas", listaDePlantas);
-        model.addAttribute("codigoBuscado", codigoPlanta);
 
-        // Buscar la planta por código
-        Planta plantaEncontrada = listaDePlantas.stream()
-            .filter(p -> p.getCodigo().equalsIgnoreCase(codigoPlanta.trim()))
-            .findFirst()
-            .orElse(null);
+        if (codigosSeleccionados == null || codigosSeleccionados.isEmpty()) {
+            model.addAttribute("mensajeError", "Debes seleccionar al menos una planta.");
+            return "ejemplarDePlanta";
+        }
 
-        if (plantaEncontrada != null) {
-            // Filtrar solo los ejemplares disponibles de la planta encontrada
-            List<Ejemplar> ejemplaresDisponibles = serviciosEjemplar.findAll()
-                .stream()
-                .filter(ej -> ej.getPlanta().getId().equals(plantaEncontrada.getId()))
-                .filter(Ejemplar::isDisponible)  // Solo ejemplares disponibles
-                .collect(Collectors.toList());
+        model.addAttribute("codigoBuscado", String.join(", ", codigosSeleccionados));
+        List<Ejemplar> ejemplaresTotales = new ArrayList<>();
 
-            model.addAttribute("ejemplares", ejemplaresDisponibles);
+        for (String codigo : codigosSeleccionados) {
+            Planta planta = listaDePlantas.stream()
+                    .filter(p -> p.getCodigo().equalsIgnoreCase(codigo.trim()))
+                    .findFirst()
+                    .orElse(null);
 
-            if (ejemplaresDisponibles.isEmpty()) {
-                model.addAttribute("mensajeError", "No hay EJEMPLARES DISPONIBLES para esta planta.");
+            if (planta != null) {
+                List<Ejemplar> ejemplaresDisponibles = serviciosEjemplar.findAll()
+                        .stream()
+                        .filter(ej -> ej.getPlanta().getId().equals(planta.getId()))
+                        .filter(Ejemplar::isDisponible)
+                        .collect(Collectors.toList());
+
+                ejemplaresTotales.addAll(ejemplaresDisponibles);
             }
+        }
+
+        
+        if (ejemplaresTotales.isEmpty()) {
+            model.addAttribute("mensajeError", "No hay EJEMPLARES DISPONIBLES para las plantas seleccionadas.");
         } else {
-            model.addAttribute("mensajeError", "CÓDIGO de planta erróneo.");
+            model.addAttribute("ejemplares", ejemplaresTotales);
         }
 
         return "ejemplarDePlanta";
     }
+
+
 
     
     @PostMapping("/agregarEjemplar")
