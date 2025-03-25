@@ -318,5 +318,10 @@ public class HomeController {
 		model.addAttribute("cliente", new Cliente()); // Asegurar que el modelo tiene un objeto Cliente
 		return "registroCliente"; // Nombre de la vista HTML
 	}
+	
+	@GetMapping("/403")
+    public String error403() {
+        return "403"; // Devuelve el template 403.html
+    }
 
 }

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Stock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: url('/vivero.png') no-repeat center center/cover;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        .navbar {
+            width: 100%;
+            height: 6%;
+            background-color: #2c6e49;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .navbar .logout-btn {
+            background-color: white;
+            color: #2c6e49;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .navbar .logout-btn:hover {
+            background-color: #1e5032;
+            color: white;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 1200px;
+            margin-bottom: 40px;
+        }
+
+        h1, h2 {
+            color: #2c6e49;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            margin-bottom: 30px;
+            border-collapse: collapse;
+            font-size: 16px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #2c6e49;
+            color: white;
+        }
+
+        .disponible {
+            color: green;
+            font-weight: bold;
+        }
+
+        .no-disponible {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="#" class="logo">Panel de Stock</a>
+        <a th:href="@{${rol == 'ROLE_ADMIN' ? '/menuAdmin' : '/menuPersonal'}}" class="logout-btn">Volver</a>
+    </nav>
+
+    <div class="container">
+        <h1>Gestión de Stock de Ejemplares</h1>
+
+        <div th:each="entry : ${stockPorPlanta}">
+            <h2 th:text="${entry.key.nombreComun}">Nombre Planta</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID Ejemplar</th>
+                        <th>Estado</th>
+                        <th>ID Pedido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="ejemplar : ${entry.value}">
+                        <td th:text="${ejemplar.id}"></td>
+                        <td th:classappend="${ejemplar.disponible} ? 'disponible' : 'no-disponible'"
+                            th:text="${ejemplar.disponible} ? 'Disponible' : 'No disponible'"></td>
+                        <td th:text="${ejemplar.pedido != null ? ejemplar.pedido.id : '—'}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

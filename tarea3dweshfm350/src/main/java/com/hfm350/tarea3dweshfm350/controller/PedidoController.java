@@ -237,6 +237,16 @@ public class PedidoController {
     
     @GetMapping("/stock")
     public String verStock(Model model) {
+    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		if (authentication == null || !authentication.isAuthenticated()
+				|| "anonymousUser".equals(authentication.getPrincipal())) {
+			return "redirect:/inicioSesion"; // Redirigir al login si no está autenticado
+		}
+		
+		String usuarioAutenticado = authentication.getName();
+		boolean esAdmin = authentication.getAuthorities().stream()
+				.anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
         // Obtener todas las plantas
         List<Planta> plantas = servicioPlanta.obtenerTodasPlantas();
 
@@ -249,6 +259,7 @@ public class PedidoController {
         }
 
         model.addAttribute("stockPorPlanta", stockPorPlanta);
+        model.addAttribute("rol", esAdmin ? "ROLE_ADMIN" : "ROLE_PERSONAL"); // Se pasa correctamente el rol
         return "stock";
     }
 
