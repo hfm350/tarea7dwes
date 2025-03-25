@@ -169,25 +169,7 @@
             <input type="number" id="codigoEjemplar" name="codigoEjemplar" required>
             <button type="submit">Buscar Mensajes</button>
         </form>
-		<br><br>
-        <h3>Lista de Todos los Ejemplares</h3>
-        <div class="scrollable-table">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="ejemplar : ${ejemplares}">
-                        <td th:text="${ejemplar.id}"></td>
-                        <td th:text="${ejemplar.nombre}"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
+        <div th:if="${errorMensaje}" class="error-message" th:text="${errorMensaje}"></div>
         <div th:if="${mensajes}">
         <br><br>
             <h3>Mensajes del Ejemplar con Código: <span th:text="${codigoEjemplar}"></span></h3>
@@ -208,6 +190,25 @@
                 </tbody>
             </table>
         </div>
+		<br><br>
+        <h3>Lista de Todos los Ejemplares</h3>
+        <div class="scrollable-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="ejemplar : ${ejemplares}">
+                        <td th:text="${ejemplar.id}"></td>
+                        <td th:text="${ejemplar.nombre}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
     </div>
 </body>
 </html>

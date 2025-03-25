@@ -57,17 +57,20 @@ public class SecurityConfig {
 				.requestMatchers("/", "/inicioSesion", "/registroCliente").permitAll()
 				.requestMatchers("/images/**", "/css/**", "/vivero.png").permitAll()
 				.requestMatchers("/menuAdmin", "/gestionPlantas", "/registrarPlantas", "/registrarPlantas",
-						"/modificaciones", "/registroPersona", "/modificaciones")
-				.hasAuthority("ROLE_ADMIN").requestMatchers("/menuCliente", "/carrito", "/misPedidos")
-				.hasAuthority("ROLE_CLIENTE").requestMatchers("/menuPersonal").hasAuthority("ROLE_PERSONAL")
+						"/modificaciones", "/registroPersona", "/modificaciones").hasAuthority("ROLE_ADMIN")
+				.requestMatchers("/menuCliente", "/carrito", "/misPedidos").hasAuthority("ROLE_CLIENTE")
+				.requestMatchers("/menuPersonal").hasAuthority("ROLE_PERSONAL")
 				.requestMatchers("/gestionMensajes", "/filtrarPorPersona", "/filtrarPorFecha", "/filtrarPorPlanta",
 						"/gestionEjemplares", "/insertarEjemplar", "/ejemplarDePlanta", "/verMensajesEjemplar")
 				.hasAnyAuthority("ROLE_ADMIN", "ROLE_PERSONAL").anyRequest().authenticated())
+		
 				.formLogin(form -> form.loginPage("/inicioSesion").loginProcessingUrl("/login")
 						.successHandler(successHandler).failureUrl("/inicioSesion?error=true").permitAll())
+				
 				.logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/inicioSesion")
 						.logoutSuccessHandler(logoutSuccessHandler).invalidateHttpSession(true)
 						.deleteCookies("JSESSIONID").permitAll())
+				
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
 						.maximumSessions(1).expiredUrl("/inicioSesion?error=sessionExpired") // Redirigir si la sesión
 																								// expira
@@ -76,6 +79,7 @@ public class SecurityConfig {
 
 		return http.build();
 	}
+	
 
 	@Component
 	public class SessionCleanupListener implements HttpSessionListener {
